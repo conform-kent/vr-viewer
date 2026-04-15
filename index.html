@@ -101,8 +101,16 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .sbar-pin-comment{font-size:11px;color:#9090a0;line-height:1.45;white-space:pre-wrap;word-break:break-word;}
 .sbar-pin-comment.empty{font-style:italic;opacity:0.45;}
 .sbar-empty{padding:24px 14px;font-family:'DM Mono',monospace;font-size:11px;color:#6b6b72;text-align:center;}
-/* Measurement popup */
-.meas-popup{position:fixed;z-index:210;background:#1a1a20;border:1px solid rgba(255,255,255,0.15);border-radius:9px;padding:9px 12px;min-width:180px;box-shadow:0 8px 28px rgba(0,0,0,0.7);font-family:'DM Mono',monospace;}
+/* Measurement labels in 3D */
+.meas-label{position:fixed;pointer-events:none;z-index:140;font-family:'DM Mono',monospace;font-size:11px;font-weight:500;color:#f5a142;background:rgba(10,10,11,0.82);border:1px solid rgba(245,161,66,0.35);border-radius:5px;padding:2px 7px;white-space:nowrap;transform:translate(-50%,-50%);}
+/* Confirmation popup */
+.confirm-popup{position:fixed;z-index:300;background:#1a1a20;border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:16px 20px;width:280px;box-shadow:0 12px 40px rgba(0,0,0,0.8);font-family:'DM Mono',monospace;top:50%;left:50%;transform:translate(-50%,-50%);}
+.confirm-popup p{font-size:12px;color:#c0c0cc;line-height:1.55;margin-bottom:14px;}
+.confirm-popup .confirm-btns{display:flex;gap:8px;justify-content:flex-end;}
+.confirm-popup .confirm-btns button{font-family:'DM Mono',monospace;font-size:11px;padding:5px 14px;border-radius:6px;cursor:pointer;border:none;}
+.confirm-ok{background:#f54242;color:#fff;font-weight:500;}
+.confirm-ok.orange{background:#f5a142;}
+.confirm-cancel{background:rgba(255,255,255,0.07);color:#c0c0cc;}
 .meas-popup-title{font-size:10px;color:#f5a142;font-weight:500;margin-bottom:8px;}
 .meas-popup-actions{display:flex;flex-direction:column;gap:5px;}
 .meas-popup-actions button{font-family:'DM Mono',monospace;font-size:10px;padding:4px 9px;border-radius:5px;cursor:pointer;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:var(--text);text-align:left;}
@@ -206,7 +214,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
       <!-- Measure -->
       <div style="display:flex;align-items:center;gap:5px;">
         <span id="measure-readout" style="font-family:'DM Mono',monospace;font-size:11px;color:#f5a142;">—</span>
-        <button onclick="clearMeasure()" style="font-family:'DM Mono',monospace;font-size:9px;color:#6b6b72;background:transparent;border:1px solid rgba(255,255,255,0.07);border-radius:4px;padding:1px 5px;cursor:pointer;">clr</button>
+        <button onclick="confirmClearMeasurements()" style="font-family:'DM Mono',monospace;font-size:9px;color:#f5a142;background:transparent;border:1px solid rgba(245,161,66,0.3);border-radius:4px;padding:1px 5px;cursor:pointer;" title="Clear all measurements">clr all</button>
       </div>
       <div style="width:1px;height:13px;background:rgba(255,255,255,0.07)"></div>
       <!-- Pins toggle + count -->
@@ -214,7 +222,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
         <span style="font-family:'DM Mono',monospace;font-size:9px;color:#6b6b72;text-transform:uppercase;letter-spacing:.08em;">◎ Pins</span>
         <span id="annot-count" style="font-family:'DM Mono',monospace;font-size:11px;color:#f54242;">0</span>
         <button onclick="toggleAnnotationsVisible()" id="annot-vis-btn" style="font-family:'DM Mono',monospace;font-size:9px;color:#6b6b72;background:transparent;border:1px solid rgba(255,255,255,0.07);border-radius:4px;padding:1px 5px;cursor:pointer;" title="Show/hide all pins">👁</button>
-        <button onclick="onClearAnnotations()" style="font-family:'DM Mono',monospace;font-size:9px;color:#6b6b72;background:transparent;border:1px solid rgba(255,255,255,0.07);border-radius:4px;padding:1px 5px;cursor:pointer;">clear</button>
+        <button onclick="confirmClearPins()" style="font-family:'DM Mono',monospace;font-size:9px;color:#f54242;background:transparent;border:1px solid rgba(245,66,66,0.3);border-radius:4px;padding:1px 5px;cursor:pointer;" title="Clear all pins">clear</button>
       </div>
       <!-- Right -->
       <div style="display:flex;gap:6px;margin-left:auto;align-items:center;">
@@ -249,8 +257,16 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 
 <!-- VR HUD -->
 <div id="vr-hud" style="display:none;position:fixed;bottom:0;left:0;right:0;padding:12px 16px;pointer-events:none;z-index:200;">
-  <div id="hud-pills" style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;"></div>
+  <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;" id="hud-pills">
+    <!-- Static control hints -->
+    <span style="font-family:'DM Mono',monospace;font-size:11px;padding:4px 10px;border-radius:6px;background:rgba(0,0,0,0.65);border:1px solid rgba(200,245,66,0.3);color:#c8f542;">R trigger → laser  ·  A → pin</span>
+    <span style="font-family:'DM Mono',monospace;font-size:11px;padding:4px 10px;border-radius:6px;background:rgba(0,0,0,0.65);border:1px solid rgba(255,255,255,0.15);color:#aaa;">L trigger → slice  ·  R stick → rotate  ·  L stick → scale</span>
+  </div>
   <div id="hud-measure" style="display:none;text-align:center;font-family:'DM Mono',monospace;font-size:18px;color:#c8f542;margin-top:8px;text-shadow:0 0 12px rgba(200,245,66,0.5);"></div>
+  <!-- MR/VR toggle — needs pointer-events -->
+  <div style="display:flex;justify-content:center;margin-top:10px;pointer-events:auto;">
+    <button id="mr-toggle-btn" onclick="toggleMRMode()" style="font-family:'DM Mono',monospace;font-size:11px;padding:5px 14px;border-radius:7px;border:1px solid rgba(255,255,255,0.2);background:rgba(0,0,0,0.7);color:#e8e8e6;cursor:pointer;">⬡ Switch to Mixed Reality</button>
+  </div>
 </div>
 
 <!-- Right sidebar: pin comments -->
@@ -267,6 +283,10 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 
 <!-- Measurement popup container (populated dynamically) -->
 <div id="meas-popup-wrap"></div>
+<!-- Measurement distance labels (positioned to midpoint of each line) -->
+<div id="meas-labels-wrap"></div>
+<!-- Confirmation popup container -->
+<div id="confirm-wrap"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -278,12 +298,22 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 
 // ── Config ───────────────────────────────────────────────────
 const THUMB_KEY = 'vr_thumb_cache';
-const SESSION_PREFIX = 'vr_session_'; // key = SESSION_PREFIX + fileId
+const SESSION_PREFIX = 'vr_session_';
 const config = {
   folderId: '1OtwMUU-oHisoufPNRCl4IUDT7qVR7dcG',
   apiKey:   'AIzaSyAu0q693wWtUyIPhkra3sLFn04XQjpKk9k'
 };
+
+// ── JSONBin cloud storage — shared across all devices ────────
+// Free tier at jsonbin.io — create a bin at jsonbin.io, paste its ID and key here.
+// All pins/measurements for all models are stored in one JSON object keyed by fileId.
+// Set JSONBIN_ID = '' to disable cloud sync (falls back to localStorage only).
+const JSONBIN_ID  = '';   // e.g. '665abc123def456789' — paste your bin ID here
+const JSONBIN_KEY = '';   // e.g. '$2a$10$...'        — paste your Master Key here
+const JSONBIN_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_ID}`;
+
 let thumbCache = {}, currentModels = [], currentFileId = null;
+let cloudSyncEnabled = !!(JSONBIN_ID && JSONBIN_KEY);
 
 // ── Viewer core ──────────────────────────────────────────────
 let viewerScene, viewerRenderer, viewerCamera, viewerControls;
@@ -335,9 +365,18 @@ let explodeAmount = 0;
 const explodeOrigins = new Map();
 
 // ── VR modes ─────────────────────────────────────────────────
-const VR_MODES = ['grab','slice','measure','laser'];
-let vrMode = 'grab';
-let _lastThumbL = false, _lastThumbR = false, _prevFaceA = false;
+// No longer cycling modes — each input has a dedicated binding
+let vrMode = 'default'; // kept for HUD compatibility
+let _lastThumbL = false, _lastThumbR = false;
+let _prevFaceA = false, _prevFaceB = false;
+// Right-trigger laser state
+let vrLaserActive = false;
+// Scale via left thumbstick
+let _prevScaleY = 0;
+// Model rotation via right thumbstick
+let _prevRotX = 0;
+// MR/VR toggle
+let vrImmersiveMode = 'vr'; // 'vr' | 'ar'
 
 // ── Laser ────────────────────────────────────────────────────
 let laserLine = null, laserDot = null;
@@ -373,35 +412,63 @@ let highlightedPinId = null;
 })();
 
 // ════════════════════════════════════════════════════════════
-//  SESSION PERSISTENCE  (pins + measurements saved by fileId)
+//  CLOUD + LOCAL SESSION PERSISTENCE
 // ════════════════════════════════════════════════════════════
+function buildSessionData() {
+  return {
+    pins: annotations.map(a=>({id:a.id,pos:{x:a.worldPos.x,y:a.worldPos.y,z:a.worldPos.z},colorIdx:a.colorIdx,comment:a.comment||''})),
+    annotCount,
+    measurements: savedMeasurements.map(m=>({id:m.id,ptA:{x:m.ptA.x,y:m.ptA.y,z:m.ptA.z},ptB:{x:m.ptB.x,y:m.ptB.y,z:m.ptB.z},label:m.label})),
+    measureCount,
+    updatedAt: Date.now()
+  };
+}
+
 function saveSession() {
   if(!currentFileId) return;
-  const data = {
-    pins: annotations.map(a=>({
-      id: a.id,
-      pos: {x:a.worldPos.x, y:a.worldPos.y, z:a.worldPos.z},
-      colorIdx: a.colorIdx,
-      comment: a.comment||''
-    })),
-    annotCount,
-    measurements: savedMeasurements.map(m=>({
-      id: m.id,
-      ptA: {x:m.ptA.x,y:m.ptA.y,z:m.ptA.z},
-      ptB: {x:m.ptB.x,y:m.ptB.y,z:m.ptB.z},
-      label: m.label
-    })),
-    measureCount
-  };
+  const data = buildSessionData();
   try { localStorage.setItem(SESSION_PREFIX+currentFileId, JSON.stringify(data)); } catch(e){}
+  if(cloudSyncEnabled) pushToCloud(currentFileId, data);
+}
+
+async function pushToCloud(fileId, data) {
+  try {
+    let cloud = {};
+    const r = await fetch(JSONBIN_URL+'/latest', {headers:{'X-Master-Key':JSONBIN_KEY}});
+    if(r.ok){ const j=await r.json(); cloud=j.record||{}; }
+    cloud[fileId] = data;
+    await fetch(JSONBIN_URL, {
+      method:'PUT',
+      headers:{'Content-Type':'application/json','X-Master-Key':JSONBIN_KEY,'X-Bin-Versioning':'false'},
+      body:JSON.stringify(cloud)
+    });
+  } catch(e){ console.warn('Cloud sync failed (using local):', e); }
 }
 
 function loadSession(fileId) {
+  try { const raw=localStorage.getItem(SESSION_PREFIX+fileId); return raw?JSON.parse(raw):null; } catch(e){ return null; }
+}
+
+async function loadSessionMerged(fileId) {
+  const local = loadSession(fileId);
+  if(!cloudSyncEnabled) return local;
   try {
-    const raw = localStorage.getItem(SESSION_PREFIX+fileId);
-    if(!raw) return null;
-    return JSON.parse(raw);
-  } catch(e){ return null; }
+    const r = await fetch(JSONBIN_URL+'/latest', {headers:{'X-Master-Key':JSONBIN_KEY}});
+    if(!r.ok) return local;
+    const cloud = ((await r.json()).record||{})[fileId];
+    if(!cloud) return local;
+    if(!local) return cloud;
+    // Merge: newer timestamp wins; also union pins by id so no drops
+    const winner = (cloud.updatedAt||0)>(local.updatedAt||0) ? cloud : local;
+    // Merge pin comments: if cloud has a comment and local doesn't (or vice versa), keep richest
+    const pinMap = new Map(local.pins.map(p=>[p.id,p]));
+    (cloud.pins||[]).forEach(cp=>{ const lp=pinMap.get(cp.id); if(!lp) pinMap.set(cp.id,cp); else if(!lp.comment&&cp.comment) lp.comment=cp.comment; });
+    winner.pins=[...pinMap.values()];
+    winner.annotCount=Math.max(local.annotCount||0,cloud.annotCount||0);
+    // Also save the merged result locally
+    try { localStorage.setItem(SESSION_PREFIX+fileId, JSON.stringify(winner)); } catch(e){}
+    return winner;
+  } catch(e){ return local; }
 }
 
 function restoreSession(session) {
@@ -417,8 +484,72 @@ function restoreSession(session) {
     const ptB = new THREE.Vector3(m.ptB.x, m.ptB.y, m.ptB.z);
     _spawnMeasureLine(ptA, ptB, m.label, m.id||++measureCount);
   });
-  document.getElementById('annot-count').textContent = annotations.length;
+  const ac=document.getElementById('annot-count'); if(ac) ac.textContent=annotations.length;
   rebuildSidebar();
+}
+
+// ════════════════════════════════════════════════════════════
+//  CONFIRMATION POPUP
+// ════════════════════════════════════════════════════════════
+let confirmPopupEl = null;
+function closeConfirm(){ if(confirmPopupEl){confirmPopupEl.remove();confirmPopupEl=null;} }
+
+function showConfirm(message, okLabel, okColor, onOk) {
+  closeConfirm();
+  const pop=document.createElement('div'); pop.className='confirm-popup';
+  pop.innerHTML=`<p>${message}</p><div class="confirm-btns"><button class="confirm-cancel" onclick="closeConfirm()">Cancel</button><button class="confirm-ok${okColor==='orange'?' orange':''}" id="cob">${okLabel}</button></div>`;
+  pop.querySelector('#cob').addEventListener('click',()=>{ closeConfirm(); onOk(); });
+  document.getElementById('confirm-wrap').appendChild(pop);
+  confirmPopupEl=pop;
+}
+
+function confirmClearMeasurements() {
+  if(!savedMeasurements.length){ clearMeasure(); return; }
+  showConfirm(
+    `Delete all <strong>${savedMeasurements.length}</strong> saved measurement${savedMeasurements.length!==1?'s':''}?<br>This cannot be undone.`,
+    'Delete all', 'orange',
+    ()=>{ clearMeasure(); [...savedMeasurements].forEach(m=>deleteMeasurement(m.id)); }
+  );
+}
+
+function confirmClearPins() {
+  if(!annotations.length) return;
+  showConfirm(
+    `Delete all <strong>${annotations.length}</strong> pin${annotations.length!==1?'s':''} and their comments?<br>This cannot be undone.`,
+    'Delete all', 'red',
+    ()=>onClearAnnotations()
+  );
+}
+
+// ════════════════════════════════════════════════════════════
+//  MEASUREMENT DISTANCE LABELS (shown at midpoint in screen space)
+// ════════════════════════════════════════════════════════════
+const measLabelDivs = new Map(); // measId → DOM div
+
+function getOrCreateMeasLabel(id) {
+  if(measLabelDivs.has(id)) return measLabelDivs.get(id);
+  const div=document.createElement('div'); div.className='meas-label';
+  document.getElementById('meas-labels-wrap').appendChild(div);
+  measLabelDivs.set(id,div); return div;
+}
+function removeMeasLabel(id) {
+  const div=measLabelDivs.get(id); if(div){div.remove();measLabelDivs.delete(id);}
+}
+function updateMeasLabels() {
+  if(!viewerCamera||!viewerRenderer) return;
+  const r=viewerRenderer.domElement.getBoundingClientRect();
+  savedMeasurements.forEach(m=>{
+    const div=getOrCreateMeasLabel(m.id);
+    const mid=m.ptA.clone().add(m.ptB).multiplyScalar(0.5);
+    const v=mid.project(viewerCamera);
+    if(v.z>=1){div.style.display='none';return;}
+    div.style.display='block';
+    div.style.left=(v.x*0.5+0.5)*r.width +r.left+'px';
+    div.style.top =(-v.y*0.5+0.5)*r.height+r.top +'px';
+    div.textContent=m.label;
+  });
+  // Clean up labels for deleted measurements
+  [...measLabelDivs.keys()].forEach(id=>{ if(!savedMeasurements.find(m=>m.id===id)) removeMeasLabel(id); });
 }
 
 // ════════════════════════════════════════════════════════════
@@ -526,7 +657,8 @@ function closeViewer() {
   cleanupViewer();
 }
 function cleanupViewer() {
-  closePinPopup(); closeMeasPopup();
+  closePinPopup(); closeMeasPopup(); closeConfirm();
+  measLabelDivs.forEach(div=>div.remove()); measLabelDivs.clear();
   if(viewerRenderer){
     if(viewerRenderer.xr?.isPresenting) viewerRenderer.xr.getSession()?.end();
     viewerRenderer.setAnimationLoop(null);
@@ -571,8 +703,12 @@ function updateSlicer(ctrl) {
   if(!slicerActive||!ctrl||!slicerPlane) return;
   slicerGroup.position.setFromMatrixPosition(ctrl.matrixWorld);
   slicerGroup.quaternion.setFromRotationMatrix(ctrl.matrixWorld);
-  const n=new THREE.Vector3(0,0,-1).applyQuaternion(slicerGroup.quaternion).normalize();
-  slicerPlane.normal.copy(n); slicerPlane.constant=-n.dot(slicerGroup.position);
+  // Plane normal = hand's UP vector so the blade lies in line with pointing direction
+  const n=new THREE.Vector3(0,1,0).applyQuaternion(slicerGroup.quaternion).normalize();
+  slicerPlane.normal.copy(n);
+  slicerPlane.constant=-n.dot(slicerGroup.position);
+  // Update the edge contour highlight (reuse hContourLine for VR slicer)
+  if(hContourLine) computeContour(slicerPlane, hContourLine);
 }
 
 // ════════════════════════════════════════════════════════════
@@ -1281,30 +1417,9 @@ function onCanvasClick(e) {
   if(desktopMode==='pin') dropAnnotation(pt);
 }
 
-// ════════════════════════════════════════════════════════════
-//  VR HUD
-// ════════════════════════════════════════════════════════════
-function updateHUD() {
-  const pills=document.getElementById('hud-pills');
-  const modes=[
-    {id:'grab',   icon:'✦',label:'Grab',   color:'#c8f542'},
-    {id:'slice',  icon:'⬡',label:'Slice',  color:'#42f5c8'},
-    {id:'measure',icon:'↔',label:'Measure',color:'#f5a142'},
-    {id:'laser',  icon:'◉',label:'Laser',  color:'#4290f5'},
-  ];
-  pills.innerHTML=modes.map(m=>{
-    const a=vrMode===m.id;
-    return `<span style="font-family:'DM Mono',monospace;font-size:12px;padding:5px 11px;border-radius:7px;border:1px solid ${m.color};color:${a?'#0a0a0b':m.color};background:${a?m.color:'rgba(0,0,0,0.65)'};">${m.icon} ${m.label}</span>`;
-  }).join('');
-}
-function cycleVRMode() {
-  vrMode=VR_MODES[(VR_MODES.indexOf(vrMode)+1)%VR_MODES.length];
-  clearMeasure();
-  if(slicerActive){slicerActive=false;slicerMesh&&(slicerMesh.visible=false);setClipping(false);}
-  if(laserLine) laserLine.visible=(vrMode==='laser');
-  if(laserDot&&vrMode!=='laser') laserDot.visible=false;
-  updateHUD();
-}
+// HUD is now static — these are stubs for backward compat
+function updateHUD(){}
+function cycleVRMode(){}
 
 // ════════════════════════════════════════════════════════════
 //  VR LASER
@@ -1379,17 +1494,33 @@ function onSnapshot() {
 function setupControllers(renderer,scene) {
   const cL=renderer.xr.getController(0), cR=renderer.xr.getController(1);
   scene.add(cL); scene.add(cR);
-  function makeRay(col){
-    const g=new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,0,0),new THREE.Vector3(0,0,-0.06)]);
+
+  // Small forward ray on each controller
+  function makeRay(col,len=0.06){
+    const g=new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,0,0),new THREE.Vector3(0,0,-len)]);
     return new THREE.Line(g,new THREE.LineBasicMaterial({color:col,transparent:true,opacity:0.5}));
   }
   cL.add(makeRay(0xc8f542)); cR.add(makeRay(0x4290f5));
-  cL.addEventListener('squeezestart',()=>{grabState.left={prevPos:ctrlWorldPos(cL),prevQuat:ctrlWorldQuat(cL)};if(slicerActive){slicerActive=false;slicerMesh&&(slicerMesh.visible=false);setClipping(false);}});
-  cL.addEventListener('squeezeend',()=>{grabState.left=null;});
-  cL.addEventListener('selectstart',()=>{if(vrMode==='measure'){measureState.ptA=ctrlWorldPos(cL);measurePhase=1;measureState.sphereA&&(measureState.sphereA.position.copy(measureState.ptA),measureState.sphereA.visible=true);}});
-  cR.addEventListener('squeezestart',()=>{grabState.right={prevPos:ctrlWorldPos(cR),prevQuat:ctrlWorldQuat(cR)};if(!grabState.left&&vrMode==='slice'){slicerActive=true;slicerMesh&&(slicerMesh.visible=true);setClipping(true);}});
-  cR.addEventListener('squeezeend',()=>{grabState.right=null;if(slicerActive){slicerActive=false;slicerMesh&&(slicerMesh.visible=false);setClipping(false);}});
-  cR.addEventListener('selectstart',()=>{if(vrMode==='measure'&&measurePhase===1){measureState.ptB=ctrlWorldPos(cR);updateMeasureLine();measurePhase=0;finaliseMeasure();}});
+
+  // ── LEFT GRIP → vertical movement (Y only) ──────────────────
+  cL.addEventListener('squeezestart',()=>{
+    grabState.left={prevPos:ctrlWorldPos(cL)};
+  });
+  cL.addEventListener('squeezeend',()=>{ grabState.left=null; });
+
+  // ── RIGHT GRIP → horizontal movement (XZ only) ──────────────
+  cR.addEventListener('squeezestart',()=>{
+    grabState.right={prevPos:ctrlWorldPos(cR)};
+  });
+  cR.addEventListener('squeezeend',()=>{ grabState.right=null; });
+
+  // ── RIGHT TRIGGER → laser pointer (held = laser on) ─────────
+  // handled in pollGamepadButtons via axes/buttons
+
+  // ── LEFT TRIGGER → slicer (held) ────────────────────────────
+  // handled in pollGamepadButtons
+
+  // VR measure: left B (button 5) = pt A, right B = pt B
   cL.addEventListener('connected',e=>{cL.userData.gamepad=e.data?.gamepad;});
   cR.addEventListener('connected',e=>{cR.userData.gamepad=e.data?.gamepad;});
   scene.userData.ctrlL=cL; scene.userData.ctrlR=cR;
@@ -1397,14 +1528,91 @@ function setupControllers(renderer,scene) {
 
 function pollGamepadButtons() {
   const cL=viewerScene?.userData.ctrlL, cR=viewerScene?.userData.ctrlR;
-  if(cL?.userData.gamepad){const p=cL.userData.gamepad.buttons[3]?.pressed;if(p&&!_lastThumbL)cycleVRMode();_lastThumbL=!!p;}
-  if(cR?.userData.gamepad){
-    const p3=cR.userData.gamepad.buttons[3]?.pressed;
-    if(p3&&!_lastThumbR)cycleVRMode();_lastThumbR=!!p3;
-    const pA=cR.userData.gamepad.buttons[4]?.pressed;
-    if(pA&&!_prevFaceA&&vrMode==='laser'&&cR.userData.laserHit){dropAnnotation(cR.userData.laserHit.clone());}
-    _prevFaceA=!!pA;
+  if(!cL||!cR) return;
+  const gpL=cL.userData.gamepad, gpR=cR.userData.gamepad;
+  if(!gpL||!gpR) return;
+
+  // ── RIGHT TRIGGER (index 0) → laser pointer ─────────────────
+  const rTrig=gpR.buttons[0]?.pressed||false;
+  if(rTrig) {
+    updateLaser(cR);
+    vrLaserActive=true;
+  } else if(vrLaserActive) {
+    vrLaserActive=false;
+    if(laserLine) laserLine.visible=false;
+    if(laserDot)  laserDot.visible=false;
   }
+
+  // ── RIGHT A BUTTON (index 4) → drop pin while laser is active
+  const rFaceA=gpR.buttons[4]?.pressed||false;
+  if(rFaceA&&!_prevFaceA&&vrLaserActive&&cR.userData.laserHit){
+    dropAnnotation(cR.userData.laserHit.clone());
+  }
+  _prevFaceA=rFaceA;
+
+  // ── LEFT TRIGGER (index 0) → slicer (held) ──────────────────
+  const lTrig=gpL.buttons[0]?.pressed||false;
+  if(lTrig && !slicerActive) {
+    slicerActive=true;
+    if(slicerMesh) slicerMesh.visible=true;
+    setClipping(true);
+  } else if(!lTrig && slicerActive) {
+    slicerActive=false;
+    if(slicerMesh) slicerMesh.visible=false;
+    setClipping(false);
+  }
+  if(slicerActive) updateSlicer(cL); // slicer follows LEFT hand
+
+  // ── LEFT THUMBSTICK Y (axis 3) → scale model ────────────────
+  const lStickY=gpL.axes[3]||0; // -1=up(bigger), +1=down(smaller)
+  if(Math.abs(lStickY)>0.12&&modelRoot){
+    const SPEED=0.008;
+    let s=modelRoot.scale.x * (1 - lStickY*SPEED);
+    // Clamp 5% – 200%
+    s=Math.max(0.05,Math.min(2.0,s));
+    // Snap to 100% ±2%
+    if(Math.abs(s-1.0)<0.02) s=1.0;
+    modelRoot.scale.setScalar(s);
+  }
+
+  // ── RIGHT THUMBSTICK X (axis 2) → rotate model around Y ─────
+  const rStickX=gpR.axes[2]||0;
+  if(Math.abs(rStickX)>0.12&&modelRoot){
+    const RSPEED=0.03;
+    modelRoot.rotateY(rStickX*RSPEED);
+  }
+
+  // ── LEFT GRIP → vertical move ───────────────────────────────
+  if(grabState.left&&modelRoot){
+    const cur=ctrlWorldPos(cL);
+    const delta=cur.clone().sub(grabState.left.prevPos);
+    modelRoot.position.y+=delta.y; // only Y
+    grabState.left.prevPos.copy(cur);
+  }
+
+  // ── RIGHT GRIP → horizontal move ────────────────────────────
+  if(grabState.right&&modelRoot){
+    const cur=ctrlWorldPos(cR);
+    const delta=cur.clone().sub(grabState.right.prevPos);
+    modelRoot.position.x+=delta.x; // only XZ
+    modelRoot.position.z+=delta.z;
+    grabState.right.prevPos.copy(cur);
+  }
+
+  // ── LEFT B (index 5) → measure point A ──────────────────────
+  const lFaceB=gpL.buttons[5]?.pressed||false;
+  if(lFaceB&&!_prevFaceB){
+    measureState.ptA=ctrlWorldPos(cL); measurePhase=1;
+    measureState.sphereA&&(measureState.sphereA.position.copy(measureState.ptA),measureState.sphereA.visible=true);
+  }
+  _prevFaceB=lFaceB;
+
+  // ── RIGHT B (index 5) → measure point B ─────────────────────
+  const rFaceB=gpR.buttons[5]?.pressed||false;
+  if(rFaceB&&!_lastThumbR&&measurePhase===1){
+    measureState.ptB=ctrlWorldPos(cR); updateMeasureLine(); measurePhase=0; finaliseMeasure();
+  }
+  _lastThumbR=rFaceB;
 }
 
 // ════════════════════════════════════════════════════════════
@@ -1430,7 +1638,26 @@ function initViewer(fileId) {
   sunLight.position.set(Math.cos(el0)*Math.sin(az0)*8,Math.sin(el0)*8,Math.cos(el0)*Math.cos(az0)*8);
   viewerScene.add(sunLight);
   const fill=new THREE.DirectionalLight(0x8888ff,0.18); fill.position.set(-4,2,-3); viewerScene.add(fill);
-  viewerScene.add(new THREE.GridHelper(20,40,0x222226,0x18181c));
+  // Build proper metric grid: 1m squares, 10cm subdivisions, bold centre cross
+  (function buildMetricGrid(scene) {
+    const SIZE=20, HALF=SIZE/2;
+    const matDm  = new THREE.LineBasicMaterial({color:0x2a2a30, transparent:true, opacity:0.9});
+    const mat1m  = new THREE.LineBasicMaterial({color:0x3a3a45, transparent:true, opacity:1.0});
+    const matCtr = new THREE.LineBasicMaterial({color:0x50504a, transparent:true, opacity:1.0});
+    const pts1m=[], ptsDm=[], ptsCtr=[];
+    for(let i=-HALF; i<=HALF; i+=0.1){
+      const v=parseFloat(i.toFixed(2));
+      const isCtr=(Math.abs(v)<0.001);
+      const is1m =(Math.abs(v%1)<0.001);
+      const arr  = isCtr?ptsCtr : is1m?pts1m : ptsDm;
+      arr.push(new THREE.Vector3(-HALF,0,v), new THREE.Vector3(HALF,0,v));
+      arr.push(new THREE.Vector3(v,0,-HALF), new THREE.Vector3(v,0,HALF));
+    }
+    const makeLines=(pts,mat)=>{const g=new THREE.BufferGeometry().setFromPoints(pts);return new THREE.LineSegments(g,mat);};
+    scene.add(makeLines(ptsDm,matDm));
+    scene.add(makeLines(pts1m,mat1m));
+    scene.add(makeLines(ptsCtr,matCtr));
+  })(viewerScene);
 
   viewerControls=new THREE.OrbitControls(viewerCamera,viewerRenderer.domElement);
   viewerControls.enableDamping=true; viewerControls.dampingFactor=0.07; viewerControls.target.set(0,0.8,0);
@@ -1491,7 +1718,7 @@ function initViewer(fileId) {
         const sr=document.getElementById('size-readout');
         if(sr) sr.textContent=`${(size.x*100).toFixed(0)} × ${(size.y*100).toFixed(0)} × ${(size.z*100).toFixed(0)} cm`;
         checkXRSupport();
-        setTimeout(()=>{ if(viewerRenderer&&currentFileId===loadFileId) restoreSession(loadSession(loadFileId)); }, 80);
+        setTimeout(()=>{ if(viewerRenderer&&currentFileId===loadFileId) loadSessionMerged(loadFileId).then(s=>restoreSession(s)); }, 80);
       } catch(innerErr) {
         console.error('Model setup error:', innerErr);
         setLabel(`Setup error: ${innerErr.message}`);
@@ -1513,15 +1740,10 @@ function initViewer(fileId) {
   viewerRenderer.setAnimationLoop(()=>{
     if(viewerControls?.enabled) viewerControls.update();
     if(viewerRenderer.xr.isPresenting){
-      const cL=viewerRenderer.xr.getController(0), cR=viewerRenderer.xr.getController(1);
-      pollGamepadButtons();
-      if(grabState.left&&grabState.right) applyTwoHandedGrab(cL,cR);
-      else if(grabState.left) applyOneHandedGrab(cL);
-      if(slicerActive&&!grabState.left) updateSlicer(cR);
-      if(vrMode==='laser') updateLaser(cR);
-      else if(laserLine?.visible){laserLine.visible=false;if(laserDot)laserDot.visible=false;}
+      pollGamepadButtons(); // all VR controls handled there
     }
     updateAnnotationLabels();
+    updateMeasLabels();
     viewerRenderer.render(viewerScene,viewerCamera);
   });
 
@@ -1534,31 +1756,53 @@ function initViewer(fileId) {
 }
 
 // ════════════════════════════════════════════════════════════
-//  XR SESSION
+//  XR SESSION — supports both immersive-vr and immersive-ar (MR)
 // ════════════════════════════════════════════════════════════
 async function checkXRSupport() {
   const btn=document.getElementById('vr-btn');
   if(!navigator.xr){btn.textContent='VR not supported';btn.disabled=true;return;}
-  const ok=await navigator.xr.isSessionSupported('immersive-vr').catch(()=>false);
-  if(ok){btn.textContent='⬡ Enter VR';btn.disabled=false;}
+  const vrOk=await navigator.xr.isSessionSupported('immersive-vr').catch(()=>false);
+  if(vrOk){btn.textContent='⬡ Enter VR';btn.disabled=false;}
   else{btn.textContent='VR not available';btn.style.opacity='0.5';}
 }
+
+function toggleMRMode() {
+  vrImmersiveMode = vrImmersiveMode==='vr' ? 'ar' : 'vr';
+  const btn=document.getElementById('mr-toggle-btn');
+  if(btn) btn.textContent = vrImmersiveMode==='ar' ? '⬡ Switch to Immersive VR' : '⬡ Switch to Mixed Reality';
+  // Update scene background: transparent for AR, dark for VR
+  if(viewerScene) viewerScene.background = vrImmersiveMode==='ar' ? null : new THREE.Color(0x0a0a0b);
+}
+
 async function enterVR() {
   if(!navigator.xr||!viewerRenderer) return;
   try {
-    const session=await navigator.xr.requestSession('immersive-vr',{
+    const isAR = vrImmersiveMode==='ar';
+    const mode  = isAR ? 'immersive-ar' : 'immersive-vr';
+    // Check AR support, fall back to VR gracefully
+    if(isAR){
+      const arOk=await navigator.xr.isSessionSupported('immersive-ar').catch(()=>false);
+      if(!arOk){ alert('Mixed Reality / passthrough not supported on this device. Switching to VR.'); vrImmersiveMode='vr'; toggleMRMode(); }
+    }
+    const sessionMode = vrImmersiveMode==='ar' ? 'immersive-ar' : 'immersive-vr';
+    const session=await navigator.xr.requestSession(sessionMode,{
       requiredFeatures:['local-floor'],
-      optionalFeatures:['bounded-floor','hand-tracking','dom-overlay'],
+      optionalFeatures:['bounded-floor','dom-overlay','hand-tracking',
+                        ...(sessionMode==='immersive-ar'?['hit-test']:['unbounded'])],
       domOverlay:{root:document.getElementById('vr-hud')}
     });
+    // AR = transparent background so passthrough shows
+    if(viewerScene) viewerScene.background = sessionMode==='immersive-ar' ? null : new THREE.Color(0x0a0a0b);
     viewerRenderer.xr.setSession(session);
     session.addEventListener('end',()=>{
       document.getElementById('vr-btn').textContent='⬡ Enter VR';
+      viewerScene&&(viewerScene.background=new THREE.Color(0x0a0a0b));
       if(slicerActive){slicerActive=false;slicerMesh&&(slicerMesh.visible=false);setClipping(false);}
+      if(hContourLine&&!hSliceActive) hContourLine.visible=false;
       saveSession();
     });
-    document.getElementById('vr-btn').textContent='◼ Exit VR';
-  } catch(e){alert('Could not start VR session: '+e.message);}
+    document.getElementById('vr-btn').textContent='◼ Exit';
+  } catch(e){alert('Could not start XR session: '+e.message);}
 }
 </script>
 </body>
