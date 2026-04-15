@@ -83,6 +83,31 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .pin-popup-actions button{font-family:'DM Mono',monospace;font-size:10px;padding:3px 8px;border-radius:5px;cursor:pointer;border:none;}
 .pin-save{background:var(--accent);color:#0a0a0b;font-weight:500;}
 .pin-del{background:rgba(245,66,66,0.15);color:#f54242;border:1px solid rgba(245,66,66,0.3)!important;}
+.pin-move-active{outline:2px solid #c8f542;outline-offset:2px;}
+/* Right sidebar */
+#sidebar{position:fixed;top:0;right:0;bottom:0;width:260px;background:#0e0e12;border-left:1px solid rgba(255,255,255,0.09);z-index:110;display:none;flex-direction:column;transform:translateX(0);transition:transform 0.25s;}
+#sidebar.collapsed{transform:translateX(248px);}
+#sidebar-tab{position:absolute;left:-24px;top:50%;transform:translateY(-50%);width:24px;background:#0e0e12;border:1px solid rgba(255,255,255,0.09);border-right:none;border-radius:8px 0 0 8px;cursor:pointer;padding:10px 0;display:flex;align-items:center;justify-content:center;writing-mode:vertical-rl;font-family:'DM Mono',monospace;font-size:9px;color:#6b6b72;letter-spacing:.08em;text-transform:uppercase;user-select:none;gap:0;}
+#sidebar-tab:hover{color:var(--text);}
+#sidebar-head{padding:14px 14px 10px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+#sidebar-head span{font-family:'DM Mono',monospace;font-size:11px;color:var(--text);font-weight:500;}
+#sidebar-body{flex:1;overflow-y:auto;padding:8px 0;}
+.sbar-pin{display:flex;align-items:flex-start;gap:9px;padding:9px 14px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.04);transition:background 0.15s;}
+.sbar-pin:hover{background:rgba(255,255,255,0.04);}
+.sbar-pin.highlighted{background:rgba(255,255,255,0.07);}
+.sbar-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:3px;}
+.sbar-pin-body{flex:1;min-width:0;}
+.sbar-pin-num{font-family:'DM Mono',monospace;font-size:10px;font-weight:500;margin-bottom:2px;}
+.sbar-pin-comment{font-size:11px;color:#9090a0;line-height:1.45;white-space:pre-wrap;word-break:break-word;}
+.sbar-pin-comment.empty{font-style:italic;opacity:0.45;}
+.sbar-empty{padding:24px 14px;font-family:'DM Mono',monospace;font-size:11px;color:#6b6b72;text-align:center;}
+/* Measurement popup */
+.meas-popup{position:fixed;z-index:210;background:#1a1a20;border:1px solid rgba(255,255,255,0.15);border-radius:9px;padding:9px 12px;min-width:180px;box-shadow:0 8px 28px rgba(0,0,0,0.7);font-family:'DM Mono',monospace;}
+.meas-popup-title{font-size:10px;color:#f5a142;font-weight:500;margin-bottom:8px;}
+.meas-popup-actions{display:flex;flex-direction:column;gap:5px;}
+.meas-popup-actions button{font-family:'DM Mono',monospace;font-size:10px;padding:4px 9px;border-radius:5px;cursor:pointer;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:var(--text);text-align:left;}
+.meas-popup-actions button:hover{background:rgba(255,255,255,0.1);}
+.meas-del-btn{color:#f54242!important;border-color:rgba(245,66,66,0.25)!important;}
 </style>
 </head>
 <body>
@@ -171,10 +196,11 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
         <button onclick="clearMeasure()" style="font-family:'DM Mono',monospace;font-size:9px;color:#6b6b72;background:transparent;border:1px solid rgba(255,255,255,0.07);border-radius:4px;padding:1px 5px;cursor:pointer;">clr</button>
       </div>
       <div style="width:1px;height:13px;background:rgba(255,255,255,0.07)"></div>
-      <!-- Pins -->
+      <!-- Pins toggle + count -->
       <div style="display:flex;align-items:center;gap:5px;">
         <span style="font-family:'DM Mono',monospace;font-size:9px;color:#6b6b72;text-transform:uppercase;letter-spacing:.08em;">◎ Pins</span>
         <span id="annot-count" style="font-family:'DM Mono',monospace;font-size:11px;color:#f54242;">0</span>
+        <button onclick="toggleAnnotationsVisible()" id="annot-vis-btn" style="font-family:'DM Mono',monospace;font-size:9px;color:#6b6b72;background:transparent;border:1px solid rgba(255,255,255,0.07);border-radius:4px;padding:1px 5px;cursor:pointer;" title="Show/hide all pins">👁</button>
         <button onclick="onClearAnnotations()" style="font-family:'DM Mono',monospace;font-size:9px;color:#6b6b72;background:transparent;border:1px solid rgba(255,255,255,0.07);border-radius:4px;padding:1px 5px;cursor:pointer;">clear</button>
       </div>
       <!-- Right -->
@@ -203,6 +229,21 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
   <div id="hud-pills" style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;"></div>
   <div id="hud-measure" style="display:none;text-align:center;font-family:'DM Mono',monospace;font-size:18px;color:#c8f542;margin-top:8px;text-shadow:0 0 12px rgba(200,245,66,0.5);"></div>
 </div>
+
+<!-- Right sidebar: pin comments -->
+<div id="sidebar">
+  <div id="sidebar-tab" onclick="toggleSidebar()">Comments</div>
+  <div id="sidebar-head">
+    <span>Pin comments</span>
+    <button onclick="toggleSidebar()" style="background:none;border:none;color:#6b6b72;cursor:pointer;font-size:16px;line-height:1;">×</button>
+  </div>
+  <div id="sidebar-body">
+    <div class="sbar-empty" id="sbar-empty">No pins yet.</div>
+  </div>
+</div>
+
+<!-- Measurement popup container (populated dynamically) -->
+<div id="meas-popup-wrap"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -236,17 +277,21 @@ let slicerGroup = null, slicerActive = false;
 // ── Desktop slicers ──────────────────────────────────────────
 let hSlicePlane = null, vSlicePlane = null;
 let hSliceActive = false, vSliceActive = false;
-// Contour lines — extracted from model geometry, not just a plane box
 let hContourLine = null, vContourLine = null;
 
 // ── Grab ─────────────────────────────────────────────────────
 const grabState = { left: null, right: null };
 
 // ── Measure ──────────────────────────────────────────────────
+// In-progress cursor (not yet saved)
 let measureState = { ptA:null, ptB:null, lineObj:null, sphereA:null, sphereB:null };
 let measurePhase = 0;
-// Saved measurements (array of {ptA, ptB, label})
+// Saved measurements — each has THREE.js objects so they can be deleted/moved
+// {id, ptA, ptB, label, line, sA, sB}
 let savedMeasurements = [];
+let measureCount = 0;
+let measPopupEl = null;
+let measMovingId = null, measMovingEndpoint = null; // for moving an endpoint
 
 // ── Desktop mode ─────────────────────────────────────────────
 let desktopMode = 'orbit';
@@ -258,7 +303,9 @@ const PIN_COLORS = [
   0xff7730, 0x00bcd4
 ];
 let annotations = [], annotCount = 0;
-let pinPopupEl = null; // current open popup
+let pinPopupEl = null;
+let annotationsVisible = true;   // global show/hide
+let pinMovingId = null;          // id of pin being repositioned
 
 // ── Explode ──────────────────────────────────────────────────
 let explodeAmount = 0;
@@ -276,6 +323,9 @@ let laserLine = null, laserDot = null;
 const raycaster = new THREE.Raycaster();
 const mouseNDC  = new THREE.Vector2();
 
+// ── Highlighted pin (sidebar) ────────────────────────────────
+let highlightedPinId = null;
+
 // ════════════════════════════════════════════════════════════
 //  BOOT
 // ════════════════════════════════════════════════════════════
@@ -289,6 +339,13 @@ const mouseNDC  = new THREE.Vector2();
     if(e.key==='o'||e.key==='O') setDesktopMode('orbit');
     if(e.key==='m'||e.key==='M') setDesktopMode('measure');
     if(e.key==='p'||e.key==='P') setDesktopMode('pin');
+    if(e.key==='Escape'){
+      closePinPopup(); closeMeasPopup();
+      if(pinMovingId!==null){ const p=annotations.find(a=>a.id===pinMovingId); if(p)p.mesh.scale.setScalar(1); pinMovingId=null; }
+      measMovingId=null; measMovingEndpoint=null;
+      if(measurePhase>0) clearMeasure();
+      setDesktopMode('orbit');
+    }
   });
 })();
 
@@ -306,10 +363,12 @@ function saveSession() {
     })),
     annotCount,
     measurements: savedMeasurements.map(m=>({
+      id: m.id,
       ptA: {x:m.ptA.x,y:m.ptA.y,z:m.ptA.z},
       ptB: {x:m.ptB.x,y:m.ptB.y,z:m.ptB.z},
       label: m.label
-    }))
+    })),
+    measureCount
   };
   try { localStorage.setItem(SESSION_PREFIX+currentFileId, JSON.stringify(data)); } catch(e){}
 }
@@ -325,19 +384,18 @@ function loadSession(fileId) {
 function restoreSession(session) {
   if(!session) return;
   annotCount = session.annotCount || 0;
-  // Restore pins
+  measureCount = session.measureCount || 0;
   (session.pins||[]).forEach(p=>{
     const pos = new THREE.Vector3(p.pos.x, p.pos.y, p.pos.z);
     _spawnPin(pos, p.colorIdx, p.id, p.comment||'');
   });
-  // Restore measurements
   (session.measurements||[]).forEach(m=>{
     const ptA = new THREE.Vector3(m.ptA.x, m.ptA.y, m.ptA.z);
     const ptB = new THREE.Vector3(m.ptB.x, m.ptB.y, m.ptB.z);
-    savedMeasurements.push({ptA, ptB, label: m.label});
-    _spawnMeasureLine(ptA, ptB);
+    _spawnMeasureLine(ptA, ptB, m.label, m.id||++measureCount);
   });
   document.getElementById('annot-count').textContent = annotations.length;
+  rebuildSidebar();
 }
 
 // ════════════════════════════════════════════════════════════
@@ -445,7 +503,7 @@ function closeViewer() {
   cleanupViewer();
 }
 function cleanupViewer() {
-  closePinPopup();
+  closePinPopup(); closeMeasPopup();
   if(viewerRenderer){
     if(viewerRenderer.xr?.isPresenting) viewerRenderer.xr.getSession()?.end();
     viewerRenderer.setAnimationLoop(null);
@@ -453,7 +511,9 @@ function cleanupViewer() {
   }
   document.getElementById('viewer-canvas-wrap').querySelector('canvas')?.remove();
   annotations.forEach(a=>{viewerScene?.remove(a.mesh);viewerScene?.remove(a.stem);a.labelDiv?.remove();});
-  annotations=[]; annotCount=0; savedMeasurements=[];
+  annotations=[]; annotCount=0;
+  savedMeasurements=[]; measureCount=0; measMovingId=null; measMovingEndpoint=null;
+  pinMovingId=null; annotationsVisible=true; highlightedPinId=null;
   viewerScene=viewerCamera=viewerControls=loadedModel=modelRoot=sunLight=null;
   slicerPlane=slicerMesh=slicerGroup=null; slicerActive=false;
   hSlicePlane=vSlicePlane=null; hSliceActive=vSliceActive=false;
@@ -465,8 +525,10 @@ function cleanupViewer() {
   _lastThumbL=_lastThumbR=_prevFaceA=false;
   document.getElementById('vr-hud').style.display='none';
   const ts=document.getElementById('tool-strip'); if(ts) ts.style.display='none';
+  const sb=document.getElementById('sidebar'); if(sb) sb.style.display='none';
   ['hslice-tog','vslice-tog'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=false;});
   setDesktopMode('orbit',true);
+  rebuildSidebar();
 }
 
 // ════════════════════════════════════════════════════════════
@@ -634,6 +696,7 @@ function openPinPopup(pin, screenX, screenY) {
     <textarea id="pp-txt" placeholder="Add comment…">${pin.comment||''}</textarea>
     <div class="pin-popup-actions">
       <button class="pin-del" onclick="removeAnnotation(${pin.id});closePinPopup();">🗑 Remove</button>
+      <button style="background:rgba(200,245,66,0.12);color:#c8f542;border:1px solid rgba(200,245,66,0.3)!important;" onclick="startMovePin(${pin.id});closePinPopup();">↕ Move</button>
       <button class="pin-save" onclick="savePinComment(${pin.id})">Save</button>
     </div>`;
   document.body.appendChild(popup);
@@ -645,10 +708,8 @@ function savePinComment(id) {
   const pin = annotations.find(a=>a.id===id); if(!pin) return;
   const txt = pinPopupEl?.querySelector('#pp-txt')?.value||'';
   pin.comment = txt;
-  // Update label title
   if(pin.labelDiv) pin.labelDiv.title = txt ? `#${id}: ${txt}` : `Pin #${id}`;
-  saveSession();
-  closePinPopup();
+  saveSession(); rebuildSidebar(); closePinPopup();
 }
 
 // ════════════════════════════════════════════════════════════
@@ -693,7 +754,7 @@ function dropAnnotation(worldPos) {
   const colorIdx = (id-1) % PIN_COLORS.length;
   _spawnPin(worldPos, colorIdx, id, '');
   document.getElementById('annot-count').textContent = annotations.length;
-  saveSession();
+  saveSession(); rebuildSidebar();
 }
 
 function removeAnnotation(id) {
@@ -702,19 +763,99 @@ function removeAnnotation(id) {
   viewerScene?.remove(a.mesh); viewerScene?.remove(a.stem); a.labelDiv?.remove();
   annotations.splice(idx,1);
   document.getElementById('annot-count').textContent = annotations.length;
-  saveSession();
+  saveSession(); rebuildSidebar();
 }
 function onClearAnnotations(){ closePinPopup(); [...annotations].forEach(a=>removeAnnotation(a.id)); }
+
+// ── Annotation visibility toggle ────────────────────────────
+function toggleAnnotationsVisible() {
+  annotationsVisible = !annotationsVisible;
+  annotations.forEach(a=>{
+    a.mesh.visible = annotationsVisible;
+    a.stem.visible = annotationsVisible;
+    a.labelDiv.style.display = annotationsVisible ? '' : 'none';
+  });
+  const btn=document.getElementById('annot-vis-btn');
+  if(btn) btn.textContent = annotationsVisible ? '👁' : '🙈';
+}
+
+// ── Pin move ─────────────────────────────────────────────────
+function startMovePin(id) {
+  pinMovingId=id; closePinPopup(); setDesktopMode('pin');
+  // Briefly highlight the pin being moved
+  const pin=annotations.find(a=>a.id===id);
+  if(pin){ pin.mesh.scale.setScalar(2); }
+}
+function finishMovePin(pt) {
+  const pin=annotations.find(a=>a.id===pinMovingId); if(!pin){pinMovingId=null;return;}
+  pin.worldPos.copy(pt);
+  pin.mesh.position.copy(pt); pin.mesh.scale.setScalar(1);
+  const stemPts=[pt.clone(),pt.clone().add(new THREE.Vector3(0,0.04,0))];
+  pin.stem.geometry.setFromPoints(stemPts);
+  pinMovingId=null;
+  saveSession();
+}
 
 function updateAnnotationLabels() {
   if(!viewerCamera||!viewerRenderer) return;
   const r=viewerRenderer.domElement.getBoundingClientRect();
   annotations.forEach(a=>{
+    if(!annotationsVisible){a.labelDiv.style.display='none';return;}
     const v=a.worldPos.clone().project(viewerCamera);
     const x=(v.x*0.5+0.5)*r.width+r.left, y=(-v.y*0.5+0.5)*r.height+r.top;
-    if(v.z<1){a.labelDiv.style.left=(x+8)+'px';a.labelDiv.style.top=(y-8)+'px';a.labelDiv.style.display='block';}
-    else a.labelDiv.style.display='none';
+    if(v.z<1){
+      a.labelDiv.style.left=(x+8)+'px'; a.labelDiv.style.top=(y-8)+'px';
+      a.labelDiv.style.display='block';
+      // Highlight selected pin from sidebar
+      a.labelDiv.style.outline = a.id===highlightedPinId ? '2px solid #fff' : 'none';
+      a.mesh.scale.setScalar(a.id===highlightedPinId ? 2 : (pinMovingId===a.id ? 2 : 1));
+    } else { a.labelDiv.style.display='none'; }
   });
+}
+
+// ════════════════════════════════════════════════════════════
+//  SIDEBAR — collapsible pin comment panel
+// ════════════════════════════════════════════════════════════
+function showSidebar() {
+  const sb=document.getElementById('sidebar');
+  if(sb){ sb.style.display='flex'; sb.classList.remove('collapsed'); }
+}
+function toggleSidebar() {
+  const sb=document.getElementById('sidebar');
+  if(!sb) return;
+  sb.classList.toggle('collapsed');
+}
+
+function rebuildSidebar() {
+  const body=document.getElementById('sidebar-body');
+  const empty=document.getElementById('sbar-empty');
+  if(!body) return;
+  // Remove old rows (keep the empty placeholder)
+  [...body.querySelectorAll('.sbar-pin')].forEach(el=>el.remove());
+  if(!annotations.length){
+    if(empty) empty.style.display='block';
+    return;
+  }
+  if(empty) empty.style.display='none';
+  annotations.forEach(pin=>{
+    const hx=getPinHex(pin.colorIdx);
+    const row=document.createElement('div');
+    row.className='sbar-pin'; row.dataset.id=pin.id;
+    if(pin.id===highlightedPinId) row.classList.add('highlighted');
+    row.innerHTML=`
+      <div class="sbar-dot" style="background:${hx}"></div>
+      <div class="sbar-pin-body">
+        <div class="sbar-pin-num" style="color:${hx}">#${pin.id}</div>
+        <div class="sbar-pin-comment${pin.comment?'':' empty'}">${pin.comment||'No comment yet'}</div>
+      </div>`;
+    row.addEventListener('click', ()=>highlightPin(pin.id));
+    body.appendChild(row);
+  });
+}
+
+function highlightPin(id) {
+  highlightedPinId = (highlightedPinId===id) ? null : id;
+  rebuildSidebar();
 }
 
 // ════════════════════════════════════════════════════════════
@@ -731,14 +872,39 @@ function buildMeasureObjects(scene) {
   scene.add(measureState.sphereA); scene.add(measureState.sphereB);
 }
 
-function _spawnMeasureLine(ptA, ptB) {
-  // Persistent saved measure line (for session restore) — simple line object added to scene
-  const geo = new THREE.BufferGeometry().setFromPoints([ptA.clone(), ptB.clone()]);
-  const line = new THREE.Line(geo, new THREE.LineBasicMaterial({color:0xf5a142,linewidth:1}));
+// Spawn a finalised measurement — tracks Three.js objects for later deletion/move
+function _spawnMeasureLine(ptA, ptB, label, id) {
   const smat=new THREE.MeshBasicMaterial({color:0xf5a142}),sgeo=new THREE.SphereGeometry(0.008,8,8);
   const sA=new THREE.Mesh(sgeo,smat.clone()); sA.position.copy(ptA); viewerScene.add(sA);
   const sB=new THREE.Mesh(sgeo,smat.clone()); sB.position.copy(ptB); viewerScene.add(sB);
+  const geo=new THREE.BufferGeometry().setFromPoints([ptA.clone(),ptB.clone()]);
+  const line=new THREE.Line(geo,new THREE.LineBasicMaterial({color:0xf5a142,linewidth:1}));
   viewerScene.add(line);
+  sA.userData.measId=id; sA.userData.endpoint='A';
+  sB.userData.measId=id; sB.userData.endpoint='B';
+  const rec={id,ptA:ptA.clone(),ptB:ptB.clone(),label,line,sA,sB};
+  savedMeasurements.push(rec);
+  return rec;
+}
+
+function deleteMeasurement(id) {
+  const idx=savedMeasurements.findIndex(m=>m.id===id); if(idx===-1) return;
+  const m=savedMeasurements[idx];
+  viewerScene?.remove(m.line); viewerScene?.remove(m.sA); viewerScene?.remove(m.sB);
+  savedMeasurements.splice(idx,1);
+  saveSession();
+}
+
+// Update a saved measurement's endpoint position
+function updateMeasEndpoint(id, endpoint, newPt) {
+  const m=savedMeasurements.find(r=>r.id===id); if(!m) return;
+  if(endpoint==='A'){ m.ptA.copy(newPt); m.sA.position.copy(newPt); }
+  else              { m.ptB.copy(newPt); m.sB.position.copy(newPt); }
+  const d=m.ptA.distanceTo(m.ptB);
+  m.label=d>=1?d.toFixed(3)+' m':(d*100).toFixed(1)+' cm';
+  m.line.geometry.setFromPoints([m.ptA.clone(),m.ptB.clone()]);
+  m.line.geometry.computeBoundingSphere();
+  saveSession();
 }
 
 function updateMeasureLine() {
@@ -754,21 +920,59 @@ function updateMeasureLine() {
   document.getElementById('hud-measure').style.display='block';
   document.getElementById('measure-readout').textContent=lbl;
 }
+
+// Clear IN-PROGRESS cursor only — does NOT touch saved lines
 function clearMeasure() {
   measureState.ptA=measureState.ptB=null; measurePhase=0;
+  measMovingId=null; measMovingEndpoint=null;
   measureState.lineObj&&(measureState.lineObj.visible=false);
   measureState.sphereA&&(measureState.sphereA.visible=false);
   measureState.sphereB&&(measureState.sphereB.visible=false);
   document.getElementById('hud-measure').style.display='none';
   document.getElementById('measure-readout').textContent='—';
 }
+
 function finaliseMeasure() {
   if(!measureState.ptA||!measureState.ptB) return;
   const d=measureState.ptA.distanceTo(measureState.ptB);
   const lbl=d>=1?d.toFixed(3)+' m':(d*100).toFixed(1)+' cm';
-  savedMeasurements.push({ptA:measureState.ptA.clone(),ptB:measureState.ptB.clone(),label:lbl});
-  _spawnMeasureLine(measureState.ptA,measureState.ptB);
+  _spawnMeasureLine(measureState.ptA.clone(), measureState.ptB.clone(), lbl, ++measureCount);
+  measureState.ptA=measureState.ptB=null; measurePhase=0;
+  measureState.lineObj&&(measureState.lineObj.visible=false);
+  measureState.sphereA&&(measureState.sphereA.visible=false);
+  measureState.sphereB&&(measureState.sphereB.visible=false);
   saveSession();
+}
+
+// ════════════════════════════════════════════════════════════
+//  MEASUREMENT POPUP (right-click endpoint)
+// ════════════════════════════════════════════════════════════
+function closeMeasPopup() {
+  if(measPopupEl){ measPopupEl.remove(); measPopupEl=null; }
+}
+
+function openMeasPopup(measId, endpoint, screenX, screenY) {
+  closeMeasPopup();
+  const m=savedMeasurements.find(r=>r.id===measId); if(!m) return;
+  const pop=document.createElement('div');
+  pop.className='meas-popup';
+  pop.style.left=Math.min(screenX+12,window.innerWidth-200)+'px';
+  pop.style.top=Math.max(screenY-20,60)+'px';
+  pop.innerHTML=`
+    <div class="meas-popup-title">↔ ${m.label}</div>
+    <div class="meas-popup-actions">
+      <button onclick="startMoveMeasEndpoint(${measId},'${endpoint}')">↕ Move point ${endpoint}</button>
+      <button class="meas-del-btn" onclick="deleteMeasurement(${measId});closeMeasPopup();">🗑 Delete</button>
+      <button onclick="closeMeasPopup()">Cancel</button>
+    </div>`;
+  document.getElementById('meas-popup-wrap').appendChild(pop);
+  measPopupEl=pop;
+}
+
+function startMoveMeasEndpoint(id, endpoint) {
+  measMovingId=id; measMovingEndpoint=endpoint;
+  closeMeasPopup(); setDesktopMode('measure');
+  document.getElementById('measure-readout').textContent=`Click new position for point ${endpoint}…`;
 }
 
 // ════════════════════════════════════════════════════════════
@@ -932,18 +1136,57 @@ function setDesktopMode(mode, silent) {
   if(cw) cw.className=`${mode==='pin'?'c-pin':mode==='measure'?'c-meas':'c-orbit'}`;
 }
 
-function onCanvasClick(e) {
-  if(e.target.closest('.pin-popup')) return;
-  closePinPopup();
-  if(desktopMode==='orbit'||!viewerCamera||!viewerRenderer||!loadedModel) return;
+function getCanvasHit(e) {
+  if(!viewerCamera||!viewerRenderer||!loadedModel) return null;
   const cv=viewerRenderer.domElement, rect=cv.getBoundingClientRect();
   mouseNDC.x=((e.clientX-rect.left)/rect.width)*2-1;
   mouseNDC.y=-((e.clientY-rect.top)/rect.height)*2+1;
   raycaster.setFromCamera(mouseNDC,viewerCamera);
   const ms=[]; loadedModel.traverse(c=>{if(c.isMesh)ms.push(c);});
   const hits=raycaster.intersectObjects(ms,false);
+  return hits.length ? hits[0].point : null;
+}
+
+// Right-click → check if we hit a measurement endpoint sphere
+function onCanvasRightClick(e) {
+  e.preventDefault();
+  if(!viewerCamera||!viewerRenderer) return;
+  const cv=viewerRenderer.domElement, rect=cv.getBoundingClientRect();
+  mouseNDC.x=((e.clientX-rect.left)/rect.width)*2-1;
+  mouseNDC.y=-((e.clientY-rect.top)/rect.height)*2+1;
+  raycaster.setFromCamera(mouseNDC,viewerCamera);
+  // Collect all saved measurement spheres
+  const spheres=[];
+  savedMeasurements.forEach(m=>{spheres.push(m.sA,m.sB);});
+  if(!spheres.length) return;
+  const hits=raycaster.intersectObjects(spheres,false);
   if(!hits.length) return;
-  const pt=hits[0].point;
+  const obj=hits[0].object;
+  if(obj.userData.measId!=null) openMeasPopup(obj.userData.measId, obj.userData.endpoint, e.clientX, e.clientY);
+}
+
+function onCanvasClick(e) {
+  if(e.target.closest('.pin-popup')||e.target.closest('.meas-popup')) return;
+  closePinPopup(); closeMeasPopup();
+
+  // ── Moving an existing pin ──────────────────────────────
+  if(pinMovingId!==null) {
+    const pt=getCanvasHit(e);
+    if(pt){ finishMovePin(pt); setDesktopMode('orbit'); } return;
+  }
+
+  // ── Moving a measurement endpoint ──────────────────────
+  if(measMovingId!==null) {
+    const pt=getCanvasHit(e);
+    if(pt){ updateMeasEndpoint(measMovingId,measMovingEndpoint,pt); }
+    measMovingId=null; measMovingEndpoint=null; clearMeasure();
+    setDesktopMode('orbit'); return;
+  }
+
+  if(desktopMode==='orbit') return;
+
+  const pt=getCanvasHit(e); if(!pt) return;
+
   if(desktopMode==='pin') {
     dropAnnotation(pt);
   } else if(desktopMode==='measure') {
@@ -1097,6 +1340,7 @@ function initViewer(fileId) {
   viewerRenderer.xr.enabled=true; viewerRenderer.localClippingEnabled=true;
   wrap.appendChild(viewerRenderer.domElement);
   viewerRenderer.domElement.addEventListener('click',onCanvasClick);
+  viewerRenderer.domElement.addEventListener('contextmenu',onCanvasRightClick);
 
   viewerScene=new THREE.Scene(); viewerScene.background=new THREE.Color(0x0a0a0b);
   viewerCamera=new THREE.PerspectiveCamera(60,wrap.clientWidth/wrap.clientHeight,0.01,500);
@@ -1145,6 +1389,8 @@ function initViewer(fileId) {
       cacheExplodeOrigins();
       document.getElementById('loading-overlay').classList.add('hidden');
       const ts=document.getElementById('tool-strip'); if(ts) ts.style.display='flex';
+      const sb=document.getElementById('sidebar'); if(sb){sb.style.display='flex';sb.classList.add('collapsed');}
+      rebuildSidebar();
       ['hslice-tog','vslice-tog'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=false;});
       hSliceActive=vSliceActive=false;
       if(hContourLine) hContourLine.visible=false;
