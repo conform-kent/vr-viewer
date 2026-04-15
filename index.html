@@ -374,6 +374,10 @@ let pinPopupEl = null;
 let annotationsVisible = true;   // global show/hide
 let pinMovingId = null;          // id of pin being repositioned
 
+// ── Explode ──────────────────────────────────────────────────
+let explodeAmount = 0;
+const explodeOrigins = new Map();
+
 // ── Auto-rotate ───────────────────────────────────────────────
 let autoRotate = false;
 let autoRotateSpeed = 0.005; // radians per frame
