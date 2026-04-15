@@ -116,8 +116,21 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 <div id="browser-screen">
   <div class="topbar">
     <div class="topbar-left">
-      <span class="wordmark">VR<span>.</span>browser</span>
-      <span class="folder-badge" id="folder-badge">—</span>
+      <!-- Logo mark -->
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;">
+        <rect width="32" height="32" rx="8" fill="#0e0e12"/>
+        <rect x="1" y="1" width="30" height="30" rx="7" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+        <!-- Hexagon -->
+        <polygon points="16,4 26,9.5 26,22.5 16,28 6,22.5 6,9.5" fill="none" stroke="#c8f542" stroke-width="1.5" stroke-linejoin="round"/>
+        <!-- VR lines inside -->
+        <line x1="11" y1="13" x2="16" y2="20" stroke="#c8f542" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="21" y1="13" x2="16" y2="20" stroke="#c8f542" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="13" y1="13" x2="19" y2="13" stroke="rgba(200,245,66,0.4)" stroke-width="1" stroke-linecap="round"/>
+      </svg>
+      <div style="display:flex;flex-direction:column;gap:1px;">
+        <span class="wordmark">VR<span>.</span>browser</span>
+        <span style="font-family:'DM Mono',monospace;font-size:9px;color:#3a3a42;letter-spacing:.06em;">v1.0 · Design Review</span>
+      </div>
     </div>
     <button class="btn-icon" onclick="loadModels()">↺ Refresh</button>
   </div>
@@ -214,10 +227,20 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 
   <!-- Bottom bar -->
   <div class="viewer-bar">
-    <span class="viewer-title" id="viewer-title">—</span>
+    <div style="display:flex;align-items:center;gap:10px;min-width:0;flex-shrink:1;overflow:hidden;">
+      <!-- Logo in viewer -->
+      <svg width="22" height="22" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;opacity:0.7;">
+        <polygon points="16,4 26,9.5 26,22.5 16,28 6,22.5 6,9.5" fill="none" stroke="#c8f542" stroke-width="1.8" stroke-linejoin="round"/>
+        <line x1="11" y1="13" x2="16" y2="20" stroke="#c8f542" stroke-width="1.8" stroke-linecap="round"/>
+        <line x1="21" y1="13" x2="16" y2="20" stroke="#c8f542" stroke-width="1.8" stroke-linecap="round"/>
+        <line x1="13" y1="13" x2="19" y2="13" stroke="rgba(200,245,66,0.45)" stroke-width="1.2" stroke-linecap="round"/>
+      </svg>
+      <div style="display:flex;flex-direction:column;gap:0;min-width:0;">
+        <span class="viewer-title" id="viewer-title" style="line-height:1.2;">—</span>
+        <span style="font-family:'DM Mono',monospace;font-size:9px;color:#3a3a42;letter-spacing:.05em;">VR.browser v1.0</span>
+      </div>
+    </div>
     <div class="viewer-controls">
-      <span style="font-family:'DM Mono',monospace;font-size:10px;color:#c8f542;background:rgba(200,245,66,0.08);border:1px solid rgba(200,245,66,0.2);border-radius:6px;padding:3px 8px;">L grip → move</span>
-      <span style="font-family:'DM Mono',monospace;font-size:10px;color:#4290f5;background:rgba(66,144,245,0.08);border:1px solid rgba(66,144,245,0.2);border-radius:6px;padding:3px 8px;">Laser mode: aim + A → pin</span>
       <button class="vr-btn secondary" onclick="closeViewer()">← Back</button>
       <button class="vr-btn" id="vr-btn" onclick="enterVR()">Enter VR</button>
     </div>
@@ -467,7 +490,10 @@ async function renderThumb(fileId,name) {
   const d=new THREE.DirectionalLight(0xffffff,1.2); d.position.set(2,4,3); sc.add(d);
   const glbUrl=`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media&key=${config.apiKey}`;
   try {
-    const gltf=await new Promise((res,rej)=>new THREE.GLTFLoader().load(glbUrl,res,null,rej));
+    const res=await fetch(glbUrl);
+    if(!res.ok) throw new Error(`HTTP ${res.status}`);
+    const buf=await res.arrayBuffer();
+    const gltf=await new Promise((resolve,reject)=>new THREE.GLTFLoader().parse(buf,'',resolve,reject));
     sc.add(gltf.scene);
     const box=new THREE.Box3().setFromObject(gltf.scene);
     const s=2/Math.max(...box.getSize(new THREE.Vector3()).toArray());
@@ -1377,49 +1403,65 @@ function initViewer(fileId) {
 
   modelRoot=new THREE.Group(); viewerScene.add(modelRoot);
 
-  new THREE.GLTFLoader().load(
-    `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media&key=${config.apiKey}`,
-    gltf=>{
+  // Safe label setter — no-ops if the viewer was closed while loading
+  const setLabel = (txt) => { const el=document.getElementById('loading-label'); if(el) el.textContent=txt; };
+
+  // Use fetch() so we get real HTTP error codes instead of opaque XHR ErrorEvents
+  const glbUrl=`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media&key=${config.apiKey}`;
+  const loader=new THREE.GLTFLoader();
+  const loadFileId=fileId; // capture at start so we can check it hasn't changed
+
+  setLabel('Connecting…');
+
+  fetch(glbUrl)
+    .then(res=>{
+      if(!viewerRenderer||currentFileId!==loadFileId) return null; // viewer closed mid-load
+      if(!res.ok) throw new Error(`HTTP ${res.status} — make sure the file is shared publicly (Anyone with the link) and the API key has Drive API enabled.`);
+      setLabel('Downloading…');
+      return res.arrayBuffer();
+    })
+    .then(buf=>{
+      if(!buf||!viewerRenderer||currentFileId!==loadFileId) return null;
+      setLabel('Parsing model…');
+      return new Promise((resolve,reject)=>loader.parse(buf,'',resolve,reject));
+    })
+    .then(gltf=>{
+      if(!gltf||!viewerRenderer||currentFileId!==loadFileId) return; // stale load
       try {
-      const model=gltf.scene;
-      const box=new THREE.Box3().setFromObject(model);
-      const cent=box.getCenter(new THREE.Vector3()), size=box.getSize(new THREE.Vector3());
-      model.position.x-=cent.x; model.position.z-=cent.z; model.position.y-=box.min.y;
-      model.traverse(c=>{if(!c.isMesh)return;c.material.clippingPlanes=[];c.material.side=THREE.DoubleSide;c.material.needsUpdate=true;});
-      modelRoot.add(model); loadedModel=model; modelSize.copy(size);
-      cacheExplodeOrigins();
-      document.getElementById('loading-overlay').classList.add('hidden');
-      const ts=document.getElementById('tool-strip'); if(ts) ts.style.display='flex';
-      const sb=document.getElementById('sidebar'); if(sb){sb.style.display='flex';sb.classList.add('collapsed');}
-      rebuildSidebar();
-      ['hslice-tog','vslice-tog'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=false;});
-      hSliceActive=vSliceActive=false;
-      if(hContourLine) hContourLine.visible=false;
-      if(vContourLine) vContourLine.visible=false;
-      setDesktopMode('orbit');
-      const maxDim=Math.max(size.x,size.y,size.z);
-      viewerCamera.position.set(maxDim*1.5,maxDim*0.8,maxDim*1.5);
-      viewerCamera.lookAt(0,size.y/2,0); viewerControls.target.set(0,size.y/2,0); viewerControls.update();
-      const sr=document.getElementById('size-readout');
-      if(sr) sr.textContent=`${(size.x*100).toFixed(0)} × ${(size.y*100).toFixed(0)} × ${(size.z*100).toFixed(0)} cm`;
-      checkXRSupport();
-      setTimeout(()=>restoreSession(loadSession(fileId)), 50);
+        const model=gltf.scene;
+        const box=new THREE.Box3().setFromObject(model);
+        const cent=box.getCenter(new THREE.Vector3()), size=box.getSize(new THREE.Vector3());
+        model.position.x-=cent.x; model.position.z-=cent.z; model.position.y-=box.min.y;
+        model.traverse(c=>{if(!c.isMesh)return;c.material.clippingPlanes=[];c.material.side=THREE.DoubleSide;c.material.needsUpdate=true;});
+        modelRoot.add(model); loadedModel=model; modelSize.copy(size);
+        cacheExplodeOrigins();
+        const ov=document.getElementById('loading-overlay'); if(ov) ov.classList.add('hidden');
+        const ts=document.getElementById('tool-strip'); if(ts) ts.style.display='flex';
+        const sb=document.getElementById('sidebar'); if(sb){sb.style.display='flex';sb.classList.add('collapsed');}
+        rebuildSidebar();
+        ['hslice-tog','vslice-tog'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=false;});
+        hSliceActive=vSliceActive=false;
+        if(hContourLine) hContourLine.visible=false;
+        if(vContourLine) vContourLine.visible=false;
+        setDesktopMode('orbit');
+        const maxDim=Math.max(size.x,size.y,size.z);
+        viewerCamera.position.set(maxDim*1.5,maxDim*0.8,maxDim*1.5);
+        viewerCamera.lookAt(0,size.y/2,0); viewerControls.target.set(0,size.y/2,0); viewerControls.update();
+        const sr=document.getElementById('size-readout');
+        if(sr) sr.textContent=`${(size.x*100).toFixed(0)} × ${(size.y*100).toFixed(0)} × ${(size.z*100).toFixed(0)} cm`;
+        checkXRSupport();
+        setTimeout(()=>{ if(viewerRenderer&&currentFileId===loadFileId) restoreSession(loadSession(loadFileId)); }, 80);
       } catch(innerErr) {
-        console.error('Error during model setup:', innerErr);
-        document.getElementById('loading-label').textContent=`Setup error: ${innerErr.message}`;
-        document.getElementById('loading-overlay').classList.remove('hidden');
+        console.error('Model setup error:', innerErr);
+        setLabel(`Setup error: ${innerErr.message}`);
+        const ov=document.getElementById('loading-overlay'); if(ov) ov.classList.remove('hidden');
       }
-    },
-    prog=>{
-      const pct = prog.total ? Math.round(prog.loaded/prog.total*100) : '…';
-      document.getElementById('loading-label').textContent=`Loading… ${pct}%`;
-    },
-    err=>{
-      const msg = err?.message || err?.type || String(err) || 'Unknown error';
-      document.getElementById('loading-label').textContent=`Failed: ${msg}`;
-      console.error('GLTFLoader error:', err);
-    }
-  );
+    })
+    .catch(err=>{
+      if(!viewerRenderer||currentFileId!==loadFileId) return; // viewer closed — ignore
+      console.error('Load error:', err);
+      setLabel(err.message||'Failed to load model');
+    });
 
   viewerRenderer.setAnimationLoop(()=>{
     if(viewerControls?.enabled) viewerControls.update();
