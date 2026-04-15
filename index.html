@@ -1350,7 +1350,7 @@ function initViewer(fileId) {
   const az0=lightAz*Math.PI/180, el0=lightEl*Math.PI/180;
   sunLight.position.set(Math.cos(el0)*Math.sin(az0)*8,Math.sin(el0)*8,Math.cos(el0)*Math.cos(az0)*8);
   viewerScene.add(sunLight);
-  viewerScene.add(new THREE.DirectionalLight(0x8888ff,0.18).position.set(-4,2,-3) && new THREE.DirectionalLight(0x8888ff,0.18));
+  const fill=new THREE.DirectionalLight(0x8888ff,0.18); fill.position.set(-4,2,-3); viewerScene.add(fill);
   viewerScene.add(new THREE.GridHelper(20,40,0x222226,0x18181c));
 
   viewerControls=new THREE.OrbitControls(viewerCamera,viewerRenderer.domElement);
@@ -1380,6 +1380,7 @@ function initViewer(fileId) {
   new THREE.GLTFLoader().load(
     `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media&key=${config.apiKey}`,
     gltf=>{
+      try {
       const model=gltf.scene;
       const box=new THREE.Box3().setFromObject(model);
       const cent=box.getCenter(new THREE.Vector3()), size=box.getSize(new THREE.Vector3());
@@ -1402,11 +1403,22 @@ function initViewer(fileId) {
       const sr=document.getElementById('size-readout');
       if(sr) sr.textContent=`${(size.x*100).toFixed(0)} × ${(size.y*100).toFixed(0)} × ${(size.z*100).toFixed(0)} cm`;
       checkXRSupport();
-      // Restore saved session after model is loaded
       setTimeout(()=>restoreSession(loadSession(fileId)), 50);
+      } catch(innerErr) {
+        console.error('Error during model setup:', innerErr);
+        document.getElementById('loading-label').textContent=`Setup error: ${innerErr.message}`;
+        document.getElementById('loading-overlay').classList.remove('hidden');
+      }
     },
-    prog=>{document.getElementById('loading-label').textContent=`Loading… ${prog.total?Math.round(prog.loaded/prog.total*100):'…'}%`;},
-    err=>{document.getElementById('loading-label').textContent='Failed to load model';console.error(err);}
+    prog=>{
+      const pct = prog.total ? Math.round(prog.loaded/prog.total*100) : '…';
+      document.getElementById('loading-label').textContent=`Loading… ${pct}%`;
+    },
+    err=>{
+      const msg = err?.message || err?.type || String(err) || 'Unknown error';
+      document.getElementById('loading-label').textContent=`Failed: ${msg}`;
+      console.error('GLTFLoader error:', err);
+    }
   );
 
   viewerRenderer.setAnimationLoop(()=>{
