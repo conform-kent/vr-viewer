@@ -490,10 +490,7 @@ async function renderThumb(fileId,name) {
   const d=new THREE.DirectionalLight(0xffffff,1.2); d.position.set(2,4,3); sc.add(d);
   const glbUrl=`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media&key=${config.apiKey}`;
   try {
-    const res=await fetch(glbUrl);
-    if(!res.ok) throw new Error(`HTTP ${res.status}`);
-    const buf=await res.arrayBuffer();
-    const gltf=await new Promise((resolve,reject)=>new THREE.GLTFLoader().parse(buf,'',resolve,reject));
+    const gltf=await new Promise((res,rej)=>new THREE.GLTFLoader().load(glbUrl,res,null,rej));
     sc.add(gltf.scene);
     const box=new THREE.Box3().setFromObject(gltf.scene);
     const s=2/Math.max(...box.getSize(new THREE.Vector3()).toArray());
@@ -1403,30 +1400,18 @@ function initViewer(fileId) {
 
   modelRoot=new THREE.Group(); viewerScene.add(modelRoot);
 
-  // Safe label setter — no-ops if the viewer was closed while loading
   const setLabel = (txt) => { const el=document.getElementById('loading-label'); if(el) el.textContent=txt; };
+  const loadFileId = fileId;
 
-  // Use fetch() so we get real HTTP error codes instead of opaque XHR ErrorEvents
-  const glbUrl=`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media&key=${config.apiKey}`;
-  const loader=new THREE.GLTFLoader();
-  const loadFileId=fileId; // capture at start so we can check it hasn't changed
+  setLabel('Loading model…');
 
-  setLabel('Connecting…');
+  const loader = new THREE.GLTFLoader();
+  loader.crossOrigin = 'anonymous';
 
-  fetch(glbUrl)
-    .then(res=>{
-      if(!viewerRenderer||currentFileId!==loadFileId) return null; // viewer closed mid-load
-      if(!res.ok) throw new Error(`HTTP ${res.status} — make sure the file is shared publicly (Anyone with the link) and the API key has Drive API enabled.`);
-      setLabel('Downloading…');
-      return res.arrayBuffer();
-    })
-    .then(buf=>{
-      if(!buf||!viewerRenderer||currentFileId!==loadFileId) return null;
-      setLabel('Parsing model…');
-      return new Promise((resolve,reject)=>loader.parse(buf,'',resolve,reject));
-    })
-    .then(gltf=>{
-      if(!gltf||!viewerRenderer||currentFileId!==loadFileId) return; // stale load
+  loader.load(
+    `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media&key=${config.apiKey}`,
+    gltf=>{
+      if(!viewerRenderer||currentFileId!==loadFileId) return;
       try {
         const model=gltf.scene;
         const box=new THREE.Box3().setFromObject(model);
@@ -1456,12 +1441,18 @@ function initViewer(fileId) {
         setLabel(`Setup error: ${innerErr.message}`);
         const ov=document.getElementById('loading-overlay'); if(ov) ov.classList.remove('hidden');
       }
-    })
-    .catch(err=>{
-      if(!viewerRenderer||currentFileId!==loadFileId) return; // viewer closed — ignore
+    },
+    xhr=>{
+      if(!viewerRenderer||currentFileId!==loadFileId) return;
+      if(xhr.total) setLabel(`Loading… ${Math.round(xhr.loaded/xhr.total*100)}%`);
+    },
+    err=>{
+      if(!viewerRenderer||currentFileId!==loadFileId) return;
       console.error('Load error:', err);
-      setLabel(err.message||'Failed to load model');
-    });
+      // XHR errors come as ErrorEvent with no useful message — give actionable text
+      setLabel('Failed to load — check the file is shared publicly and the API key has Drive API enabled.');
+    }
+  );
 
   viewerRenderer.setAnimationLoop(()=>{
     if(viewerControls?.enabled) viewerControls.update();
