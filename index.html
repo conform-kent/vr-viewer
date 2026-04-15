@@ -199,6 +199,19 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
         <input type="range" id="light-el" min="5" max="85" step="1" value="40" oninput="onLightSlider()" style="width:66px;accent-color:#f5a142;">
         <span id="light-val" style="font-family:'DM Mono',monospace;font-size:10px;color:#f5a142;min-width:42px;">45°/40°</span>
       </div>
+      <div style="width:1px;height:13px;background:rgba(255,255,255,0.07)"></div>
+      <!-- Surface analysis / Zebra -->
+      <div style="display:flex;align-items:center;gap:4px;">
+        <span style="font-family:'DM Mono',monospace;font-size:9px;color:#6b6b72;text-transform:uppercase;letter-spacing:.08em;">Surface</span>
+        <button id="zebra-off"  onclick="setZebraMode('off')"  style="font-family:'DM Mono',monospace;font-size:9px;padding:2px 6px;border-radius:4px;border:1px solid rgba(200,245,66,0.4);background:rgba(200,245,66,0.15);color:#c8f542;cursor:pointer;">off</button>
+        <button id="zebra-h"   onclick="setZebraMode('h')"    style="font-family:'DM Mono',monospace;font-size:9px;padding:2px 6px;border-radius:4px;border:1px solid rgba(255,255,255,0.12);background:transparent;color:#6b6b72;cursor:pointer;">≡ H</button>
+        <button id="zebra-v"   onclick="setZebraMode('v')"    style="font-family:'DM Mono',monospace;font-size:9px;padding:2px 6px;border-radius:4px;border:1px solid rgba(255,255,255,0.12);background:transparent;color:#6b6b72;cursor:pointer;">⫶ V</button>
+        <button id="zebra-grid" onclick="setZebraMode('grid')" style="font-family:'DM Mono',monospace;font-size:9px;padding:2px 6px;border-radius:4px;border:1px solid rgba(255,255,255,0.12);background:transparent;color:#6b6b72;cursor:pointer;">⊞ Grid</button>
+      </div>
+      <div style="width:1px;height:13px;background:rgba(255,255,255,0.07)"></div>
+      <!-- Auto-rotate -->
+      <button id="autorot-btn" onclick="toggleAutoRotate()" title="Auto-rotate model"
+        style="font-family:'DM Mono',monospace;font-size:9px;padding:2px 7px;border-radius:4px;border:1px solid rgba(255,255,255,0.12);background:transparent;color:#6b6b72;cursor:pointer;">⟳ Auto</button>
     </div>
 
     <!-- Row B -->
@@ -250,6 +263,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
     </div>
     <div class="viewer-controls">
       <button class="vr-btn secondary" onclick="closeViewer()">← Back</button>
+      <button id="ar-btn" class="vr-btn secondary" onclick="enterAR()" style="display:none;">⬡ AR</button>
       <button class="vr-btn" id="vr-btn" onclick="enterVR()">Enter VR</button>
     </div>
   </div>
@@ -308,8 +322,8 @@ const config = {
 // Free tier at jsonbin.io — create a bin at jsonbin.io, paste its ID and key here.
 // All pins/measurements for all models are stored in one JSON object keyed by fileId.
 // Set JSONBIN_ID = '' to disable cloud sync (falls back to localStorage only).
-const JSONBIN_ID  = '69dfd930aaba882197023aec';   // e.g. '665abc123def456789' — paste your bin ID here
-const JSONBIN_KEY = '$2a$10$IP7x.SvfAJz/WsxDosIt.Om/eUFR6KvVltHb0ldXNsyQ5UAQ6ubcK';   // e.g. '$2a$10$...'        — paste your Master Key here
+const JSONBIN_ID  = '69dfd930aaba882197023aec';
+const JSONBIN_KEY = '$2a$10$IP7x.SvfAJz/WsxDosIt.Om/eUFR6KvVltHb0ldXNsyQ5UAQ6ubcK';
 const JSONBIN_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_ID}`;
 
 let thumbCache = {}, currentModels = [], currentFileId = null;
@@ -360,9 +374,14 @@ let pinPopupEl = null;
 let annotationsVisible = true;   // global show/hide
 let pinMovingId = null;          // id of pin being repositioned
 
-// ── Explode ──────────────────────────────────────────────────
-let explodeAmount = 0;
-const explodeOrigins = new Map();
+// ── Auto-rotate ───────────────────────────────────────────────
+let autoRotate = false;
+let autoRotateSpeed = 0.005; // radians per frame
+
+// ── Zebra/surface analysis ────────────────────────────────────
+// 'off' | 'h' (horizontal stripes) | 'v' (vertical stripes) | 'grid'
+let zebraMode = 'off';
+let zebraLight = null; // SpotLight used for stripe simulation
 
 // ── VR modes ─────────────────────────────────────────────────
 // No longer cycling modes — each input has a dedicated binding
@@ -416,7 +435,13 @@ let highlightedPinId = null;
 // ════════════════════════════════════════════════════════════
 function buildSessionData() {
   return {
-    pins: annotations.map(a=>({id:a.id,pos:{x:a.worldPos.x,y:a.worldPos.y,z:a.worldPos.z},colorIdx:a.colorIdx,comment:a.comment||''})),
+    pins: annotations.map(a=>({
+      id: a.id,
+      // Save local position relative to modelRoot (survives move/scale/rotate)
+      pos: {x:a.localPos.x, y:a.localPos.y, z:a.localPos.z},
+      colorIdx: a.colorIdx,
+      comment: a.comment||''
+    })),
     annotCount,
     measurements: savedMeasurements.map(m=>({id:m.id,ptA:{x:m.ptA.x,y:m.ptA.y,z:m.ptA.z},ptB:{x:m.ptB.x,y:m.ptB.y,z:m.ptB.z},label:m.label})),
     measureCount,
@@ -659,6 +684,10 @@ function closeViewer() {
 function cleanupViewer() {
   closePinPopup(); closeMeasPopup(); closeConfirm();
   measLabelDivs.forEach(div=>div.remove()); measLabelDivs.clear();
+  // Clean up zebra analysis objects
+  zebraObjects.forEach(o=>viewerScene?.remove(o)); zebraObjects=[];
+  if(zebraGridMesh){viewerScene?.remove(zebraGridMesh);zebraGridMesh=null;}
+  zebraMode='off'; autoRotate=false;
   if(viewerRenderer){
     if(viewerRenderer.xr?.isPresenting) viewerRenderer.xr.getSession()?.end();
     viewerRenderer.setAnimationLoop(null);
@@ -834,8 +863,86 @@ function onLightSlider() {
 }
 
 // ════════════════════════════════════════════════════════════
-//  PIN COMMENT POPUP
+//  AUTO-ROTATE
 // ════════════════════════════════════════════════════════════
+function toggleAutoRotate() {
+  autoRotate = !autoRotate;
+  const btn=document.getElementById('autorot-btn');
+  if(btn){
+    btn.style.background = autoRotate ? 'rgba(200,245,66,0.15)' : 'transparent';
+    btn.style.borderColor = autoRotate ? 'rgba(200,245,66,0.4)' : 'rgba(255,255,255,0.12)';
+    btn.style.color = autoRotate ? '#c8f542' : '#6b6b72';
+  }
+}
+
+// ════════════════════════════════════════════════════════════
+//  ZEBRA / SURFACE ANALYSIS
+//  Mode 'h': horizontal stripe lighting (many parallel directional lights)
+//  Mode 'v': vertical stripe lighting
+//  Mode 'grid': 5cm wireframe grid wrapped around model
+//  Mode 'off': remove all
+// ════════════════════════════════════════════════════════════
+let zebraObjects = []; // scene objects added for zebra mode
+let zebraGridMesh = null;
+
+function setZebraMode(mode) {
+  // Clean up previous
+  zebraObjects.forEach(o=>viewerScene&&viewerScene.remove(o));
+  zebraObjects=[];
+  if(zebraGridMesh){ viewerScene&&viewerScene.remove(zebraGridMesh); zebraGridMesh=null; }
+  // Restore base ambient
+  viewerScene&&viewerScene.traverse(o=>{if(o.isAmbientLight) o.intensity=0.6;});
+  // Restore model materials to normal
+  loadedModel&&loadedModel.traverse(c=>{if(c.isMesh){c.material.wireframe=false;c.material.needsUpdate=true;}});
+
+  zebraMode=mode;
+  const btns=['zebra-off','zebra-h','zebra-v','zebra-grid'];
+  btns.forEach(id=>{
+    const b=document.getElementById(id);
+    if(!b) return;
+    const active=id===`zebra-${mode}`;
+    b.style.background=active?'rgba(200,245,66,0.15)':'transparent';
+    b.style.borderColor=active?'rgba(200,245,66,0.4)':'rgba(255,255,255,0.12)';
+    b.style.color=active?'#c8f542':'#6b6b72';
+  });
+
+  if(mode==='off') return;
+
+  if(mode==='grid') {
+    // Wireframe overlay on model — add a cloned wireframe child
+    if(loadedModel){
+      loadedModel.traverse(c=>{
+        if(!c.isMesh) return;
+        const wf=new THREE.Mesh(c.geometry, new THREE.MeshBasicMaterial({
+          color:0xc8f542, wireframe:true, opacity:0.18, transparent:true}));
+        wf.matrix.copy(c.matrixWorld); wf.matrixAutoUpdate=false;
+        viewerScene.add(wf); zebraObjects.push(wf);
+      });
+    }
+    return;
+  }
+
+  // Stripe lighting: 8 alternating directional lights oriented H or V
+  // Creates alternating light/dark bands that reveal surface curvature
+  const STRIPES=8;
+  for(let i=0;i<STRIPES;i++){
+    const t=i/STRIPES;
+    const bright=(i%2===0);
+    const dl=new THREE.DirectionalLight(bright?0xffffff:0x111114, bright?2.0:0);
+    if(mode==='h'){
+      // H stripes: lights orbit vertically
+      const ang=(t*Math.PI*2);
+      dl.position.set(0, Math.sin(ang)*6, Math.cos(ang)*6);
+    } else {
+      // V stripes: lights orbit horizontally
+      const ang=(t*Math.PI*2);
+      dl.position.set(Math.cos(ang)*6, 2, Math.sin(ang)*6);
+    }
+    viewerScene.add(dl); zebraObjects.push(dl);
+  }
+  // Reduce ambient so stripes are visible
+  viewerScene&&viewerScene.traverse(o=>{if(o.isAmbientLight) o.intensity=0.1;});
+}
 function closePinPopup() {
   if(pinPopupEl){ pinPopupEl.remove(); pinPopupEl=null; }
 }
@@ -877,32 +984,42 @@ function savePinComment(id) {
 function getPinHex(idx){ return '#'+PIN_COLORS[idx%PIN_COLORS.length].toString(16).padStart(6,'0'); }
 
 // Internal spawn used both for new drops and session restore
+// Pins are added to modelRoot so they move/scale/rotate with the model.
+// worldPos is in WORLD space — we convert to modelRoot local space for storage.
 function _spawnPin(worldPos, colorIdx, id, comment) {
   const col = PIN_COLORS[colorIdx % PIN_COLORS.length];
   const hexC = getPinHex(colorIdx);
-  // Smaller sphere (radius 0.012 vs previous 0.027)
+  // Convert world position to modelRoot local space
+  const localPos = modelRoot ? modelRoot.worldToLocal(worldPos.clone()) : worldPos.clone();
   const mesh = new THREE.Mesh(
     new THREE.SphereGeometry(0.012, 10, 10),
     new THREE.MeshBasicMaterial({color:col}));
-  mesh.position.copy(worldPos); viewerScene.add(mesh);
-  // Short stem (4 cm)
+  mesh.position.copy(localPos);
+  // Short stem
+  const stemEnd = localPos.clone().add(new THREE.Vector3(0, 0.04, 0));
   const stem = new THREE.Line(
-    new THREE.BufferGeometry().setFromPoints([worldPos.clone(), worldPos.clone().add(new THREE.Vector3(0,0.04,0))]),
+    new THREE.BufferGeometry().setFromPoints([localPos.clone(), stemEnd]),
     new THREE.LineBasicMaterial({color:col}));
-  viewerScene.add(stem);
-  // Compact label
+  // Add to modelRoot so they inherit transform
+  const parent = modelRoot || viewerScene;
+  parent.add(mesh); parent.add(stem);
+  // DOM label
   const div = document.createElement('div');
   div.style.cssText=`position:fixed;background:${hexC};color:#fff;font-family:'DM Mono',monospace;font-size:10px;font-weight:500;padding:2px 6px;border-radius:4px;pointer-events:auto;cursor:pointer;z-index:150;white-space:nowrap;box-shadow:0 1px 6px rgba(0,0,0,0.55);user-select:none;`;
   div.textContent=`#${id}`;
   div.title = comment ? `#${id}: ${comment}` : `Pin #${id}`;
-  // Click: open comment popup
   div.addEventListener('click', e => {
     e.stopPropagation();
     const pin = annotations.find(a=>a.id===id);
     if(pin) openPinPopup(pin, e.clientX, e.clientY);
   });
   document.body.appendChild(div);
-  const pinObj = {mesh, stem, labelDiv:div, worldPos:worldPos.clone(), id, colorIdx, color:col, comment:comment||''};
+  // Store localPos for session save; worldPos is derived each frame
+  const pinObj = {mesh, stem, labelDiv:div, localPos:localPos.clone(),
+    get worldPos(){ // computed dynamically from mesh world position
+      const wp=new THREE.Vector3(); mesh.getWorldPosition(wp); return wp;
+    },
+    id, colorIdx, color:col, comment:comment||''};
   annotations.push(pinObj);
   return pinObj;
 }
@@ -919,9 +1036,10 @@ function dropAnnotation(worldPos) {
 function removeAnnotation(id) {
   const idx = annotations.findIndex(a=>a.id===id); if(idx===-1) return;
   const a = annotations[idx];
-  viewerScene?.remove(a.mesh); viewerScene?.remove(a.stem); a.labelDiv?.remove();
+  const parent = modelRoot || viewerScene;
+  parent.remove(a.mesh); parent.remove(a.stem); a.labelDiv?.remove();
   annotations.splice(idx,1);
-  document.getElementById('annot-count').textContent = annotations.length;
+  const ac=document.getElementById('annot-count'); if(ac) ac.textContent=annotations.length;
   saveSession(); rebuildSidebar();
 }
 function onClearAnnotations(){ closePinPopup(); [...annotations].forEach(a=>removeAnnotation(a.id)); }
@@ -947,10 +1065,12 @@ function startMovePin(id) {
 }
 function finishMovePin(pt) {
   const pin=annotations.find(a=>a.id===pinMovingId); if(!pin){pinMovingId=null;return;}
-  pin.worldPos.copy(pt);
-  pin.mesh.position.copy(pt); pin.mesh.scale.setScalar(1);
-  const stemPts=[pt.clone(),pt.clone().add(new THREE.Vector3(0,0.04,0))];
-  pin.stem.geometry.setFromPoints(stemPts);
+  // pt is world space — convert to modelRoot local
+  const localPt = modelRoot ? modelRoot.worldToLocal(pt.clone()) : pt.clone();
+  pin.localPos.copy(localPt);
+  pin.mesh.position.copy(localPt); pin.mesh.scale.setScalar(1);
+  const stemEnd=localPt.clone().add(new THREE.Vector3(0,0.04,0));
+  pin.stem.geometry.setFromPoints([localPt.clone(), stemEnd]);
   pinMovingId=null;
   saveSession();
 }
@@ -958,14 +1078,15 @@ function finishMovePin(pt) {
 function updateAnnotationLabels() {
   if(!viewerCamera||!viewerRenderer) return;
   const r=viewerRenderer.domElement.getBoundingClientRect();
+  const wp=new THREE.Vector3();
   annotations.forEach(a=>{
     if(!annotationsVisible){a.labelDiv.style.display='none';return;}
-    const v=a.worldPos.clone().project(viewerCamera);
+    a.mesh.getWorldPosition(wp);
+    const v=wp.clone().project(viewerCamera);
     const x=(v.x*0.5+0.5)*r.width+r.left, y=(-v.y*0.5+0.5)*r.height+r.top;
     if(v.z<1){
       a.labelDiv.style.left=(x+8)+'px'; a.labelDiv.style.top=(y-8)+'px';
       a.labelDiv.style.display='block';
-      // Highlight selected pin from sidebar
       a.labelDiv.style.outline = a.id===highlightedPinId ? '2px solid #fff' : 'none';
       a.mesh.scale.setScalar(a.id===highlightedPinId ? 2 : (pinMovingId===a.id ? 2 : 1));
     } else { a.labelDiv.style.display='none'; }
@@ -1629,7 +1750,7 @@ function initViewer(fileId) {
   viewerRenderer.domElement.addEventListener('click',onCanvasClick);
   viewerRenderer.domElement.addEventListener('contextmenu',onCanvasRightClick);
 
-  viewerScene=new THREE.Scene(); viewerScene.background=new THREE.Color(0x0a0a0b);
+  viewerScene=new THREE.Scene(); viewerScene.background=new THREE.Color(0x1a1a1e);
   viewerCamera=new THREE.PerspectiveCamera(60,wrap.clientWidth/wrap.clientHeight,0.01,500);
   viewerCamera.position.set(0,1.6,2.5);
   viewerScene.add(new THREE.AmbientLight(0xffffff,0.6));
@@ -1638,25 +1759,28 @@ function initViewer(fileId) {
   sunLight.position.set(Math.cos(el0)*Math.sin(az0)*8,Math.sin(el0)*8,Math.cos(el0)*Math.cos(az0)*8);
   viewerScene.add(sunLight);
   const fill=new THREE.DirectionalLight(0x8888ff,0.18); fill.position.set(-4,2,-3); viewerScene.add(fill);
-  // Build proper metric grid: 1m squares, 10cm subdivisions, bold centre cross
+  // ── 1×1 m metric grid: 10cm subdivisions + bold centre cross ──
   (function buildMetricGrid(scene) {
-    const SIZE=20, HALF=SIZE/2;
-    const matDm  = new THREE.LineBasicMaterial({color:0x2a2a30, transparent:true, opacity:0.9});
-    const mat1m  = new THREE.LineBasicMaterial({color:0x3a3a45, transparent:true, opacity:1.0});
-    const matCtr = new THREE.LineBasicMaterial({color:0x50504a, transparent:true, opacity:1.0});
-    const pts1m=[], ptsDm=[], ptsCtr=[];
-    for(let i=-HALF; i<=HALF; i+=0.1){
-      const v=parseFloat(i.toFixed(2));
-      const isCtr=(Math.abs(v)<0.001);
-      const is1m =(Math.abs(v%1)<0.001);
-      const arr  = isCtr?ptsCtr : is1m?pts1m : ptsDm;
-      arr.push(new THREE.Vector3(-HALF,0,v), new THREE.Vector3(HALF,0,v));
-      arr.push(new THREE.Vector3(v,0,-HALF), new THREE.Vector3(v,0,HALF));
+    const HALF=0.5; // 1m total
+    const mat10cm = new THREE.LineBasicMaterial({color:0x404048,transparent:true,opacity:0.8});
+    const mat1m   = new THREE.LineBasicMaterial({color:0x606068,transparent:true,opacity:1.0});
+    const matCtr  = new THREE.LineBasicMaterial({color:0x808088,transparent:true,opacity:1.0});
+    const pts10=[],pts1m=[],ptsCtr=[];
+    // Build lines every 10cm from -0.5 to +0.5
+    for(let i=-5;i<=5;i++){
+      const v=i*0.1;
+      const isCtr=(i===0);
+      const is1m=(i===-5||i===5);
+      const arr=isCtr?ptsCtr:is1m?pts1m:pts10;
+      // Horizontal line
+      arr.push(new THREE.Vector3(-HALF,0,v),new THREE.Vector3(HALF,0,v));
+      // Vertical line
+      arr.push(new THREE.Vector3(v,0,-HALF),new THREE.Vector3(v,0,HALF));
     }
-    const makeLines=(pts,mat)=>{const g=new THREE.BufferGeometry().setFromPoints(pts);return new THREE.LineSegments(g,mat);};
-    scene.add(makeLines(ptsDm,matDm));
-    scene.add(makeLines(pts1m,mat1m));
-    scene.add(makeLines(ptsCtr,matCtr));
+    const mkL=(pts,mat)=>scene.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(pts),mat));
+    if(pts10.length) mkL(pts10,mat10cm);
+    if(pts1m.length) mkL(pts1m,mat1m);
+    if(ptsCtr.length) mkL(ptsCtr,matCtr);
   })(viewerScene);
 
   viewerControls=new THREE.OrbitControls(viewerCamera,viewerRenderer.domElement);
@@ -1739,6 +1863,10 @@ function initViewer(fileId) {
 
   viewerRenderer.setAnimationLoop(()=>{
     if(viewerControls?.enabled) viewerControls.update();
+    // Auto-rotate
+    if(autoRotate&&modelRoot&&!viewerRenderer.xr.isPresenting){
+      modelRoot.rotateY(autoRotateSpeed);
+    }
     if(viewerRenderer.xr.isPresenting){
       pollGamepadButtons(); // all VR controls handled there
     }
@@ -1760,43 +1888,72 @@ function initViewer(fileId) {
 // ════════════════════════════════════════════════════════════
 async function checkXRSupport() {
   const btn=document.getElementById('vr-btn');
+  const arBtn=document.getElementById('ar-btn');
   if(!navigator.xr){btn.textContent='VR not supported';btn.disabled=true;return;}
   const vrOk=await navigator.xr.isSessionSupported('immersive-vr').catch(()=>false);
   if(vrOk){btn.textContent='⬡ Enter VR';btn.disabled=false;}
   else{btn.textContent='VR not available';btn.style.opacity='0.5';}
+  // Show AR button if supported (phones, tablets, Quest passthrough)
+  if(arBtn){
+    const arOk=await navigator.xr.isSessionSupported('immersive-ar').catch(()=>false);
+    arBtn.style.display=arOk?'':'none';
+  }
+}
+
+async function enterAR() {
+  if(!navigator.xr||!viewerRenderer) return;
+  try {
+    const session=await navigator.xr.requestSession('immersive-ar',{
+      requiredFeatures:['local-floor'],
+      optionalFeatures:['dom-overlay','hit-test'],
+      domOverlay:{root:document.getElementById('vr-hud')}
+    });
+    // Transparent background for passthrough
+    if(viewerScene) viewerScene.background=null;
+    viewerRenderer.xr.setSession(session);
+    document.getElementById('vr-hud').style.display='block';
+    const mrBtn=document.getElementById('mr-toggle-btn');
+    if(mrBtn) mrBtn.textContent='⬡ Switch to VR';
+    session.addEventListener('end',()=>{
+      document.getElementById('ar-btn').textContent='⬡ AR';
+      document.getElementById('vr-hud').style.display='none';
+      if(viewerScene) viewerScene.background=new THREE.Color(0x1a1a1e);
+      if(slicerActive){slicerActive=false;slicerMesh&&(slicerMesh.visible=false);setClipping(false);}
+      saveSession();
+    });
+    document.getElementById('ar-btn').textContent='◼ Exit AR';
+    // Set up controllers for AR too
+    setupControllers(viewerRenderer,viewerScene);
+  } catch(e){alert('Could not start AR session: '+e.message);}
 }
 
 function toggleMRMode() {
   vrImmersiveMode = vrImmersiveMode==='vr' ? 'ar' : 'vr';
   const btn=document.getElementById('mr-toggle-btn');
-  if(btn) btn.textContent = vrImmersiveMode==='ar' ? '⬡ Switch to Immersive VR' : '⬡ Switch to Mixed Reality';
-  // Update scene background: transparent for AR, dark for VR
-  if(viewerScene) viewerScene.background = vrImmersiveMode==='ar' ? null : new THREE.Color(0x0a0a0b);
+  if(btn) btn.textContent = vrImmersiveMode==='ar' ? '⬡ Switch to VR' : '⬡ Switch to Mixed Reality';
+  if(viewerScene) viewerScene.background = vrImmersiveMode==='ar' ? null : new THREE.Color(0x1a1a1e);
 }
 
 async function enterVR() {
   if(!navigator.xr||!viewerRenderer) return;
   try {
     const isAR = vrImmersiveMode==='ar';
-    const mode  = isAR ? 'immersive-ar' : 'immersive-vr';
-    // Check AR support, fall back to VR gracefully
     if(isAR){
       const arOk=await navigator.xr.isSessionSupported('immersive-ar').catch(()=>false);
-      if(!arOk){ alert('Mixed Reality / passthrough not supported on this device. Switching to VR.'); vrImmersiveMode='vr'; toggleMRMode(); }
+      if(!arOk){ alert('Mixed Reality not supported on this device. Entering VR.'); vrImmersiveMode='vr'; toggleMRMode(); }
     }
     const sessionMode = vrImmersiveMode==='ar' ? 'immersive-ar' : 'immersive-vr';
     const session=await navigator.xr.requestSession(sessionMode,{
       requiredFeatures:['local-floor'],
       optionalFeatures:['bounded-floor','dom-overlay','hand-tracking',
-                        ...(sessionMode==='immersive-ar'?['hit-test']:['unbounded'])],
+                        ...(sessionMode==='immersive-ar'?['hit-test']:[])],
       domOverlay:{root:document.getElementById('vr-hud')}
     });
-    // AR = transparent background so passthrough shows
-    if(viewerScene) viewerScene.background = sessionMode==='immersive-ar' ? null : new THREE.Color(0x0a0a0b);
+    if(viewerScene) viewerScene.background = sessionMode==='immersive-ar' ? null : new THREE.Color(0x1a1a1e);
     viewerRenderer.xr.setSession(session);
     session.addEventListener('end',()=>{
       document.getElementById('vr-btn').textContent='⬡ Enter VR';
-      viewerScene&&(viewerScene.background=new THREE.Color(0x0a0a0b));
+      if(viewerScene) viewerScene.background=new THREE.Color(0x1a1a1e);
       if(slicerActive){slicerActive=false;slicerMesh&&(slicerMesh.visible=false);setClipping(false);}
       if(hContourLine&&!hSliceActive) hContourLine.visible=false;
       saveSession();
