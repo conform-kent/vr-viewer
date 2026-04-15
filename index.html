@@ -1,0 +1,1691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VR Model Browser</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap');
+
+  :root {
+    --bg: #0a0a0b;
+    --surface: #111113;
+    --surface2: #18181c;
+    --border: rgba(255,255,255,0.07);
+    --border-hover: rgba(255,255,255,0.18);
+    --text: #e8e8e6;
+    --muted: #6b6b72;
+    --accent: #c8f542;
+    --accent2: #42f5c8;
+    --danger: #f54242;
+    --radius: 12px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── SETUP SCREEN ── */
+  #setup-screen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .setup-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 40px;
+    width: 100%;
+    max-width: 520px;
+  }
+  .setup-card h1 {
+    font-family: 'DM Mono', monospace;
+    font-size: 22px;
+    font-weight: 400;
+    letter-spacing: -0.5px;
+    margin-bottom: 6px;
+  }
+  .setup-card .sub {
+    color: var(--muted);
+    font-size: 13px;
+    margin-bottom: 32px;
+    line-height: 1.6;
+  }
+  .field-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .field-row {
+    margin-bottom: 20px;
+  }
+  input[type="text"] {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  input[type="text"]:focus { border-color: var(--accent); }
+  input[type="text"]::placeholder { color: var(--muted); }
+
+  .hint {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 6px;
+    line-height: 1.5;
+  }
+  .hint a { color: var(--accent2); text-decoration: none; }
+
+  .btn-primary {
+    width: 100%;
+    background: var(--accent);
+    color: #0a0a0b;
+    border: none;
+    border-radius: var(--radius);
+    padding: 14px;
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+    margin-top: 8px;
+  }
+  .btn-primary:hover { opacity: 0.88; }
+  .btn-primary:active { transform: scale(0.98); }
+
+  .step-list {
+    margin-top: 28px;
+    border-top: 1px solid var(--border);
+    padding-top: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .step-item {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+  .step-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    background: rgba(200,245,66,0.1);
+    border-radius: 6px;
+    padding: 3px 7px;
+    white-space: nowrap;
+    margin-top: 1px;
+  }
+  .step-text {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.55;
+  }
+  .step-text strong { color: var(--text); font-weight: 400; }
+
+  /* ── BROWSER SCREEN ── */
+  #browser-screen { display: none; min-height: 100vh; }
+
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 24px;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: rgba(10,10,11,0.92);
+    backdrop-filter: blur(12px);
+    z-index: 10;
+  }
+  .topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .wordmark {
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    font-weight: 400;
+    letter-spacing: -0.3px;
+  }
+  .wordmark span { color: var(--accent); }
+  .folder-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 3px 9px;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .btn-icon {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 14px;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-icon:hover { border-color: var(--border-hover); color: var(--text); }
+
+  .content { padding: 28px 24px; }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .section-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+  .count-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    background: rgba(200,245,66,0.1);
+    border-radius: 6px;
+    padding: 2px 8px;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 14px;
+  }
+
+  .model-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color 0.2s, transform 0.15s, box-shadow 0.2s;
+    position: relative;
+  }
+  .model-card:hover {
+    border-color: var(--border-hover);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.4);
+  }
+  .model-card:active { transform: translateY(-1px); }
+
+  .thumb-wrap {
+    width: 100%;
+    aspect-ratio: 1;
+    background: var(--surface2);
+    position: relative;
+    overflow: hidden;
+  }
+  .thumb-wrap canvas {
+    width: 100% !important;
+    height: 100% !important;
+    display: block;
+  }
+  .thumb-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 8px;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+  }
+  .thumb-placeholder .icon {
+    font-size: 28px;
+    opacity: 0.4;
+  }
+
+  .card-body {
+    padding: 12px 14px 14px;
+  }
+  .model-name {
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 4px;
+  }
+  .model-meta {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .launch-btn {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    background: var(--accent);
+    color: #0a0a0b;
+    border: none;
+    border-radius: 8px;
+    padding: 5px 10px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.18s;
+    pointer-events: none;
+  }
+  .model-card:hover .launch-btn {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* ── VIEWER OVERLAY ── */
+  #viewer-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: #000;
+    z-index: 100;
+    flex-direction: column;
+  }
+  #viewer-overlay.active { display: flex; }
+
+  .viewer-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    background: rgba(0,0,0,0.7);
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
+  }
+  .viewer-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: var(--text);
+  }
+  .viewer-controls {
+    display: flex;
+    gap: 8px;
+  }
+  .vr-btn {
+    background: var(--accent);
+    color: #0a0a0b;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: opacity 0.18s;
+  }
+  .vr-btn:hover { opacity: 0.85; }
+  .vr-btn.secondary {
+    background: var(--surface2);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+
+  #viewer-canvas-wrap {
+    flex: 1;
+    position: relative;
+  }
+  #viewer-canvas-wrap canvas {
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  .loading-overlay {
+    position: absolute;
+    inset: 0;
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 16px;
+    z-index: 5;
+    transition: opacity 0.4s;
+  }
+  .loading-overlay.hidden { opacity: 0; pointer-events: none; }
+  .spinner {
+    width: 36px;
+    height: 36px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  /* ── STATUS / ERROR ── */
+  .status-msg {
+    text-align: center;
+    padding: 60px 24px;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    line-height: 1.7;
+  }
+  .status-msg .big { font-size: 32px; display: block; margin-bottom: 12px; }
+  .status-msg.error { color: var(--danger); }
+
+  /* ── VR MODE hint ── */
+  .vr-hint {
+    background: rgba(200,245,66,0.08);
+    border: 1px solid rgba(200,245,66,0.2);
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 12px;
+    color: rgba(200,245,66,0.8);
+    font-family: 'DM Mono', monospace;
+    margin-top: 24px;
+    line-height: 1.6;
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════ SETUP SCREEN -->
+<div id="setup-screen">
+  <div class="setup-card">
+    <h1>VR<span style="color:var(--accent)">.</span>browser</h1>
+    <p class="sub">Pick your GLB models in VR — straight from Google Drive.</p>
+
+    <div class="field-row">
+      <div class="field-label">Google Drive Folder ID</div>
+      <input type="text" id="folder-id-input" placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs" />
+      <div class="hint">
+        From your shareable folder link:<br>
+        <code style="color:var(--accent2)">drive.google.com/drive/folders/<strong style="color:var(--accent)">THIS_PART</strong></code>
+      </div>
+    </div>
+
+    <div class="field-row">
+      <div class="field-label">Google API Key</div>
+      <input type="text" id="api-key-input" placeholder="AIzaSy..." />
+      <div class="hint">
+        Free key from <a href="https://console.cloud.google.com/" target="_blank">Google Cloud Console</a> — enable the Drive API. Only reads public folders.
+      </div>
+    </div>
+
+    <button class="btn-primary" onclick="saveConfig()">Connect folder →</button>
+
+    <div class="vr-hint">
+      ⬡ Open this page in your Quest 3 browser for full VR mode. Works on any device for browsing.
+    </div>
+
+    <div class="step-list">
+      <div class="step-item">
+        <span class="step-num">01</span>
+        <span class="step-text">Create a folder in Google Drive, set sharing to <strong>"Anyone with the link can view"</strong></span>
+      </div>
+      <div class="step-item">
+        <span class="step-num">02</span>
+        <span class="step-text">Drop your <strong>.glb files</strong> in the folder — rename them to your model name</span>
+      </div>
+      <div class="step-item">
+        <span class="step-num">03</span>
+        <span class="step-text">Paste the <strong>folder ID</strong> and a free <strong>Google API key</strong> above</span>
+      </div>
+      <div class="step-item">
+        <span class="step-num">04</span>
+        <span class="step-text">Open on your <strong>Quest 3 browser</strong>, pick a model, tap <strong>Enter VR</strong></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ BROWSER SCREEN -->
+<div id="browser-screen">
+  <div class="topbar">
+    <div class="topbar-left">
+      <span class="wordmark">VR<span>.</span>browser</span>
+      <span class="folder-badge" id="folder-badge">—</span>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn-icon" onclick="loadModels()">↺ Refresh</button>
+      <button class="btn-icon" onclick="resetConfig()">⚙ Settings</button>
+    </div>
+  </div>
+  <div class="content">
+    <div class="section-header">
+      <span class="section-title">Models in folder</span>
+      <span class="count-badge" id="count-badge">0 files</span>
+    </div>
+    <div class="grid" id="model-grid"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ VIEWER OVERLAY -->
+<div id="viewer-overlay">
+  <div class="viewer-bar">
+    <span class="viewer-title" id="viewer-title">—</span>
+    <div class="viewer-controls">
+      <span style="font-family:'DM Mono',monospace;font-size:11px;color:#c8f542;background:rgba(200,245,66,0.08);border:1px solid rgba(200,245,66,0.2);border-radius:6px;padding:4px 10px;margin-right:2px;">L grip → move</span>
+      <span style="font-family:'DM Mono',monospace;font-size:11px;color:#42f5c8;background:rgba(66,245,200,0.08);border:1px solid rgba(66,245,200,0.2);border-radius:6px;padding:4px 10px;margin-right:6px;">R grip → slice</span>
+      <button class="vr-btn secondary" onclick="closeViewer()">← Back</button>
+      <button class="vr-btn" id="vr-btn" onclick="enterVR()">Enter VR</button>
+    </div>
+  </div>
+  <!-- Desktop tool strip (shown once model loads) -->
+  <div id="explode-wrap" style="display:none;align-items:center;gap:16px;padding:10px 20px;background:rgba(10,10,11,0.9);border-bottom:1px solid rgba(255,255,255,0.07);flex-wrap:wrap;">
+    <!-- Size readout -->
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span style="font-family:'DM Mono',monospace;font-size:10px;color:#6b6b72;text-transform:uppercase;letter-spacing:.08em;">Size</span>
+      <span id="size-readout" style="font-family:'DM Mono',monospace;font-size:12px;color:#e8e8e6;">—</span>
+    </div>
+    <div style="width:1px;height:20px;background:rgba(255,255,255,0.07);"></div>
+    <!-- Explode -->
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span style="font-family:'DM Mono',monospace;font-size:10px;color:#6b6b72;text-transform:uppercase;letter-spacing:.08em;">Explode</span>
+      <input type="range" min="0" max="1" step="0.01" value="0" oninput="onExplodeSlider(this.value)" style="width:100px;accent-color:#c8f542;">
+      <span id="explode-val" style="font-family:'DM Mono',monospace;font-size:11px;color:#c8f542;min-width:30px;">0%</span>
+    </div>
+    <div style="width:1px;height:20px;background:rgba(255,255,255,0.07);"></div>
+    <!-- Measure readout -->
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span style="font-family:'DM Mono',monospace;font-size:10px;color:#6b6b72;text-transform:uppercase;letter-spacing:.08em;">↔ Measure</span>
+      <span id="measure-readout" style="font-family:'DM Mono',monospace;font-size:12px;color:#f5a142;">—</span>
+    </div>
+    <div style="width:1px;height:20px;background:rgba(255,255,255,0.07);"></div>
+    <!-- Annotations -->
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span style="font-family:'DM Mono',monospace;font-size:10px;color:#6b6b72;text-transform:uppercase;letter-spacing:.08em;">◎ Pins</span>
+      <span id="annot-count" style="font-family:'DM Mono',monospace;font-size:12px;color:#f54242;">0 pins</span>
+      <button onclick="onClearAnnotations()" style="font-family:'DM Mono',monospace;font-size:10px;color:#6b6b72;background:transparent;border:1px solid rgba(255,255,255,0.07);border-radius:5px;padding:2px 7px;cursor:pointer;">clear</button>
+    </div>
+    <div style="width:1px;height:20px;background:rgba(255,255,255,0.07);"></div>
+    <!-- Actions -->
+    <div style="display:flex;gap:6px;margin-left:auto;">
+      <button onclick="onResetTransform()" style="font-family:'DM Mono',monospace;font-size:11px;color:#e8e8e6;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:7px;padding:5px 12px;cursor:pointer;">↺ Reset</button>
+      <button onclick="onSnapshot()" style="font-family:'DM Mono',monospace;font-size:11px;color:#0a0a0b;background:#c8f542;border:none;border-radius:7px;padding:5px 12px;cursor:pointer;font-weight:500;">⬡ Snapshot</button>
+    </div>
+  </div>
+  <div id="viewer-canvas-wrap">
+    <div class="loading-overlay" id="loading-overlay">
+      <div class="spinner"></div>
+      <span class="loading-label" id="loading-label">Loading model…</span>
+    </div>
+  </div>
+</div>
+
+<!-- Three.js + GLTFLoader -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+<!-- VR HUD overlay (shown inside headset via DOM overlay) -->
+<div id="vr-hud" style="display:none;position:fixed;bottom:0;left:0;right:0;padding:12px 16px;pointer-events:none;z-index:200;">
+  <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;" id="hud-pills"></div>
+  <div id="hud-measure" style="display:none;text-align:center;font-family:'DM Mono',monospace;font-size:18px;color:#c8f542;margin-top:8px;text-shadow:0 0 12px rgba(200,245,66,0.5);"></div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════════
+//  CONFIG & GLOBALS
+// ════════════════════════════════════════════════════════════
+const CACHE_KEY = 'vr_browser_config';
+const THUMB_KEY = 'vr_thumb_cache';
+let config      = null;
+let thumbCache  = {};
+let currentModels = [];
+
+// Viewer core
+let viewerScene, viewerRenderer, viewerCamera, viewerControls;
+
+// Model
+let modelRoot   = null;
+let loadedModel = null;
+let modelSize   = new THREE.Vector3();
+
+// Slicer
+let slicerPlane  = null;
+let slicerMesh   = null;
+let capMesh      = null;
+let slicerGroup  = null;
+let slicerActive = false;
+
+// Grab / manipulation
+const grabState = { left: null, right: null };
+
+// Measure
+let measureState = { ptA:null, ptB:null, lineObj:null, sphereA:null, sphereB:null };
+let measurePhase = 0;
+
+// Explode
+let explodeAmount  = 0;
+const explodeOrigins = new Map();
+
+// Annotations
+let annotations = [];
+let annotCount  = 0;
+
+// VR mode: 'grab' | 'slice' | 'measure' | 'annotate'
+const VR_MODES = ['grab','slice','measure','annotate'];
+let vrMode = 'grab';
+let _lastThumbL = false, _lastThumbR = false;
+
+// ════════════════════════════════════════════════════════════
+//  BOOT
+// ════════════════════════════════════════════════════════════
+(function boot() {
+  try {
+    const saved = localStorage.getItem(CACHE_KEY);
+    if (saved) { config = JSON.parse(saved); showBrowser(); }
+    const tc = localStorage.getItem(THUMB_KEY);
+    if (tc) thumbCache = JSON.parse(tc);
+  } catch(e) {}
+})();
+
+// ════════════════════════════════════════════════════════════
+//  SETUP
+// ════════════════════════════════════════════════════════════
+function saveConfig() {
+  const folderId = document.getElementById('folder-id-input').value.trim();
+  const apiKey   = document.getElementById('api-key-input').value.trim();
+  if (!folderId || !apiKey) { alert('Please fill in both fields.'); return; }
+  config = { folderId, apiKey };
+  localStorage.setItem(CACHE_KEY, JSON.stringify(config));
+  showBrowser();
+}
+function resetConfig() {
+  localStorage.removeItem(CACHE_KEY); config = null;
+  document.getElementById('browser-screen').style.display = 'none';
+  document.getElementById('setup-screen').style.display   = 'flex';
+}
+
+// ════════════════════════════════════════════════════════════
+//  BROWSER
+// ════════════════════════════════════════════════════════════
+function showBrowser() {
+  document.getElementById('setup-screen').style.display   = 'none';
+  document.getElementById('browser-screen').style.display = 'block';
+  document.getElementById('folder-badge').textContent = config.folderId.slice(0,20)+'…';
+  loadModels();
+}
+
+async function loadModels() {
+  const grid = document.getElementById('model-grid');
+  grid.innerHTML = '<div class="status-msg"><div class="spinner" style="margin:0 auto"></div></div>';
+  const url = `https://www.googleapis.com/drive/v3/files?q='${config.folderId}'+in+parents+and+mimeType='model/gltf-binary'+and+trashed=false&fields=files(id,name,size,modifiedTime)&key=${config.apiKey}`;
+  try {
+    let res = await fetch(url), data = await res.json();
+    if (!data.files?.length) {
+      const u2 = `https://www.googleapis.com/drive/v3/files?q='${config.folderId}'+in+parents+and+trashed=false&fields=files(id,name,size,modifiedTime,mimeType)&key=${config.apiKey}`;
+      data = await (await fetch(u2)).json();
+      if (data.files) data.files = data.files.filter(f => f.name.toLowerCase().endsWith('.glb'));
+    }
+    if (data.error) throw new Error(data.error.message);
+    currentModels = data.files || [];
+    document.getElementById('count-badge').textContent = currentModels.length + ' file' + (currentModels.length!==1?'s':'');
+    renderGrid(currentModels);
+  } catch(e) {
+    grid.innerHTML = `<div class="status-msg error"><span class="big">⚠</span>${e.message}<br><br><small>Check API key and folder sharing.</small></div>`;
+  }
+}
+
+function renderGrid(models) {
+  const grid = document.getElementById('model-grid');
+  if (!models.length) { grid.innerHTML='<div class="status-msg"><span class="big">📂</span>No .glb files found.</div>'; return; }
+  grid.innerHTML = '';
+  models.forEach(model => {
+    const card = document.createElement('div');
+    card.className = 'model-card';
+    const sizeMB = model.size ? (model.size/1024/1024).toFixed(1)+' MB' : '—';
+    const name   = model.name.replace(/\.glb$/i,'');
+    card.innerHTML = `
+      <div class="thumb-wrap" id="thumb-${model.id}">
+        <div class="thumb-placeholder"><span class="icon">⬡</span><span>Rendering…</span></div>
+      </div>
+      <div class="card-body">
+        <div class="model-name" title="${name}">${name}</div>
+        <div class="model-meta">${sizeMB}</div>
+      </div>
+      <button class="launch-btn" onclick="event.stopPropagation();openViewer('${model.id}','${name.replace(/'/g,"\\'")}')">▶ View in VR</button>`;
+    card.addEventListener('click', () => openViewer(model.id, name));
+    grid.appendChild(card);
+    requestAnimationFrame(() => renderThumb(model.id, name));
+  });
+}
+
+// ════════════════════════════════════════════════════════════
+//  THUMBNAILS
+// ════════════════════════════════════════════════════════════
+async function renderThumb(fileId, name) {
+  const wrap = document.getElementById('thumb-'+fileId);
+  if (!wrap) return;
+  if (thumbCache[fileId]) {
+    const img = document.createElement('img');
+    img.src = thumbCache[fileId]; img.style.cssText='width:100%;height:100%;object-fit:contain;';
+    wrap.innerHTML=''; wrap.appendChild(img); return;
+  }
+  const canvas = document.createElement('canvas');
+  canvas.width = canvas.height = 300; wrap.innerHTML=''; wrap.appendChild(canvas);
+  const r = new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
+  r.setSize(300,300); r.setPixelRatio(1); r.outputEncoding=THREE.sRGBEncoding;
+  const sc=new THREE.Scene(), cam=new THREE.PerspectiveCamera(45,1,0.01,1000);
+  sc.add(new THREE.AmbientLight(0xffffff,0.7));
+  const d=new THREE.DirectionalLight(0xffffff,1.2); d.position.set(2,4,3); sc.add(d);
+  const rim=new THREE.DirectionalLight(0xc8f542,0.3); rim.position.set(-3,1,-2); sc.add(rim);
+  const glbUrl=`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media&key=${config.apiKey}`;
+  try {
+    const gltf=await new Promise((res,rej)=>new THREE.GLTFLoader().load(glbUrl,res,null,rej));
+    sc.add(gltf.scene);
+    const box=new THREE.Box3().setFromObject(gltf.scene);
+    const s=2/Math.max(...box.getSize(new THREE.Vector3()).toArray());
+    gltf.scene.scale.setScalar(s);
+    gltf.scene.position.sub(box.getCenter(new THREE.Vector3()).multiplyScalar(s));
+    cam.position.set(1.8,1.2,1.8); cam.lookAt(0,0,0);
+    r.render(sc,cam);
+    thumbCache[fileId]=canvas.toDataURL('image/jpeg',0.8);
+    try{localStorage.setItem(THUMB_KEY,JSON.stringify(thumbCache));}catch(e){}
+    r.dispose();
+  } catch(e) {
+    wrap.innerHTML=`<div class="thumb-placeholder"><span class="icon" style="opacity:0.3">⬡</span><span style="font-size:10px">${name.slice(0,12)}</span></div>`;
+    r.dispose();
+  }
+}
+
+// ════════════════════════════════════════════════════════════
+//  VIEWER OPEN / CLOSE
+// ════════════════════════════════════════════════════════════
+function openViewer(fileId, name) {
+  document.getElementById('viewer-overlay').classList.add('active');
+  document.getElementById('viewer-title').textContent = name;
+  document.getElementById('loading-overlay').classList.remove('hidden');
+  document.getElementById('loading-label').textContent = 'Loading model…';
+  if (viewerRenderer) cleanupViewer();
+  initViewer(fileId);
+}
+function closeViewer() {
+  document.getElementById('viewer-overlay').classList.remove('active');
+  cleanupViewer();
+}
+function cleanupViewer() {
+  if (viewerRenderer) {
+    if (viewerRenderer.xr?.isPresenting) viewerRenderer.xr.getSession()?.end();
+    viewerRenderer.setAnimationLoop(null);
+    viewerRenderer.dispose(); viewerRenderer=null;
+  }
+  document.getElementById('viewer-canvas-wrap').querySelector('canvas')?.remove();
+  annotations.forEach(a=>{viewerScene?.remove(a.mesh);viewerScene?.remove(a.stem);a.labelDiv?.remove();});
+  annotations=[]; annotCount=0;
+  viewerScene=viewerCamera=viewerControls=loadedModel=modelRoot=null;
+  slicerPlane=slicerMesh=capMesh=slicerGroup=null; slicerActive=false;
+  grabState.left=grabState.right=null;
+  measureState={ptA:null,ptB:null,lineObj:null,sphereA:null,sphereB:null}; measurePhase=0;
+  explodeAmount=0; explodeOrigins.clear();
+  vrMode='grab'; _lastThumbL=_lastThumbR=false;
+  document.getElementById('vr-hud').style.display='none';
+  const ew=document.getElementById('explode-wrap'); if(ew) ew.style.display='none';
+}
+
+// ════════════════════════════════════════════════════════════
+//  SLICER
+// ════════════════════════════════════════════════════════════
+function buildSlicer(scene) {
+  slicerPlane=new THREE.Plane(new THREE.Vector3(0,1,0),0);
+  slicerGroup=new THREE.Group(); scene.add(slicerGroup);
+  const sz=0.55, geo=new THREE.PlaneGeometry(sz,sz);
+  slicerMesh=new THREE.Mesh(geo,new THREE.MeshStandardMaterial({
+    color:0x42f5c8,transparent:true,opacity:0.18,side:THREE.DoubleSide,depthWrite:false,roughness:0.1,metalness:0.05}));
+  slicerMesh.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo),
+    new THREE.LineBasicMaterial({color:0x42f5c8,linewidth:2})));
+  slicerMesh.add(new THREE.Mesh(new THREE.CircleGeometry(0.006,16),
+    new THREE.MeshBasicMaterial({color:0xffffff,side:THREE.DoubleSide})));
+  slicerGroup.add(slicerMesh); slicerMesh.visible=false;
+  capMesh=new THREE.Mesh(new THREE.PlaneGeometry(4,4),new THREE.MeshStandardMaterial({
+    color:0x42f5c8,transparent:true,opacity:0.28,side:THREE.DoubleSide,
+    depthWrite:false,depthTest:true,roughness:0.4,metalness:0.1}));
+  capMesh.renderOrder=1; capMesh.visible=false; scene.add(capMesh);
+}
+function setClipping(active) {
+  if (!loadedModel) return;
+  loadedModel.traverse(c=>{if(!c.isMesh)return; c.material.clippingPlanes=active?[slicerPlane]:[]; c.material.needsUpdate=true;});
+  if(capMesh) capMesh.visible=active;
+}
+function updateSlicer(ctrl) {
+  if (!slicerActive||!ctrl||!slicerPlane) return;
+  slicerGroup.position.setFromMatrixPosition(ctrl.matrixWorld);
+  slicerGroup.quaternion.setFromRotationMatrix(ctrl.matrixWorld);
+  const n=new THREE.Vector3(0,0,-1).applyQuaternion(slicerGroup.quaternion).normalize();
+  slicerPlane.normal.copy(n); slicerPlane.constant=-n.dot(slicerGroup.position);
+  if(capMesh){capMesh.position.copy(n.clone().multiplyScalar(-slicerPlane.constant));capMesh.quaternion.setFromUnitVectors(new THREE.Vector3(0,0,1),n);}
+}
+
+// ════════════════════════════════════════════════════════════
+//  MANIPULATION
+// ════════════════════════════════════════════════════════════
+function ctrlWorldPos(c){return new THREE.Vector3().setFromMatrixPosition(c.matrixWorld);}
+function ctrlWorldQuat(c){return new THREE.Quaternion().setFromRotationMatrix(c.matrixWorld);}
+
+function applyOneHandedGrab(ctrl) {
+  if (!grabState.left||!modelRoot) return;
+  const cur=ctrlWorldPos(ctrl), delta=cur.clone().sub(grabState.left.prevPos);
+  modelRoot.position.add(delta); grabState.left.prevPos.copy(cur);
+}
+function applyTwoHandedGrab(ctrlL,ctrlR) {
+  if (!grabState.left||!grabState.right||!modelRoot) return;
+  const cL=ctrlWorldPos(ctrlL),cR=ctrlWorldPos(ctrlR);
+  const pL=grabState.left.prevPos,pR=grabState.right.prevPos;
+  const cMid=cL.clone().add(cR).multiplyScalar(0.5);
+  const sd=pL.distanceTo(pR)>0.001?cL.distanceTo(cR)/pL.distanceTo(pR):1;
+  const cv=new THREE.Vector2(cR.x-cL.x,cR.z-cL.z).normalize();
+  const pv=new THREE.Vector2(pR.x-pL.x,pR.z-pL.z).normalize();
+  const ay=Math.atan2(pv.x*cv.y-pv.y*cv.x,pv.x*cv.x+pv.y*cv.y);
+  const rot=new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),ay);
+  const off=modelRoot.position.clone().sub(pL.clone().add(pR).multiplyScalar(0.5)).multiplyScalar(sd).applyQuaternion(rot);
+  modelRoot.position.copy(cMid).add(off);
+  modelRoot.quaternion.premultiply(rot); modelRoot.scale.multiplyScalar(sd);
+  grabState.left.prevPos.copy(cL); grabState.right.prevPos.copy(cR);
+}
+
+// ════════════════════════════════════════════════════════════
+//  MEASURE
+// ════════════════════════════════════════════════════════════
+function buildMeasureObjects(scene) {
+  measureState.lineObj=new THREE.Line(
+    new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(),new THREE.Vector3()]),
+    new THREE.LineBasicMaterial({color:0xc8f542,linewidth:2}));
+  measureState.lineObj.visible=false; scene.add(measureState.lineObj);
+  const sm=new THREE.MeshBasicMaterial({color:0xc8f542}),sg=new THREE.SphereGeometry(0.012,10,10);
+  measureState.sphereA=new THREE.Mesh(sg,sm.clone());
+  measureState.sphereB=new THREE.Mesh(sg,sm.clone());
+  measureState.sphereA.visible=measureState.sphereB.visible=false;
+  scene.add(measureState.sphereA); scene.add(measureState.sphereB);
+}
+function updateMeasureLine() {
+  if (!measureState.ptA||!measureState.ptB) return;
+  measureState.lineObj.geometry.setFromPoints([measureState.ptA.clone(),measureState.ptB.clone()]);
+  measureState.lineObj.geometry.computeBoundingSphere();
+  measureState.lineObj.visible=true;
+  measureState.sphereA.position.copy(measureState.ptA); measureState.sphereA.visible=true;
+  measureState.sphereB.position.copy(measureState.ptB); measureState.sphereB.visible=true;
+  const d=measureState.ptA.distanceTo(measureState.ptB);
+  document.getElementById('hud-measure').textContent=`↔ ${d>=1?d.toFixed(3)+' m':(d*100).toFixed(1)+' cm'}`;
+  document.getElementById('hud-measure').style.display='block';
+  // Also update desktop readout
+  const dr=document.getElementById('measure-readout');
+  if(dr) dr.textContent=d>=1?d.toFixed(3)+' m':(d*100).toFixed(1)+' cm';
+}
+function clearMeasure() {
+  measureState.ptA=measureState.ptB=null; measurePhase=0;
+  if(measureState.lineObj) measureState.lineObj.visible=false;
+  if(measureState.sphereA) measureState.sphereA.visible=false;
+  if(measureState.sphereB) measureState.sphereB.visible=false;
+  document.getElementById('hud-measure').style.display='none';
+  const dr=document.getElementById('measure-readout'); if(dr) dr.textContent='—';
+}
+
+// ════════════════════════════════════════════════════════════
+//  EXPLODE
+// ════════════════════════════════════════════════════════════
+function cacheExplodeOrigins() {
+  explodeOrigins.clear();
+  if (!loadedModel) return;
+  loadedModel.traverse(c=>{ if(c.isMesh) explodeOrigins.set(c.uuid,c.position.clone()); });
+}
+function applyExplode(t) {
+  if (!loadedModel) return;
+  const box=new THREE.Box3().setFromObject(loadedModel);
+  const centre=new THREE.Vector3(); box.getCenter(centre);
+  loadedModel.worldToLocal(centre);
+  loadedModel.traverse(c=>{
+    if (!c.isMesh) return;
+    const orig=explodeOrigins.get(c.uuid); if(!orig) return;
+    const dir=orig.clone().sub(centre); const dist=dir.length(); dir.normalize();
+    c.position.copy(orig).addScaledVector(dir, t*(0.4+dist*1.2));
+  });
+  explodeAmount=t;
+  const lbl=document.getElementById('explode-val'); if(lbl) lbl.textContent=Math.round(t*100)+'%';
+}
+
+// ════════════════════════════════════════════════════════════
+//  ANNOTATIONS
+// ════════════════════════════════════════════════════════════
+function dropAnnotation(worldPos) {
+  if (!viewerScene) return;
+  annotCount++;
+  const mesh=new THREE.Mesh(new THREE.SphereGeometry(0.025,12,12),new THREE.MeshBasicMaterial({color:0xf54242}));
+  mesh.position.copy(worldPos); viewerScene.add(mesh);
+  const stemGeo=new THREE.BufferGeometry().setFromPoints([worldPos.clone(),worldPos.clone().add(new THREE.Vector3(0,0.08,0))]);
+  const stem=new THREE.Line(stemGeo,new THREE.LineBasicMaterial({color:0xf54242})); viewerScene.add(stem);
+  const div=document.createElement('div');
+  div.style.cssText=`position:fixed;background:#f54242;color:#fff;font-family:'DM Mono',monospace;font-size:11px;font-weight:500;padding:3px 7px;border-radius:6px;pointer-events:auto;cursor:pointer;z-index:150;`;
+  div.textContent=`#${annotCount}`; div.title=`Pin ${annotCount} — click to remove`;
+  div.addEventListener('click',()=>removeAnnotation(annotCount));
+  document.body.appendChild(div);
+  annotations.push({mesh,stem,labelDiv:div,worldPos:worldPos.clone(),id:annotCount});
+  // Update desktop count
+  const ac=document.getElementById('annot-count'); if(ac) ac.textContent=annotations.length+' pin'+(annotations.length!==1?'s':'');
+}
+function removeAnnotation(id) {
+  const idx=annotations.findIndex(a=>a.id===id); if(idx===-1) return;
+  const a=annotations[idx]; viewerScene?.remove(a.mesh); viewerScene?.remove(a.stem); a.labelDiv?.remove();
+  annotations.splice(idx,1);
+  const ac=document.getElementById('annot-count'); if(ac) ac.textContent=annotations.length+' pin'+(annotations.length!==1?'s':'');
+}
+function updateAnnotationLabels() {
+  if (!viewerCamera||!viewerRenderer) return;
+  const r=viewerRenderer.domElement.getBoundingClientRect();
+  annotations.forEach(a=>{
+    const v=a.worldPos.clone().project(viewerCamera);
+    const x=(v.x*0.5+0.5)*r.width+r.left, y=(-v.y*0.5+0.5)*r.height+r.top;
+    if(v.z<1){a.labelDiv.style.left=(x+8)+'px';a.labelDiv.style.top=(y-10)+'px';a.labelDiv.style.display='block';}
+    else a.labelDiv.style.display='none';
+  });
+}
+
+// ════════════════════════════════════════════════════════════
+//  VR HUD
+// ════════════════════════════════════════════════════════════
+function updateHUD() {
+  const pills=document.getElementById('hud-pills');
+  const modes=[
+    {id:'grab',icon:'✦',label:'Grab',color:'#c8f542'},
+    {id:'slice',icon:'⬡',label:'Slice',color:'#42f5c8'},
+    {id:'measure',icon:'↔',label:'Measure',color:'#f5a142'},
+    {id:'annotate',icon:'◎',label:'Pin',color:'#f54242'},
+  ];
+  pills.innerHTML=modes.map(m=>{
+    const a=vrMode===m.id;
+    return `<span style="font-family:'DM Mono',monospace;font-size:12px;padding:5px 11px;border-radius:7px;border:1px solid ${m.color};color:${a?'#0a0a0b':m.color};background:${a?m.color:'rgba(0,0,0,0.6)'};">${m.icon} ${m.label}</span>`;
+  }).join('');
+}
+function cycleVRMode() {
+  vrMode=VR_MODES[(VR_MODES.indexOf(vrMode)+1)%VR_MODES.length];
+  clearMeasure();
+  if(slicerActive){slicerActive=false;slicerMesh&&(slicerMesh.visible=false);setClipping(false);}
+  updateHUD();
+}
+
+// ════════════════════════════════════════════════════════════
+//  RESET / SNAPSHOT
+// ════════════════════════════════════════════════════════════
+function onResetTransform() {
+  if (!modelRoot) return;
+  modelRoot.scale.setScalar(1); modelRoot.position.set(0,0,0); modelRoot.quaternion.identity();
+  // Reseat on floor
+  if (loadedModel) {
+    const box=new THREE.Box3().setFromObject(modelRoot); modelRoot.position.y-=box.min.y;
+  }
+  clearMeasure();
+}
+function onExplodeSlider(val) { applyExplode(parseFloat(val)); }
+function onClearAnnotations() { [...annotations].forEach(a=>removeAnnotation(a.id)); }
+function onSnapshot() {
+  if (!viewerRenderer||!viewerScene||!viewerCamera) return;
+  viewerRenderer.render(viewerScene,viewerCamera);
+  const a=document.createElement('a');
+  a.href=viewerRenderer.domElement.toDataURL('image/png');
+  a.download=(document.getElementById('viewer-title').textContent||'model')+'-snapshot.png';
+  a.click();
+}
+
+// ════════════════════════════════════════════════════════════
+//  CONTROLLERS
+// ════════════════════════════════════════════════════════════
+function setupControllers(renderer,scene) {
+  const ctrlL=renderer.xr.getController(0), ctrlR=renderer.xr.getController(1);
+  scene.add(ctrlL); scene.add(ctrlR);
+  function makeRay(col){
+    const g=new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,0,0),new THREE.Vector3(0,0,-0.07)]);
+    return new THREE.Line(g,new THREE.LineBasicMaterial({color:col,transparent:true,opacity:0.5}));
+  }
+  ctrlL.add(makeRay(0xc8f542)); ctrlR.add(makeRay(0x42f5c8));
+
+  // Left grip → grab
+  ctrlL.addEventListener('squeezestart',()=>{
+    grabState.left={prevPos:ctrlWorldPos(ctrlL),prevQuat:ctrlWorldQuat(ctrlL)};
+    if(slicerActive){slicerActive=false;slicerMesh&&(slicerMesh.visible=false);setClipping(false);}
+  });
+  ctrlL.addEventListener('squeezeend',()=>{grabState.left=null;});
+
+  // Left trigger → mode action (measure pt A)
+  ctrlL.addEventListener('selectstart',()=>{
+    if(vrMode==='measure'){
+      measureState.ptA=ctrlWorldPos(ctrlL); measurePhase=1;
+      if(measureState.sphereA){measureState.sphereA.position.copy(measureState.ptA);measureState.sphereA.visible=true;}
+    }
+  });
+
+  // Right grip → slice OR second grab hand
+  ctrlR.addEventListener('squeezestart',()=>{
+    grabState.right={prevPos:ctrlWorldPos(ctrlR),prevQuat:ctrlWorldQuat(ctrlR)};
+    if(!grabState.left && vrMode==='slice'){
+      slicerActive=true; slicerMesh&&(slicerMesh.visible=true); setClipping(true);
+    }
+  });
+  ctrlR.addEventListener('squeezeend',()=>{
+    grabState.right=null;
+    if(slicerActive){slicerActive=false;slicerMesh&&(slicerMesh.visible=false);setClipping(false);}
+  });
+
+  // Right trigger → mode action (measure pt B, drop pin)
+  ctrlR.addEventListener('selectstart',()=>{
+    if(vrMode==='measure'&&measurePhase===1){
+      measureState.ptB=ctrlWorldPos(ctrlR); updateMeasureLine(); measurePhase=0;
+    }
+    if(vrMode==='annotate') dropAnnotation(ctrlWorldPos(ctrlR));
+  });
+
+  // Store for gamepad polling
+  ctrlL.addEventListener('connected',e=>{ctrlL.userData.gamepad=e.data?.gamepad;});
+  ctrlR.addEventListener('connected',e=>{ctrlR.userData.gamepad=e.data?.gamepad;});
+  scene.userData.ctrlL=ctrlL; scene.userData.ctrlR=ctrlR;
+}
+
+function pollGamepadButtons() {
+  const cL=viewerScene?.userData.ctrlL, cR=viewerScene?.userData.ctrlR;
+  if(cL?.userData.gamepad){const p=cL.userData.gamepad.buttons[3]?.pressed;if(p&&!_lastThumbL)cycleVRMode();_lastThumbL=!!p;}
+  if(cR?.userData.gamepad){const p=cR.userData.gamepad.buttons[3]?.pressed;if(p&&!_lastThumbR)cycleVRMode();_lastThumbR=!!p;}
+}
+
+// ════════════════════════════════════════════════════════════
+//  INIT VIEWER
+// ════════════════════════════════════════════════════════════
+function initViewer(fileId) {
+  const wrap=document.getElementById('viewer-canvas-wrap');
+  viewerRenderer=new THREE.WebGLRenderer({antialias:true,stencil:true,preserveDrawingBuffer:true});
+  viewerRenderer.setPixelRatio(window.devicePixelRatio);
+  viewerRenderer.setSize(wrap.clientWidth,wrap.clientHeight);
+  viewerRenderer.outputEncoding=THREE.sRGBEncoding;
+  viewerRenderer.xr.enabled=true; viewerRenderer.localClippingEnabled=true;
+  wrap.appendChild(viewerRenderer.domElement);
+
+  viewerScene=new THREE.Scene(); viewerScene.background=new THREE.Color(0x0a0a0b);
+  viewerCamera=new THREE.PerspectiveCamera(60,wrap.clientWidth/wrap.clientHeight,0.01,500);
+  viewerCamera.position.set(0,1.6,2.5);
+  viewerScene.add(new THREE.AmbientLight(0xffffff,0.8));
+  const sun=new THREE.DirectionalLight(0xffffff,1.4); sun.position.set(3,8,5); viewerScene.add(sun);
+  const fill=new THREE.DirectionalLight(0x42f5c8,0.25); fill.position.set(-4,2,-3); viewerScene.add(fill);
+  viewerScene.add(new THREE.GridHelper(20,40,0x222226,0x18181c));
+  viewerControls=new THREE.OrbitControls(viewerCamera,viewerRenderer.domElement);
+  viewerControls.enableDamping=true; viewerControls.dampingFactor=0.07; viewerControls.target.set(0,0.8,0);
+
+  buildSlicer(viewerScene);
+  buildMeasureObjects(viewerScene);
+
+  viewerRenderer.xr.addEventListener('sessionstart',()=>{
+    setupControllers(viewerRenderer,viewerScene);
+    if(viewerControls) viewerControls.enabled=false;
+    document.getElementById('vr-hud').style.display='block';
+    updateHUD();
+  });
+  viewerRenderer.xr.addEventListener('sessionend',()=>{
+    if(viewerControls) viewerControls.enabled=true;
+    grabState.left=grabState.right=null;
+    slicerActive=false; slicerMesh&&(slicerMesh.visible=false); setClipping(false);
+    document.getElementById('vr-hud').style.display='none';
+  });
+
+  modelRoot=new THREE.Group(); viewerScene.add(modelRoot);
+
+  new THREE.GLTFLoader().load(
+    `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media&key=${config.apiKey}`,
+    gltf=>{
+      const model=gltf.scene;
+      const box=new THREE.Box3().setFromObject(model);
+      const cent=box.getCenter(new THREE.Vector3()), size=box.getSize(new THREE.Vector3());
+      model.position.x-=cent.x; model.position.z-=cent.z; model.position.y-=box.min.y;
+      model.traverse(c=>{if(!c.isMesh)return;c.material.clippingPlanes=[];c.material.side=THREE.DoubleSide;c.material.needsUpdate=true;});
+      modelRoot.add(model); loadedModel=model; modelSize.copy(size);
+      cacheExplodeOrigins();
+      document.getElementById('loading-overlay').classList.add('hidden');
+      const ew=document.getElementById('explode-wrap'); if(ew) ew.style.display='flex';
+      const maxDim=Math.max(size.x,size.y,size.z);
+      viewerCamera.position.set(maxDim*1.5,maxDim*0.8,maxDim*1.5);
+      viewerCamera.lookAt(0,size.y/2,0); viewerControls.target.set(0,size.y/2,0); viewerControls.update();
+      // Populate desktop size readout
+      const sr=document.getElementById('size-readout');
+      if(sr) sr.textContent=`${(size.x*100).toFixed(0)} × ${(size.y*100).toFixed(0)} × ${(size.z*100).toFixed(0)} cm`;
+      checkXRSupport();
+    },
+    prog=>{
+      document.getElementById('loading-label').textContent=`Loading… ${prog.total?Math.round(prog.loaded/prog.total*100):'…'}%`;
+    },
+    err=>{document.getElementById('loading-label').textContent='Failed to load model';console.error(err);}
+  );
+
+  viewerRenderer.setAnimationLoop(()=>{
+    if(viewerControls?.enabled) viewerControls.update();
+    if(viewerRenderer.xr.isPresenting){
+      const cL=viewerRenderer.xr.getController(0), cR=viewerRenderer.xr.getController(1);
+      pollGamepadButtons();
+      if(grabState.left&&grabState.right) applyTwoHandedGrab(cL,cR);
+      else if(grabState.left) applyOneHandedGrab(cL);
+      if(slicerActive&&!grabState.left) updateSlicer(cR);
+    }
+    updateAnnotationLabels();
+    viewerRenderer.render(viewerScene,viewerCamera);
+  });
+
+  window.addEventListener('resize',()=>{
+    if(!viewerRenderer) return;
+    const w=wrap.clientWidth,h=wrap.clientHeight;
+    viewerRenderer.setSize(w,h);
+    if(viewerCamera){viewerCamera.aspect=w/h;viewerCamera.updateProjectionMatrix();}
+  });
+}
+
+// ════════════════════════════════════════════════════════════
+//  XR SESSION
+// ════════════════════════════════════════════════════════════
+async function checkXRSupport() {
+  const btn=document.getElementById('vr-btn');
+  if(!navigator.xr){btn.textContent='VR not supported';btn.disabled=true;return;}
+  const ok=await navigator.xr.isSessionSupported('immersive-vr').catch(()=>false);
+  if(ok){btn.textContent='⬡ Enter VR';btn.disabled=false;}
+  else{btn.textContent='VR not available';btn.style.opacity='0.5';}
+}
+async function enterVR() {
+  if(!navigator.xr||!viewerRenderer) return;
+  try {
+    const session=await navigator.xr.requestSession('immersive-vr',{
+      requiredFeatures:['local-floor'],
+      optionalFeatures:['bounded-floor','hand-tracking','dom-overlay'],
+      domOverlay:{root:document.getElementById('vr-hud')}
+    });
+    viewerRenderer.xr.setSession(session);
+    session.addEventListener('end',()=>{
+      document.getElementById('vr-btn').textContent='⬡ Enter VR';
+      if(slicerActive){slicerActive=false;slicerMesh&&(slicerMesh.visible=false);setClipping(false);}
+    });
+    document.getElementById('vr-btn').textContent='◼ Exit VR';
+  } catch(e){alert('Could not start VR session: '+e.message);}
+}
+</script>
+
+// ── SETUP ───────────────────────────────────────────────────
+function saveConfig() {
+  const folderId = document.getElementById('folder-id-input').value.trim();
+  const apiKey   = document.getElementById('api-key-input').value.trim();
+  if (!folderId || !apiKey) { alert('Please fill in both fields.'); return; }
+  config = { folderId, apiKey };
+  localStorage.setItem(CACHE_KEY, JSON.stringify(config));
+  showBrowser();
+}
+
+function resetConfig() {
+  localStorage.removeItem(CACHE_KEY);
+  config = null;
+  document.getElementById('browser-screen').style.display = 'none';
+  document.getElementById('setup-screen').style.display = 'flex';
+}
+
+// ── BROWSER ─────────────────────────────────────────────────
+function showBrowser() {
+  document.getElementById('setup-screen').style.display = 'none';
+  document.getElementById('browser-screen').style.display = 'block';
+  document.getElementById('folder-badge').textContent = config.folderId.slice(0, 20) + '…';
+  loadModels();
+}
+
+async function loadModels() {
+  const grid = document.getElementById('model-grid');
+  grid.innerHTML = '<div class="status-msg"><div class="spinner" style="margin:0 auto"></div></div>';
+
+  const url = `https://www.googleapis.com/drive/v3/files?q='${config.folderId}'+in+parents+and+mimeType='model/gltf-binary'+and+trashed=false&fields=files(id,name,size,modifiedTime)&key=${config.apiKey}`;
+
+  try {
+    let res = await fetch(url);
+    let data = await res.json();
+
+    if (!data.files || data.files.length === 0) {
+      const url2 = `https://www.googleapis.com/drive/v3/files?q='${config.folderId}'+in+parents+and+trashed=false&fields=files(id,name,size,modifiedTime,mimeType)&key=${config.apiKey}`;
+      res = await fetch(url2);
+      data = await res.json();
+      if (data.files) {
+        data.files = data.files.filter(f => f.name.toLowerCase().endsWith('.glb'));
+      }
+    }
+
+    if (data.error) throw new Error(data.error.message);
+
+    currentModels = data.files || [];
+    document.getElementById('count-badge').textContent = currentModels.length + ' file' + (currentModels.length !== 1 ? 's' : '');
+    renderGrid(currentModels);
+  } catch(e) {
+    grid.innerHTML = `<div class="status-msg error"><span class="big">⚠</span>${e.message}<br><br><small>Check your API key and make sure the folder is shared publicly.</small></div>`;
+  }
+}
+
+function renderGrid(models) {
+  const grid = document.getElementById('model-grid');
+  if (!models.length) {
+    grid.innerHTML = '<div class="status-msg"><span class="big">📂</span>No .glb files found in this folder.<br>Drop some models in and refresh.</div>';
+    return;
+  }
+  grid.innerHTML = '';
+  models.forEach(model => {
+    const card = document.createElement('div');
+    card.className = 'model-card';
+    const sizeMB = model.size ? (model.size / 1024 / 1024).toFixed(1) + ' MB' : '—';
+    const name = model.name.replace(/\.glb$/i, '');
+    card.innerHTML = `
+      <div class="thumb-wrap" id="thumb-${model.id}">
+        <div class="thumb-placeholder"><span class="icon">⬡</span><span>Rendering…</span></div>
+      </div>
+      <div class="card-body">
+        <div class="model-name" title="${name}">${name}</div>
+        <div class="model-meta">${sizeMB}</div>
+      </div>
+      <button class="launch-btn" onclick="event.stopPropagation();openViewer('${model.id}','${name.replace(/'/g,"\\'")}')">▶ View in VR</button>
+    `;
+    card.addEventListener('click', () => openViewer(model.id, name));
+    grid.appendChild(card);
+    requestAnimationFrame(() => renderThumb(model.id, name));
+  });
+}
+
+// ── THUMBNAIL RENDERER ───────────────────────────────────────
+async function renderThumb(fileId, name) {
+  const wrap = document.getElementById('thumb-' + fileId);
+  if (!wrap) return;
+
+  if (thumbCache[fileId]) {
+    const img = document.createElement('img');
+    img.src = thumbCache[fileId];
+    img.style.cssText = 'width:100%;height:100%;object-fit:contain;';
+    wrap.innerHTML = '';
+    wrap.appendChild(img);
+    return;
+  }
+
+  const canvas = document.createElement('canvas');
+  canvas.width = 300; canvas.height = 300;
+  wrap.innerHTML = '';
+  wrap.appendChild(canvas);
+
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  renderer.setSize(300, 300);
+  renderer.setPixelRatio(1);
+  renderer.outputEncoding = THREE.sRGBEncoding;
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(45, 1, 0.01, 1000);
+
+  scene.add(new THREE.AmbientLight(0xffffff, 0.7));
+  const dir = new THREE.DirectionalLight(0xffffff, 1.2);
+  dir.position.set(2, 4, 3);
+  scene.add(dir);
+  const rim = new THREE.DirectionalLight(0xc8f542, 0.3);
+  rim.position.set(-3, 1, -2);
+  scene.add(rim);
+
+  const glbUrl = `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media&key=${config.apiKey}`;
+
+  try {
+    const loader = new THREE.GLTFLoader();
+    const gltf = await new Promise((resolve, reject) => {
+      loader.load(glbUrl, resolve, null, reject);
+    });
+
+    const model = gltf.scene;
+    scene.add(model);
+
+    const box = new THREE.Box3().setFromObject(model);
+    const size = box.getSize(new THREE.Vector3());
+    const center = box.getCenter(new THREE.Vector3());
+    const maxDim = Math.max(size.x, size.y, size.z);
+    const scale = 2 / maxDim;
+    model.scale.setScalar(scale);
+    model.position.sub(center.multiplyScalar(scale));
+
+    camera.position.set(1.8, 1.2, 1.8);
+    camera.lookAt(0, 0, 0);
+
+    renderer.render(scene, camera);
+
+    const dataURL = canvas.toDataURL('image/jpeg', 0.8);
+    thumbCache[fileId] = dataURL;
+    try { localStorage.setItem(THUMB_KEY, JSON.stringify(thumbCache)); } catch(e) {}
+
+    renderer.dispose();
+  } catch(e) {
+    wrap.innerHTML = `<div class="thumb-placeholder"><span class="icon" style="opacity:0.3">⬡</span><span style="font-size:10px">${name.slice(0,12)}</span></div>`;
+    renderer.dispose();
+  }
+}
+
+// ── VIEWER ──────────────────────────────────────────────────
+function openViewer(fileId, name) {
+  document.getElementById('viewer-overlay').classList.add('active');
+  document.getElementById('viewer-title').textContent = name;
+  document.getElementById('loading-overlay').classList.remove('hidden');
+  document.getElementById('loading-label').textContent = 'Loading model…';
+
+  if (viewerRenderer) { cleanupViewer(); }
+  initViewer(fileId);
+}
+
+function closeViewer() {
+  document.getElementById('viewer-overlay').classList.remove('active');
+  cleanupViewer();
+}
+
+function cleanupViewer() {
+  if (animId) cancelAnimationFrame(animId);
+  if (viewerRenderer) {
+    if (viewerRenderer.xr && viewerRenderer.xr.isPresenting) viewerRenderer.xr.getSession()?.end();
+    viewerRenderer.dispose();
+    viewerRenderer = null;
+  }
+  const wrap = document.getElementById('viewer-canvas-wrap');
+  const canvas = wrap.querySelector('canvas');
+  if (canvas) canvas.remove();
+  viewerScene = viewerCamera = viewerControls = loadedModel = modelRoot = null;
+  slicerPlane = slicerMesh = capMesh = slicerGroup = null;
+  slicerActive = false;
+  grabState.left = grabState.right = null;
+}
+
+// ── SLICER SETUP ─────────────────────────────────────────────
+function buildSlicer(scene) {
+  slicerPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+
+  slicerGroup = new THREE.Group();
+  scene.add(slicerGroup);
+
+  const planeSize = 0.55;
+  const planeGeo  = new THREE.PlaneGeometry(planeSize, planeSize);
+
+  // Translucent blade – the moving indicator in your hand
+  const bladeMat = new THREE.MeshStandardMaterial({
+    color: 0x42f5c8,
+    transparent: true,
+    opacity: 0.18,
+    side: THREE.DoubleSide,
+    depthWrite: false,
+    roughness: 0.1,
+    metalness: 0.05,
+  });
+  slicerMesh = new THREE.Mesh(planeGeo, bladeMat);
+
+  // Glowing border
+  const edgeMat = new THREE.LineBasicMaterial({ color: 0x42f5c8, linewidth: 2 });
+  slicerMesh.add(new THREE.LineSegments(new THREE.EdgesGeometry(planeGeo), edgeMat));
+
+  // Centre dot
+  const dotMat = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide });
+  slicerMesh.add(new THREE.Mesh(new THREE.CircleGeometry(0.006, 16), dotMat));
+
+  slicerGroup.add(slicerMesh);
+  slicerMesh.visible = false;
+
+  // ── CAP MESH ─────────────────────────────────────────────────
+  // A large world-space plane that sits exactly on the cut surface.
+  // It's NOT parented to slicerGroup – it lives in world space and
+  // is repositioned every frame to match the clipping plane equation,
+  // so it always fills the cut hole regardless of model transform.
+  // Size is large enough to cover any reasonably sized model (4 m).
+  const capSize = 4;
+  const capGeo  = new THREE.PlaneGeometry(capSize, capSize);
+  const capMat  = new THREE.MeshStandardMaterial({
+    color: 0x42f5c8,
+    transparent: true,
+    opacity: 0.28,
+    side: THREE.DoubleSide,
+    depthWrite: false,
+    depthTest: true,
+    roughness: 0.4,
+    metalness: 0.1,
+    // The cap itself must NOT be clipped by slicerPlane, otherwise it
+    // disappears. We leave its clippingPlanes array empty (default).
+  });
+  capMesh = new THREE.Mesh(capGeo, capMat);
+  capMesh.renderOrder = 1; // draw after opaque geometry
+  capMesh.visible = false;
+  scene.add(capMesh);
+}
+
+// Apply / remove clipping plane on every mesh of the model
+function setClipping(active) {
+  if (!loadedModel) return;
+  loadedModel.traverse(child => {
+    if (!child.isMesh) return;
+    child.material.clippingPlanes = active ? [slicerPlane] : [];
+    child.material.needsUpdate    = true;
+  });
+  if (capMesh) capMesh.visible = active;
+}
+
+// Every frame while slicing: sync blade visual + clipping plane + cap position
+function updateSlicer(controller) {
+  if (!slicerActive || !controller || !slicerPlane) return;
+
+  // Blade follows the grip exactly
+  slicerGroup.position.setFromMatrixPosition(controller.matrixWorld);
+  slicerGroup.quaternion.setFromRotationMatrix(controller.matrixWorld);
+
+  // Normal = palm-forward (-Z of grip space)
+  const normal = new THREE.Vector3(0, 0, -1)
+    .applyQuaternion(slicerGroup.quaternion)
+    .normalize();
+
+  slicerPlane.normal.copy(normal);
+  slicerPlane.constant = -normal.dot(slicerGroup.position);
+
+  // Reposition the cap mesh to sit exactly on the clipping plane.
+  // The cap lives in world space; we align it to the plane's equation:
+  //   centre = normal * (-constant),  orientation = plane normal
+  if (capMesh) {
+    // Place cap at the point on the plane closest to the world origin
+    const capPos = normal.clone().multiplyScalar(-slicerPlane.constant);
+    capMesh.position.copy(capPos);
+    // Orient the PlaneGeometry (whose default normal is +Z) to face along slicerPlane.normal
+    capMesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), normal);
+  }
+}
+
+// ── MANIPULATION HELPERS ──────────────────────────────────────
+function ctrlWorldPos(ctrl) {
+  return new THREE.Vector3().setFromMatrixPosition(ctrl.matrixWorld);
+}
+function ctrlWorldQuat(ctrl) {
+  return new THREE.Quaternion().setFromRotationMatrix(ctrl.matrixWorld);
+}
+
+// One-handed: translate modelRoot by how much the left controller moved
+function applyOneHandedGrab(ctrl) {
+  const gs = grabState.left;
+  if (!gs || !modelRoot) return;
+
+  const curPos  = ctrlWorldPos(ctrl);
+  const delta   = curPos.clone().sub(gs.prevPos);
+  modelRoot.position.add(delta);
+
+  gs.prevPos.copy(curPos);
+}
+
+// Two-handed: full 6-DOF grab (translate + rotate + uniform scale)
+// Uses the midpoint and the vector between the two controllers.
+function applyTwoHandedGrab(ctrlL, ctrlR) {
+  if (!grabState.left || !grabState.right || !modelRoot) return;
+
+  const curL = ctrlWorldPos(ctrlL);
+  const curR = ctrlWorldPos(ctrlR);
+  const prevL = grabState.left.prevPos;
+  const prevR = grabState.right.prevPos;
+
+  // Midpoints
+  const curMid  = curL.clone().add(curR).multiplyScalar(0.5);
+  const prevMid = prevL.clone().add(prevR).multiplyScalar(0.5);
+
+  // Scale: ratio of current span to previous span
+  const curSpan  = curL.distanceTo(curR);
+  const prevSpan = prevL.distanceTo(prevR);
+  const scaleDelta = prevSpan > 0.001 ? curSpan / prevSpan : 1;
+
+  // Rotation: angle change of the inter-controller vector projected onto XZ
+  const curVec  = new THREE.Vector2(curR.x - curL.x,  curR.z - curL.z).normalize();
+  const prevVec = new THREE.Vector2(prevR.x - prevL.x, prevR.z - prevL.z).normalize();
+  const angleY  = Math.atan2(
+    prevVec.x * curVec.y - prevVec.y * curVec.x,
+    prevVec.x * curVec.x + prevVec.y * curVec.y
+  );
+
+  // Apply: scale around midpoint → rotate around midpoint → translate
+  const rot = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0), angleY);
+
+  // Offset from midpoint to model origin before transform
+  const offset = modelRoot.position.clone().sub(prevMid);
+  offset.multiplyScalar(scaleDelta);
+  offset.applyQuaternion(rot);
+
+  modelRoot.position.copy(curMid).add(offset);
+  modelRoot.quaternion.premultiply(rot);
+  modelRoot.scale.multiplyScalar(scaleDelta);
+
+  grabState.left.prevPos.copy(curL);
+  grabState.right.prevPos.copy(curR);
+}
+
+// ── CONTROLLER WIRING ────────────────────────────────────────
+function setupControllers(renderer, scene) {
+  const ctrlL = renderer.xr.getController(0); // left
+  const ctrlR = renderer.xr.getController(1); // right
+  scene.add(ctrlL);
+  scene.add(ctrlR);
+
+  // Controller ray dots
+  function makeRay(color) {
+    const geo = new THREE.BufferGeometry().setFromPoints([
+      new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,-0.07)
+    ]);
+    return new THREE.Line(geo, new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0.5 }));
+  }
+  ctrlL.add(makeRay(0xc8f542)); // green-yellow = grab hand
+  ctrlR.add(makeRay(0x42f5c8)); // teal = slice hand
+
+  // ── LEFT CONTROLLER: grab / move ─────────────────────────────
+  ctrlL.addEventListener('squeezestart', () => {
+    grabState.left = { prevPos: ctrlWorldPos(ctrlL), prevQuat: ctrlWorldQuat(ctrlL) };
+  });
+  ctrlL.addEventListener('squeezeend', () => {
+    grabState.left = null;
+  });
+
+  // ── RIGHT CONTROLLER: slice ───────────────────────────────────
+  ctrlR.addEventListener('squeezestart', () => {
+    // If left is already grabbing, treat right grip as second grab hand too
+    if (grabState.left) {
+      grabState.right = { prevPos: ctrlWorldPos(ctrlR), prevQuat: ctrlWorldQuat(ctrlR) };
+      return; // don't slice when two-handing
+    }
+    slicerActive = true;
+    if (slicerMesh) slicerMesh.visible = true;
+    setClipping(true);
+    // Record right grip as secondary grab anchor in case left joins later
+    grabState.right = { prevPos: ctrlWorldPos(ctrlR), prevQuat: ctrlWorldQuat(ctrlR) };
+  });
+  ctrlR.addEventListener('squeezeend', () => {
+    grabState.right = null;
+    slicerActive = false;
+    if (slicerMesh) slicerMesh.visible = false;
+    setClipping(false);
+  });
+}
+
+// ── INIT VIEWER ──────────────────────────────────────────────
+function initViewer(fileId) {
+  const wrap = document.getElementById('viewer-canvas-wrap');
+
+  viewerRenderer = new THREE.WebGLRenderer({ antialias: true, stencil: true });
+  viewerRenderer.setPixelRatio(window.devicePixelRatio);
+  viewerRenderer.setSize(wrap.clientWidth, wrap.clientHeight);
+  viewerRenderer.outputEncoding = THREE.sRGBEncoding;
+  viewerRenderer.xr.enabled = true;
+  viewerRenderer.localClippingEnabled = true;
+  wrap.appendChild(viewerRenderer.domElement);
+
+  viewerScene = new THREE.Scene();
+  viewerScene.background = new THREE.Color(0x0a0a0b);
+
+  viewerCamera = new THREE.PerspectiveCamera(60, wrap.clientWidth / wrap.clientHeight, 0.01, 500);
+  viewerCamera.position.set(0, 1.6, 2.5);
+
+  viewerScene.add(new THREE.AmbientLight(0xffffff, 0.8));
+  const sun = new THREE.DirectionalLight(0xffffff, 1.4);
+  sun.position.set(3, 8, 5);
+  viewerScene.add(sun);
+  const fill = new THREE.DirectionalLight(0x42f5c8, 0.25);
+  fill.position.set(-4, 2, -3);
+  viewerScene.add(fill);
+
+  viewerScene.add(new THREE.GridHelper(20, 40, 0x222226, 0x18181c));
+
+  viewerControls = new THREE.OrbitControls(viewerCamera, viewerRenderer.domElement);
+  viewerControls.enableDamping = true;
+  viewerControls.dampingFactor = 0.07;
+  viewerControls.target.set(0, 0.8, 0);
+
+  // Build slicer (cap mesh also created here)
+  buildSlicer(viewerScene);
+
+  // Wire controllers once XR session begins
+  viewerRenderer.xr.addEventListener('sessionstart', () => {
+    setupControllers(viewerRenderer, viewerScene);
+    // Disable orbit controls in VR – manipulation is via controllers
+    if (viewerControls) viewerControls.enabled = false;
+  });
+  viewerRenderer.xr.addEventListener('sessionend', () => {
+    if (viewerControls) viewerControls.enabled = true;
+    grabState.left = grabState.right = null;
+    slicerActive = false;
+    if (slicerMesh) slicerMesh.visible = false;
+    setClipping(false);
+  });
+
+  // Load model into a wrapper Group so we can freely transform it
+  modelRoot = new THREE.Group();
+  viewerScene.add(modelRoot);
+
+  const glbUrl = `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media&key=${config.apiKey}`;
+  const loader = new THREE.GLTFLoader();
+
+  loader.load(glbUrl, (gltf) => {
+    const model = gltf.scene;
+    const box   = new THREE.Box3().setFromObject(model);
+    const center = box.getCenter(new THREE.Vector3());
+    const size   = box.getSize(new THREE.Vector3());
+
+    // Centre the model and seat it on the floor
+    model.position.x -= center.x;
+    model.position.z -= center.z;
+    model.position.y -= box.min.y;
+
+    // Prep all materials for clipping + interior visibility
+    model.traverse(child => {
+      if (!child.isMesh) return;
+      child.material.clippingPlanes = [];
+      child.material.side = THREE.DoubleSide;
+      child.material.needsUpdate = true;
+    });
+
+    modelRoot.add(model);
+    loadedModel = model;
+
+    document.getElementById('loading-overlay').classList.add('hidden');
+
+    const maxDim = Math.max(size.x, size.y, size.z);
+    viewerCamera.position.set(maxDim * 1.5, maxDim * 0.8, maxDim * 1.5);
+    viewerCamera.lookAt(0, size.y / 2, 0);
+    viewerControls.target.set(0, size.y / 2, 0);
+    viewerControls.update();
+
+    checkXRSupport();
+  }, (prog) => {
+    const pct = prog.total ? Math.round(prog.loaded / prog.total * 100) : '…';
+    document.getElementById('loading-label').textContent = `Loading… ${pct}%`;
+  }, (err) => {
+    document.getElementById('loading-label').textContent = 'Failed to load model';
+    console.error(err);
+  });
+
+  // Render loop
+  viewerRenderer.setAnimationLoop(() => {
+    if (viewerControls && viewerControls.enabled) viewerControls.update();
+
+    if (viewerRenderer.xr.isPresenting) {
+      const ctrlL = viewerRenderer.xr.getController(0);
+      const ctrlR = viewerRenderer.xr.getController(1);
+
+      if (grabState.left && grabState.right) {
+        // Two-handed: scale + rotate + translate
+        applyTwoHandedGrab(ctrlL, ctrlR);
+      } else if (grabState.left) {
+        // One-handed: translate only
+        applyOneHandedGrab(ctrlL);
+      }
+
+      // Slicer runs independently on right hand (only when not two-handing)
+      if (slicerActive && !grabState.left) {
+        updateSlicer(ctrlR);
+      }
+    }
+
+    if (viewerRenderer) viewerRenderer.render(viewerScene, viewerCamera);
+  });
+
+  window.addEventListener('resize', () => {
+    if (!viewerRenderer) return;
+    const w = wrap.clientWidth, h = wrap.clientHeight;
+    viewerRenderer.setSize(w, h);
+    if (viewerCamera) { viewerCamera.aspect = w/h; viewerCamera.updateProjectionMatrix(); }
+  });
+}
+
+async function checkXRSupport() {
+  const btn = document.getElementById('vr-btn');
+  if (!navigator.xr) { btn.textContent = 'VR not supported'; btn.disabled = true; return; }
+  const supported = await navigator.xr.isSessionSupported('immersive-vr').catch(() => false);
+  if (supported) { btn.textContent = '⬡ Enter VR'; btn.disabled = false; }
+  else { btn.textContent = 'VR not available'; btn.style.opacity = '0.5'; }
+}
+
+async function enterVR() {
+  if (!navigator.xr || !viewerRenderer) return;
+  try {
+    const session = await navigator.xr.requestSession('immersive-vr', {
+      requiredFeatures: ['local-floor'],
+      optionalFeatures: ['bounded-floor', 'hand-tracking']
+    });
+    viewerRenderer.xr.setSession(session);
+    session.addEventListener('end', () => {
+      document.getElementById('vr-btn').textContent = '⬡ Enter VR';
+      // Clean up slicer if still active when leaving VR
+      if (slicerActive) {
+        slicerActive = false;
+        if (slicerMesh) slicerMesh.visible = false;
+        setClipping(false);
+      }
+    });
+    document.getElementById('vr-btn').textContent = '◼ Exit VR';
+  } catch(e) {
+    alert('Could not start VR session: ' + e.message);
+  }
+}
+</script>
+</body>
+</html>
