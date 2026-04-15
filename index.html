@@ -9,9 +9,9 @@
 :root{--bg:#0a0a0b;--surface:#111113;--surface2:#18181c;--border:rgba(255,255,255,0.07);--border-hover:rgba(255,255,255,0.18);--text:#e8e8e6;--muted:#6b6b72;--accent:#c8f542;--accent2:#42f5c8;--danger:#f54242;--radius:12px;}
 *{margin:0;padding:0;box-sizing:border-box;}
 body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;min-height:100vh;overflow-x:hidden;}
-#setup-screen{min-height:100vh;display:none;}
+/* Browser */
 #browser-screen{display:none;min-height:100vh;}
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:18px 24px;border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(10,10,11,0.92);backdrop-filter:blur(12px);z-index:10;}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:18px 24px;border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(10,10,11,0.93);backdrop-filter:blur(12px);z-index:10;}
 .topbar-left{display:flex;align-items:center;gap:16px;}
 .wordmark{font-family:'DM Mono',monospace;font-size:14px;font-weight:400;letter-spacing:-0.3px;}
 .wordmark span{color:var(--accent);}
@@ -25,7 +25,6 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;}
 .model-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;cursor:pointer;transition:border-color 0.2s,transform 0.15s,box-shadow 0.2s;position:relative;}
 .model-card:hover{border-color:var(--border-hover);transform:translateY(-3px);box-shadow:0 12px 32px rgba(0,0,0,0.4);}
-.model-card:active{transform:translateY(-1px);}
 .thumb-wrap{width:100%;aspect-ratio:1;background:var(--surface2);position:relative;overflow:hidden;}
 .thumb-wrap canvas{width:100%!important;height:100%!important;display:block;}
 .thumb-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;color:var(--muted);font-family:'DM Mono',monospace;font-size:11px;}
@@ -35,6 +34,9 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .model-meta{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);}
 .launch-btn{position:absolute;bottom:10px;right:10px;background:var(--accent);color:#0a0a0b;border:none;border-radius:8px;padding:5px 10px;font-family:'DM Mono',monospace;font-size:11px;font-weight:500;cursor:pointer;opacity:0;transition:opacity 0.18s;pointer-events:none;}
 .model-card:hover .launch-btn{opacity:1;pointer-events:auto;}
+.status-msg{text-align:center;padding:60px 24px;color:var(--muted);font-family:'DM Mono',monospace;font-size:13px;line-height:1.7;}
+.status-msg .big{font-size:32px;display:block;margin-bottom:12px;}
+.status-msg.error{color:var(--danger);}
 /* Viewer */
 #viewer-overlay{display:none;position:fixed;inset:0;background:#000;z-index:100;flex-direction:column;}
 #viewer-overlay.active{display:flex;}
@@ -45,10 +47,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .spinner{width:36px;height:36px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
 .loading-label{font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);}
-.status-msg{text-align:center;padding:60px 24px;color:var(--muted);font-family:'DM Mono',monospace;font-size:13px;line-height:1.7;}
-.status-msg .big{font-size:32px;display:block;margin-bottom:12px;}
-.status-msg.error{color:var(--danger);}
-.viewer-bar{display:flex;align-items:center;justify-content:space-between;padding:10px 20px;background:rgba(0,0,0,0.88);border-top:1px solid rgba(255,255,255,0.08);flex-shrink:0;gap:12px;}
+.viewer-bar{display:flex;align-items:center;justify-content:space-between;padding:10px 20px;background:rgba(0,0,0,0.9);border-top:1px solid rgba(255,255,255,0.07);flex-shrink:0;gap:12px;}
 .viewer-title{font-family:'DM Mono',monospace;font-size:13px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex-shrink:1;}
 .viewer-controls{display:flex;gap:8px;flex-shrink:0;align-items:center;}
 .vr-btn{background:var(--accent);color:#0a0a0b;border:none;border-radius:8px;padding:8px 16px;font-family:'DM Mono',monospace;font-size:12px;font-weight:500;cursor:pointer;transition:opacity 0.18s;}
@@ -62,15 +61,28 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .tog input:checked+.tog-s{background:var(--accent);}
 .tog.teal input:checked+.tog-s{background:var(--accent2);}
 .tog input:checked+.tog-s:before{transform:translateX(14px);}
-/* Desktop mode buttons */
-.dm-btn{font-family:'DM Mono',monospace;font-size:10px;padding:3px 9px;border-radius:5px;border:1px solid rgba(255,255,255,0.12);background:transparent;color:var(--muted);cursor:pointer;transition:all 0.15s;}
-.dm-btn.active{color:#0a0a0b;border-color:transparent;}
-.dm-btn.m-pin.active{background:#f54242;}
-.dm-btn.m-meas.active{background:#f5a142;}
-/* Canvas cursor changes */
-.canvas-orbit{cursor:grab;}
-.canvas-pin{cursor:crosshair;}
-.canvas-meas{cursor:cell;}
+/* Desktop mode buttons — highlighted when active */
+.dm-btn{font-family:'DM Mono',monospace;font-size:10px;padding:4px 10px;border-radius:5px;border:1px solid rgba(255,255,255,0.14);background:transparent;color:var(--muted);cursor:pointer;transition:all 0.15s;position:relative;}
+.dm-btn:hover{border-color:rgba(255,255,255,0.3);color:var(--text);}
+.dm-btn.active{color:#0a0a0b;border-color:transparent;font-weight:500;}
+.dm-btn.m-orbit.active{background:#e8e8e6;color:#0a0a0b;}
+.dm-btn.m-meas.active{background:#f5a142;box-shadow:0 0 8px rgba(245,161,66,0.5);}
+.dm-btn.m-pin.active{background:#f54242;box-shadow:0 0 8px rgba(245,66,66,0.5);}
+.dm-btn kbd{font-family:'DM Mono',monospace;font-size:8px;background:rgba(255,255,255,0.12);border-radius:3px;padding:1px 3px;margin-left:4px;vertical-align:middle;}
+.dm-btn.active kbd{background:rgba(0,0,0,0.2);}
+/* Canvas cursor */
+.c-orbit{cursor:grab;} .c-pin{cursor:crosshair;} .c-meas{cursor:cell;}
+/* Pin comment popup */
+.pin-popup{position:fixed;z-index:200;background:#1a1a20;border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:10px 12px;width:220px;box-shadow:0 8px 32px rgba(0,0,0,0.7);font-family:'DM Mono',monospace;}
+.pin-popup-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.pin-popup-title{font-size:11px;font-weight:500;color:var(--text);}
+.pin-popup-close{background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;line-height:1;padding:0;}
+.pin-popup textarea{width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:6px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:11px;line-height:1.5;padding:6px 8px;resize:vertical;outline:none;min-height:60px;}
+.pin-popup textarea:focus{border-color:rgba(255,255,255,0.25);}
+.pin-popup-actions{display:flex;gap:6px;margin-top:8px;justify-content:flex-end;}
+.pin-popup-actions button{font-family:'DM Mono',monospace;font-size:10px;padding:3px 8px;border-radius:5px;cursor:pointer;border:none;}
+.pin-save{background:var(--accent);color:#0a0a0b;font-weight:500;}
+.pin-del{background:rgba(245,66,66,0.15);color:#f54242;border:1px solid rgba(245,66,66,0.3)!important;}
 </style>
 </head>
 <body>
@@ -103,85 +115,69 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
   </div>
 
   <!-- Tool strip -->
-  <div id="tool-strip" style="display:none;flex-direction:column;background:rgba(8,8,10,0.97);border-top:1px solid rgba(255,255,255,0.06);">
+  <div id="tool-strip" style="display:none;flex-direction:column;background:rgba(8,8,10,0.97);border-top:1px solid rgba(255,255,255,0.05);">
 
-    <!-- Row A: sizes, slicers, explode, light -->
-    <div style="display:flex;align-items:center;gap:12px;padding:6px 16px;border-bottom:1px solid rgba(255,255,255,0.05);flex-wrap:wrap;">
-
+    <!-- Row A -->
+    <div style="display:flex;align-items:center;gap:11px;padding:6px 16px;border-bottom:1px solid rgba(255,255,255,0.04);flex-wrap:wrap;">
       <div style="display:flex;align-items:center;gap:5px;">
         <span style="font-family:'DM Mono',monospace;font-size:9px;color:#6b6b72;text-transform:uppercase;letter-spacing:.08em;">Size</span>
         <span id="size-readout" style="font-family:'DM Mono',monospace;font-size:11px;color:#e8e8e6;">—</span>
       </div>
-      <div style="width:1px;height:14px;background:rgba(255,255,255,0.07)"></div>
-
+      <div style="width:1px;height:13px;background:rgba(255,255,255,0.07)"></div>
       <!-- Explode -->
       <div style="display:flex;align-items:center;gap:5px;">
         <span style="font-family:'DM Mono',monospace;font-size:9px;color:#6b6b72;text-transform:uppercase;letter-spacing:.08em;">Explode</span>
-        <input type="range" min="0" max="1" step="0.01" value="0" oninput="onExplodeSlider(this.value)" style="width:76px;accent-color:#c8f542;">
-        <span id="explode-val" style="font-family:'DM Mono',monospace;font-size:10px;color:#c8f542;min-width:22px;">0%</span>
+        <input type="range" min="0" max="1" step="0.01" value="0" oninput="onExplodeSlider(this.value)" style="width:72px;accent-color:#c8f542;">
+        <span id="explode-val" style="font-family:'DM Mono',monospace;font-size:10px;color:#c8f542;min-width:20px;">0%</span>
       </div>
-      <div style="width:1px;height:14px;background:rgba(255,255,255,0.07)"></div>
-
+      <div style="width:1px;height:13px;background:rgba(255,255,255,0.07)"></div>
       <!-- H-Cut -->
       <div style="display:flex;align-items:center;gap:5px;">
         <span style="font-family:'DM Mono',monospace;font-size:9px;color:#42f5c8;text-transform:uppercase;letter-spacing:.08em;">H-Cut ↕</span>
-        <label class="tog teal">
-          <input type="checkbox" id="hslice-tog" onchange="onHSliceToggle(this.checked)">
-          <span class="tog-s"></span>
-        </label>
-        <input type="range" id="hslice-sl" min="0" max="1" step="0.005" value="0.5"
-          oninput="onHSliceSlider(this.value)" style="width:76px;accent-color:#42f5c8;">
+        <label class="tog teal"><input type="checkbox" id="hslice-tog" onchange="onHSliceToggle(this.checked)"><span class="tog-s"></span></label>
+        <input type="range" id="hslice-sl" min="0" max="1" step="0.005" value="0.5" oninput="onHSliceSlider(this.value)" style="width:72px;accent-color:#42f5c8;">
       </div>
-      <div style="width:1px;height:14px;background:rgba(255,255,255,0.07)"></div>
-
+      <div style="width:1px;height:13px;background:rgba(255,255,255,0.07)"></div>
       <!-- V-Cut -->
       <div style="display:flex;align-items:center;gap:5px;">
         <span style="font-family:'DM Mono',monospace;font-size:9px;color:#c8f542;text-transform:uppercase;letter-spacing:.08em;">V-Cut ↔</span>
-        <label class="tog">
-          <input type="checkbox" id="vslice-tog" onchange="onVSliceToggle(this.checked)">
-          <span class="tog-s"></span>
-        </label>
-        <input type="range" id="vslice-sl" min="0" max="1" step="0.005" value="0.5"
-          oninput="onVSliceSlider(this.value)" style="width:76px;accent-color:#c8f542;">
+        <label class="tog"><input type="checkbox" id="vslice-tog" onchange="onVSliceToggle(this.checked)"><span class="tog-s"></span></label>
+        <input type="range" id="vslice-sl" min="0" max="1" step="0.005" value="0.5" oninput="onVSliceSlider(this.value)" style="width:72px;accent-color:#c8f542;">
       </div>
-      <div style="width:1px;height:14px;background:rgba(255,255,255,0.07)"></div>
-
-      <!-- Light -->
+      <div style="width:1px;height:13px;background:rgba(255,255,255,0.07)"></div>
+      <!-- Light azimuth + elevation -->
       <div style="display:flex;align-items:center;gap:5px;">
-        <span style="font-family:'DM Mono',monospace;font-size:9px;color:#f5a142;text-transform:uppercase;letter-spacing:.08em;">☀ Light</span>
-        <input type="range" id="light-sl" min="0" max="360" step="1" value="45"
-          oninput="onLightSlider(this.value)" style="width:76px;accent-color:#f5a142;">
-        <span id="light-val" style="font-family:'DM Mono',monospace;font-size:10px;color:#f5a142;min-width:26px;">45°</span>
+        <span style="font-family:'DM Mono',monospace;font-size:9px;color:#f5a142;text-transform:uppercase;letter-spacing:.08em;">☀ Az</span>
+        <input type="range" id="light-az" min="0" max="360" step="1" value="45" oninput="onLightSlider()" style="width:66px;accent-color:#f5a142;">
+        <span style="font-family:'DM Mono',monospace;font-size:9px;color:#f5a142;text-transform:uppercase;letter-spacing:.08em;">El</span>
+        <input type="range" id="light-el" min="5" max="85" step="1" value="40" oninput="onLightSlider()" style="width:66px;accent-color:#f5a142;">
+        <span id="light-val" style="font-family:'DM Mono',monospace;font-size:10px;color:#f5a142;min-width:42px;">45°/40°</span>
       </div>
     </div>
 
-    <!-- Row B: desktop mode, measure, pins, export, actions -->
-    <div style="display:flex;align-items:center;gap:10px;padding:5px 16px;flex-wrap:wrap;">
-
-      <!-- Mode buttons -->
+    <!-- Row B -->
+    <div style="display:flex;align-items:center;gap:9px;padding:5px 16px;flex-wrap:wrap;">
+      <!-- Mode buttons with keyboard shortcuts -->
       <div style="display:flex;align-items:center;gap:4px;">
         <span style="font-family:'DM Mono',monospace;font-size:9px;color:#6b6b72;text-transform:uppercase;letter-spacing:.08em;margin-right:2px;">Mode</span>
-        <button id="dm-orbit" class="dm-btn active"  onclick="setDesktopMode('orbit')">Orbit</button>
-        <button id="dm-meas"  class="dm-btn m-meas"  onclick="setDesktopMode('measure')">↔ Measure</button>
-        <button id="dm-pin"   class="dm-btn m-pin"   onclick="setDesktopMode('pin')">◎ Pin</button>
+        <button id="dm-orbit" class="dm-btn m-orbit active" onclick="setDesktopMode('orbit')" title="Keyboard: O">Orbit<kbd>O</kbd></button>
+        <button id="dm-meas"  class="dm-btn m-meas"         onclick="setDesktopMode('measure')" title="Keyboard: M">↔ Measure<kbd>M</kbd></button>
+        <button id="dm-pin"   class="dm-btn m-pin"           onclick="setDesktopMode('pin')" title="Keyboard: P">◎ Pin<kbd>P</kbd></button>
       </div>
-      <div style="width:1px;height:14px;background:rgba(255,255,255,0.07)"></div>
-
-      <!-- Measure readout -->
+      <div style="width:1px;height:13px;background:rgba(255,255,255,0.07)"></div>
+      <!-- Measure -->
       <div style="display:flex;align-items:center;gap:5px;">
         <span id="measure-readout" style="font-family:'DM Mono',monospace;font-size:11px;color:#f5a142;">—</span>
         <button onclick="clearMeasure()" style="font-family:'DM Mono',monospace;font-size:9px;color:#6b6b72;background:transparent;border:1px solid rgba(255,255,255,0.07);border-radius:4px;padding:1px 5px;cursor:pointer;">clr</button>
       </div>
-      <div style="width:1px;height:14px;background:rgba(255,255,255,0.07)"></div>
-
+      <div style="width:1px;height:13px;background:rgba(255,255,255,0.07)"></div>
       <!-- Pins -->
       <div style="display:flex;align-items:center;gap:5px;">
         <span style="font-family:'DM Mono',monospace;font-size:9px;color:#6b6b72;text-transform:uppercase;letter-spacing:.08em;">◎ Pins</span>
         <span id="annot-count" style="font-family:'DM Mono',monospace;font-size:11px;color:#f54242;">0</span>
         <button onclick="onClearAnnotations()" style="font-family:'DM Mono',monospace;font-size:9px;color:#6b6b72;background:transparent;border:1px solid rgba(255,255,255,0.07);border-radius:4px;padding:1px 5px;cursor:pointer;">clear</button>
       </div>
-
-      <!-- Right actions -->
+      <!-- Right -->
       <div style="display:flex;gap:6px;margin-left:auto;align-items:center;">
         <button onclick="exportPinReport()" style="font-family:'DM Mono',monospace;font-size:10px;color:#4290f5;background:rgba(66,144,245,0.08);border:1px solid rgba(66,144,245,0.25);border-radius:6px;padding:4px 10px;cursor:pointer;">⬡ Export PDF</button>
         <button onclick="onResetTransform()" style="font-family:'DM Mono',monospace;font-size:11px;color:#e8e8e6;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:7px;padding:4px 11px;cursor:pointer;">↺ Reset</button>
@@ -195,7 +191,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
     <span class="viewer-title" id="viewer-title">—</span>
     <div class="viewer-controls">
       <span style="font-family:'DM Mono',monospace;font-size:10px;color:#c8f542;background:rgba(200,245,66,0.08);border:1px solid rgba(200,245,66,0.2);border-radius:6px;padding:3px 8px;">L grip → move</span>
-      <span style="font-family:'DM Mono',monospace;font-size:10px;color:#4290f5;background:rgba(66,144,245,0.08);border:1px solid rgba(66,144,245,0.2);border-radius:6px;padding:3px 8px;">Laser: R trigger · A → pin</span>
+      <span style="font-family:'DM Mono',monospace;font-size:10px;color:#4290f5;background:rgba(66,144,245,0.08);border:1px solid rgba(66,144,245,0.2);border-radius:6px;padding:3px 8px;">Laser mode: aim + A → pin</span>
       <button class="vr-btn secondary" onclick="closeViewer()">← Back</button>
       <button class="vr-btn" id="vr-btn" onclick="enterVR()">Enter VR</button>
     </div>
@@ -208,9 +204,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
   <div id="hud-measure" style="display:none;text-align:center;font-family:'DM Mono',monospace;font-size:18px;color:#c8f542;margin-top:8px;text-shadow:0 0 12px rgba(200,245,66,0.5);"></div>
 </div>
 
-<!-- jsPDF -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<!-- Three.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
@@ -220,17 +214,16 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 
 // ── Config ───────────────────────────────────────────────────
 const THUMB_KEY = 'vr_thumb_cache';
+const SESSION_PREFIX = 'vr_session_'; // key = SESSION_PREFIX + fileId
 const config = {
   folderId: '1OtwMUU-oHisoufPNRCl4IUDT7qVR7dcG',
   apiKey:   'AIzaSyAu0q693wWtUyIPhkra3sLFn04XQjpKk9k'
 };
-let thumbCache = {};
-let currentModels = [];
+let thumbCache = {}, currentModels = [], currentFileId = null;
 
 // ── Viewer core ──────────────────────────────────────────────
 let viewerScene, viewerRenderer, viewerCamera, viewerControls;
-let sunLight = null;
-let lightAngleDeg = 45;
+let sunLight = null, lightAz = 45, lightEl = 40;
 
 // ── Model ────────────────────────────────────────────────────
 let modelRoot = null, loadedModel = null;
@@ -243,7 +236,8 @@ let slicerGroup = null, slicerActive = false;
 // ── Desktop slicers ──────────────────────────────────────────
 let hSlicePlane = null, vSlicePlane = null;
 let hSliceActive = false, vSliceActive = false;
-let hSliceEdge = null, vSliceEdge = null;
+// Contour lines — extracted from model geometry, not just a plane box
+let hContourLine = null, vContourLine = null;
 
 // ── Grab ─────────────────────────────────────────────────────
 const grabState = { left: null, right: null };
@@ -251,17 +245,20 @@ const grabState = { left: null, right: null };
 // ── Measure ──────────────────────────────────────────────────
 let measureState = { ptA:null, ptB:null, lineObj:null, sphereA:null, sphereB:null };
 let measurePhase = 0;
+// Saved measurements (array of {ptA, ptB, label})
+let savedMeasurements = [];
 
 // ── Desktop mode ─────────────────────────────────────────────
 let desktopMode = 'orbit';
 
 // ── Pins ─────────────────────────────────────────────────────
 const PIN_COLORS = [
-  0xf54242, 0xf5a142, 0xe8e042, 0x42f542,
+  0xf54242, 0xf5a142, 0xe8d742, 0x42f542,
   0x42f5c8, 0x4290f5, 0xa042f5, 0xf542b8,
-  0xff6600, 0x00bcd4
+  0xff7730, 0x00bcd4
 ];
 let annotations = [], annotCount = 0;
+let pinPopupEl = null; // current open popup
 
 // ── Explode ──────────────────────────────────────────────────
 let explodeAmount = 0;
@@ -270,8 +267,7 @@ const explodeOrigins = new Map();
 // ── VR modes ─────────────────────────────────────────────────
 const VR_MODES = ['grab','slice','measure','laser'];
 let vrMode = 'grab';
-let _lastThumbL = false, _lastThumbR = false;
-let _prevFaceA = false;  // A button → drop pin at laser hit
+let _lastThumbL = false, _lastThumbR = false, _prevFaceA = false;
 
 // ── Laser ────────────────────────────────────────────────────
 let laserLine = null, laserDot = null;
@@ -286,7 +282,63 @@ const mouseNDC  = new THREE.Vector2();
 (function boot() {
   try { const tc=localStorage.getItem(THUMB_KEY); if(tc) thumbCache=JSON.parse(tc); } catch(e){}
   showBrowser();
+  // Keyboard shortcuts
+  document.addEventListener('keydown', e => {
+    if(e.target.tagName==='TEXTAREA'||e.target.tagName==='INPUT') return;
+    if(!viewerRenderer) return;
+    if(e.key==='o'||e.key==='O') setDesktopMode('orbit');
+    if(e.key==='m'||e.key==='M') setDesktopMode('measure');
+    if(e.key==='p'||e.key==='P') setDesktopMode('pin');
+  });
 })();
+
+// ════════════════════════════════════════════════════════════
+//  SESSION PERSISTENCE  (pins + measurements saved by fileId)
+// ════════════════════════════════════════════════════════════
+function saveSession() {
+  if(!currentFileId) return;
+  const data = {
+    pins: annotations.map(a=>({
+      id: a.id,
+      pos: {x:a.worldPos.x, y:a.worldPos.y, z:a.worldPos.z},
+      colorIdx: a.colorIdx,
+      comment: a.comment||''
+    })),
+    annotCount,
+    measurements: savedMeasurements.map(m=>({
+      ptA: {x:m.ptA.x,y:m.ptA.y,z:m.ptA.z},
+      ptB: {x:m.ptB.x,y:m.ptB.y,z:m.ptB.z},
+      label: m.label
+    }))
+  };
+  try { localStorage.setItem(SESSION_PREFIX+currentFileId, JSON.stringify(data)); } catch(e){}
+}
+
+function loadSession(fileId) {
+  try {
+    const raw = localStorage.getItem(SESSION_PREFIX+fileId);
+    if(!raw) return null;
+    return JSON.parse(raw);
+  } catch(e){ return null; }
+}
+
+function restoreSession(session) {
+  if(!session) return;
+  annotCount = session.annotCount || 0;
+  // Restore pins
+  (session.pins||[]).forEach(p=>{
+    const pos = new THREE.Vector3(p.pos.x, p.pos.y, p.pos.z);
+    _spawnPin(pos, p.colorIdx, p.id, p.comment||'');
+  });
+  // Restore measurements
+  (session.measurements||[]).forEach(m=>{
+    const ptA = new THREE.Vector3(m.ptA.x, m.ptA.y, m.ptA.z);
+    const ptB = new THREE.Vector3(m.ptB.x, m.ptB.y, m.ptB.z);
+    savedMeasurements.push({ptA, ptB, label: m.label});
+    _spawnMeasureLine(ptA, ptB);
+  });
+  document.getElementById('annot-count').textContent = annotations.length;
+}
 
 // ════════════════════════════════════════════════════════════
 //  BROWSER
@@ -313,7 +365,7 @@ async function loadModels() {
     document.getElementById('count-badge').textContent=currentModels.length+' file'+(currentModels.length!==1?'s':'');
     renderGrid(currentModels);
   } catch(e) {
-    grid.innerHTML=`<div class="status-msg error"><span class="big">⚠</span>${e.message}<br><small>Check API key and folder sharing.</small></div>`;
+    grid.innerHTML=`<div class="status-msg error"><span class="big">⚠</span>${e.message}</div>`;
   }
 }
 
@@ -325,9 +377,12 @@ function renderGrid(models) {
     const card=document.createElement('div'); card.className='model-card';
     const sizeMB=model.size?(model.size/1024/1024).toFixed(1)+' MB':'—';
     const name=model.name.replace(/\.glb$/i,'');
+    // Show saved pin count if any
+    const sess=loadSession(model.id);
+    const pinBadge=sess&&sess.pins?.length?`<span style="font-family:'DM Mono',monospace;font-size:10px;color:#f54242;"> · ${sess.pins.length} pin${sess.pins.length!==1?'s':''}</span>`:'';
     card.innerHTML=`
       <div class="thumb-wrap" id="tw-${model.id}"><div class="thumb-placeholder"><span class="icon">⬡</span><span>Rendering…</span></div></div>
-      <div class="card-body"><div class="model-name" title="${name}">${name}</div><div class="model-meta">${sizeMB}</div></div>
+      <div class="card-body"><div class="model-name" title="${name}">${name}${pinBadge}</div><div class="model-meta">${sizeMB}</div></div>
       <button class="launch-btn" onclick="event.stopPropagation();openViewer('${model.id}','${name.replace(/'/g,"\\'")}')">▶ View in VR</button>`;
     card.addEventListener('click',()=>openViewer(model.id,name));
     grid.appendChild(card);
@@ -341,8 +396,8 @@ function renderGrid(models) {
 async function renderThumb(fileId,name) {
   const wrap=document.getElementById('tw-'+fileId); if(!wrap) return;
   if(thumbCache[fileId]){
-    const img=document.createElement('img');
-    img.src=thumbCache[fileId]; img.style.cssText='width:100%;height:100%;object-fit:contain;';
+    const img=document.createElement('img'); img.src=thumbCache[fileId];
+    img.style.cssText='width:100%;height:100%;object-fit:contain;';
     wrap.innerHTML=''; wrap.appendChild(img); return;
   }
   const cv=document.createElement('canvas'); cv.width=cv.height=300;
@@ -375,6 +430,7 @@ async function renderThumb(fileId,name) {
 //  VIEWER OPEN / CLOSE
 // ════════════════════════════════════════════════════════════
 function openViewer(fileId,name) {
+  currentFileId=fileId;
   document.getElementById('viewer-overlay').classList.add('active');
   document.getElementById('viewer-title').textContent=name;
   document.getElementById('loading-overlay').classList.remove('hidden');
@@ -383,10 +439,13 @@ function openViewer(fileId,name) {
   initViewer(fileId);
 }
 function closeViewer() {
+  closePinPopup();
+  saveSession();
   document.getElementById('viewer-overlay').classList.remove('active');
   cleanupViewer();
 }
 function cleanupViewer() {
+  closePinPopup();
   if(viewerRenderer){
     if(viewerRenderer.xr?.isPresenting) viewerRenderer.xr.getSession()?.end();
     viewerRenderer.setAnimationLoop(null);
@@ -394,15 +453,15 @@ function cleanupViewer() {
   }
   document.getElementById('viewer-canvas-wrap').querySelector('canvas')?.remove();
   annotations.forEach(a=>{viewerScene?.remove(a.mesh);viewerScene?.remove(a.stem);a.labelDiv?.remove();});
-  annotations=[]; annotCount=0;
+  annotations=[]; annotCount=0; savedMeasurements=[];
   viewerScene=viewerCamera=viewerControls=loadedModel=modelRoot=sunLight=null;
   slicerPlane=slicerMesh=slicerGroup=null; slicerActive=false;
-  hSlicePlane=vSlicePlane=hSliceEdge=vSliceEdge=null; hSliceActive=vSliceActive=false;
-  laserLine=laserDot=null;
+  hSlicePlane=vSlicePlane=null; hSliceActive=vSliceActive=false;
+  hContourLine=vContourLine=null; laserLine=laserDot=null;
   grabState.left=grabState.right=null;
   measureState={ptA:null,ptB:null,lineObj:null,sphereA:null,sphereB:null}; measurePhase=0;
   explodeAmount=0; explodeOrigins.clear();
-  vrMode='grab'; desktopMode='orbit';
+  vrMode='grab'; desktopMode='orbit'; currentFileId=null;
   _lastThumbL=_lastThumbR=_prevFaceA=false;
   document.getElementById('vr-hud').style.display='none';
   const ts=document.getElementById('tool-strip'); if(ts) ts.style.display='none';
@@ -411,21 +470,18 @@ function cleanupViewer() {
 }
 
 // ════════════════════════════════════════════════════════════
-//  SLICER — VR (no fill cap, edge outline only)
+//  SLICER — VR: tiny invisible blade, bright dot at tip
 // ════════════════════════════════════════════════════════════
 function buildSlicer(scene) {
   slicerPlane=new THREE.Plane(new THREE.Vector3(0,1,0),0);
   slicerGroup=new THREE.Group(); scene.add(slicerGroup);
-  const sz=0.6, geo=new THREE.PlaneGeometry(sz,sz);
-  // Invisible fill + bright teal edge lines
+  const sz=0.5, geo=new THREE.PlaneGeometry(sz,sz);
   slicerMesh=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({transparent:true,opacity:0,side:THREE.DoubleSide,depthWrite:false}));
-  slicerMesh.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo),new THREE.LineBasicMaterial({color:0x42f5c8,linewidth:3})));
-  slicerMesh.add(new THREE.Mesh(new THREE.CircleGeometry(0.007,16),new THREE.MeshBasicMaterial({color:0xffffff,side:THREE.DoubleSide})));
+  slicerMesh.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo),new THREE.LineBasicMaterial({color:0x42f5c8,linewidth:2})));
+  slicerMesh.add(new THREE.Mesh(new THREE.CircleGeometry(0.006,12),new THREE.MeshBasicMaterial({color:0xffffff,side:THREE.DoubleSide})));
   slicerGroup.add(slicerMesh); slicerMesh.visible=false;
 }
-
-function setClipping(active) { slicerActive=active; applyAllClipping(); }
-
+function setClipping(active){ slicerActive=active; applyAllClipping(); }
 function updateSlicer(ctrl) {
   if(!slicerActive||!ctrl||!slicerPlane) return;
   slicerGroup.position.setFromMatrixPosition(ctrl.matrixWorld);
@@ -435,27 +491,71 @@ function updateSlicer(ctrl) {
 }
 
 // ════════════════════════════════════════════════════════════
-//  DESKTOP SLICE PLANES — edge outline only, no fill
+//  DESKTOP SLICE — contour line extracted from mesh geometry
 // ════════════════════════════════════════════════════════════
-function makeEdgeRect(color) {
-  const sz=6;
-  const geo=new THREE.PlaneGeometry(sz,sz);
-  const group=new THREE.Group();
-  group.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo),new THREE.LineBasicMaterial({color,linewidth:2})));
-  // Faint cross to indicate plane centre
-  const cg=new THREE.BufferGeometry().setFromPoints([
-    new THREE.Vector3(-sz/2,0,0),new THREE.Vector3(sz/2,0,0),
-    new THREE.Vector3(0,-sz/2,0),new THREE.Vector3(0,sz/2,0)]);
-  group.add(new THREE.LineSegments(cg,new THREE.LineBasicMaterial({color,transparent:true,opacity:0.25})));
-  group.visible=false;
-  return group;
+function buildContourLines(scene) {
+  const mat = new THREE.LineBasicMaterial({color:0x42f5c8, linewidth:2});
+  const matV= new THREE.LineBasicMaterial({color:0xc8f542, linewidth:2});
+  const empty = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,0,0)]);
+  hContourLine = new THREE.LineSegments(empty, mat); hContourLine.visible=false;
+  vContourLine = new THREE.LineSegments(empty, matV); vContourLine.visible=false;
+  hContourLine.frustumCulled=false; vContourLine.frustumCulled=false;
+  scene.add(hContourLine); scene.add(vContourLine);
+}
+
+// Extract all world-space edge segments where the plane crosses the model
+function computeContour(plane, lineObj) {
+  if(!loadedModel||!lineObj) return;
+  const pts = [];
+  const pn = plane.normal, pc = plane.constant;
+  const va = new THREE.Vector3(), vb = new THREE.Vector3(), vc = new THREE.Vector3();
+  const mw = new THREE.Matrix4();
+
+  loadedModel.traverse(child => {
+    if(!child.isMesh) return;
+    const geo = child.geometry;
+    if(!geo.attributes.position) return;
+    const pos = geo.attributes.position;
+    child.updateWorldMatrix(true, false);
+    mw.copy(child.matrixWorld);
+
+    const getV = (i, v) => {
+      v.fromBufferAttribute(pos, i);
+      v.applyMatrix4(mw);
+    };
+
+    // Handle indexed and non-indexed geometry
+    const index = geo.index;
+    const triCount = index ? index.count/3 : pos.count/3;
+    for(let t=0; t<triCount; t++) {
+      const i0 = index ? index.getX(t*3)   : t*3;
+      const i1 = index ? index.getX(t*3+1) : t*3+1;
+      const i2 = index ? index.getX(t*3+2) : t*3+2;
+      getV(i0,va); getV(i1,vb); getV(i2,vc);
+      const da = pn.dot(va)+pc, db = pn.dot(vb)+pc, dc = pn.dot(vc)+pc;
+      // Find edges that straddle the plane (sign change)
+      const edges = [[va,da,vb,db],[vb,db,vc,dc],[vc,dc,va,da]];
+      for(const [pa2,da2,pb2,db2] of edges) {
+        if((da2<0&&db2>0)||(da2>0&&db2<0)) {
+          const t2=da2/(da2-db2);
+          pts.push(pa2.clone().lerp(pb2,t2));
+        }
+      }
+    }
+  });
+
+  if(pts.length<2){ lineObj.visible=false; return; }
+  // Pair up consecutive pts as line segments
+  // Contour extraction gives pairs naturally; just use as-is
+  lineObj.geometry.dispose();
+  lineObj.geometry = new THREE.BufferGeometry().setFromPoints(pts);
+  lineObj.visible = true;
 }
 
 function buildDesktopSlicePlanes(scene) {
   hSlicePlane=new THREE.Plane(new THREE.Vector3(0,-1,0),0);
   vSlicePlane=new THREE.Plane(new THREE.Vector3(1,0,0),0);
-  hSliceEdge=makeEdgeRect(0x42f5c8); scene.add(hSliceEdge);
-  vSliceEdge=makeEdgeRect(0xc8f542); scene.add(vSliceEdge);
+  buildContourLines(scene);
 }
 
 function getModelBounds() {
@@ -465,51 +565,29 @@ function getModelBounds() {
 }
 
 function onHSliceToggle(on) {
-  if(on) {
-    hSliceActive=true;
-    const sl=document.getElementById('hslice-sl'); if(sl) sl.value=0.5;
-    onHSliceSlider(0.5);
-  } else {
-    hSliceActive=false; applyAllClipping();
-    if(hSliceEdge) hSliceEdge.visible=false;
-  }
+  if(on){ hSliceActive=true; document.getElementById('hslice-sl').value=0.5; onHSliceSlider(0.5); }
+  else  { hSliceActive=false; applyAllClipping(); if(hContourLine) hContourLine.visible=false; }
 }
 function onVSliceToggle(on) {
-  if(on) {
-    vSliceActive=true;
-    const sl=document.getElementById('vslice-sl'); if(sl) sl.value=0.5;
-    onVSliceSlider(0.5);
-  } else {
-    vSliceActive=false; applyAllClipping();
-    if(vSliceEdge) vSliceEdge.visible=false;
-  }
+  if(on){ vSliceActive=true; document.getElementById('vslice-sl').value=0.5; onVSliceSlider(0.5); }
+  else  { vSliceActive=false; applyAllClipping(); if(vContourLine) vContourLine.visible=false; }
 }
 
 function onHSliceSlider(val) {
   if(!hSlicePlane||!loadedModel||!hSliceActive) return;
-  const t=parseFloat(val);
-  const {minY,maxY}=getModelBounds();
+  const t=parseFloat(val), {minY,maxY}=getModelBounds();
   const planeY=minY+t*(maxY-minY+0.05);
   hSlicePlane.normal.set(0,-1,0); hSlicePlane.constant=planeY;
   applyAllClipping();
-  if(hSliceEdge){
-    hSliceEdge.visible=true;
-    hSliceEdge.position.set(0,planeY,0);
-    hSliceEdge.quaternion.setFromUnitVectors(new THREE.Vector3(0,0,1),new THREE.Vector3(0,1,0));
-  }
+  computeContour(hSlicePlane, hContourLine);
 }
 function onVSliceSlider(val) {
   if(!vSlicePlane||!loadedModel||!vSliceActive) return;
-  const t=parseFloat(val);
-  const {minX,maxX}=getModelBounds();
+  const t=parseFloat(val), {minX,maxX}=getModelBounds();
   const planeX=minX+t*(maxX-minX);
   vSlicePlane.normal.set(1,0,0); vSlicePlane.constant=-planeX;
   applyAllClipping();
-  if(vSliceEdge){
-    vSliceEdge.visible=true;
-    vSliceEdge.position.set(planeX,0,0);
-    vSliceEdge.quaternion.setFromUnitVectors(new THREE.Vector3(0,0,1),new THREE.Vector3(1,0,0));
-  }
+  computeContour(vSlicePlane, vContourLine);
 }
 
 function applyAllClipping() {
@@ -522,48 +600,111 @@ function applyAllClipping() {
 }
 
 // ════════════════════════════════════════════════════════════
-//  LIGHT ROTATION
+//  LIGHT — azimuth + elevation (spherical coords)
 // ════════════════════════════════════════════════════════════
-function onLightSlider(val) {
-  lightAngleDeg=parseFloat(val);
-  const lv=document.getElementById('light-val'); if(lv) lv.textContent=Math.round(lightAngleDeg)+'°';
+function onLightSlider() {
+  lightAz = parseFloat(document.getElementById('light-az').value);
+  lightEl = parseFloat(document.getElementById('light-el').value);
+  const lv=document.getElementById('light-val');
+  if(lv) lv.textContent=`${Math.round(lightAz)}°/${Math.round(lightEl)}°`;
   if(!sunLight) return;
-  const rad=lightAngleDeg*Math.PI/180;
-  sunLight.position.set(Math.sin(rad)*8, 6, Math.cos(rad)*8);
+  const az=lightAz*Math.PI/180, el=lightEl*Math.PI/180, r=8;
+  sunLight.position.set(Math.cos(el)*Math.sin(az)*r, Math.sin(el)*r, Math.cos(el)*Math.cos(az)*r);
 }
 
 // ════════════════════════════════════════════════════════════
-//  PINS
+//  PIN COMMENT POPUP
 // ════════════════════════════════════════════════════════════
-function getPinHex(idx) { return '#'+PIN_COLORS[idx%PIN_COLORS.length].toString(16).padStart(6,'0'); }
+function closePinPopup() {
+  if(pinPopupEl){ pinPopupEl.remove(); pinPopupEl=null; }
+}
+
+function openPinPopup(pin, screenX, screenY) {
+  closePinPopup();
+  const hc = getPinHex(pin.colorIdx);
+  const popup = document.createElement('div');
+  popup.className = 'pin-popup';
+  popup.style.left = Math.min(screenX+14, window.innerWidth-240)+'px';
+  popup.style.top  = Math.max(screenY-20, 60)+'px';
+  popup.innerHTML=`
+    <div class="pin-popup-head">
+      <span class="pin-popup-title" style="color:${hc};">◎ Pin #${pin.id}</span>
+      <button class="pin-popup-close" onclick="closePinPopup()">×</button>
+    </div>
+    <textarea id="pp-txt" placeholder="Add comment…">${pin.comment||''}</textarea>
+    <div class="pin-popup-actions">
+      <button class="pin-del" onclick="removeAnnotation(${pin.id});closePinPopup();">🗑 Remove</button>
+      <button class="pin-save" onclick="savePinComment(${pin.id})">Save</button>
+    </div>`;
+  document.body.appendChild(popup);
+  pinPopupEl = popup;
+  popup.querySelector('#pp-txt').focus();
+}
+
+function savePinComment(id) {
+  const pin = annotations.find(a=>a.id===id); if(!pin) return;
+  const txt = pinPopupEl?.querySelector('#pp-txt')?.value||'';
+  pin.comment = txt;
+  // Update label title
+  if(pin.labelDiv) pin.labelDiv.title = txt ? `#${id}: ${txt}` : `Pin #${id}`;
+  saveSession();
+  closePinPopup();
+}
+
+// ════════════════════════════════════════════════════════════
+//  PINS — smaller spheres, click-to-comment
+// ════════════════════════════════════════════════════════════
+function getPinHex(idx){ return '#'+PIN_COLORS[idx%PIN_COLORS.length].toString(16).padStart(6,'0'); }
+
+// Internal spawn used both for new drops and session restore
+function _spawnPin(worldPos, colorIdx, id, comment) {
+  const col = PIN_COLORS[colorIdx % PIN_COLORS.length];
+  const hexC = getPinHex(colorIdx);
+  // Smaller sphere (radius 0.012 vs previous 0.027)
+  const mesh = new THREE.Mesh(
+    new THREE.SphereGeometry(0.012, 10, 10),
+    new THREE.MeshBasicMaterial({color:col}));
+  mesh.position.copy(worldPos); viewerScene.add(mesh);
+  // Short stem (4 cm)
+  const stem = new THREE.Line(
+    new THREE.BufferGeometry().setFromPoints([worldPos.clone(), worldPos.clone().add(new THREE.Vector3(0,0.04,0))]),
+    new THREE.LineBasicMaterial({color:col}));
+  viewerScene.add(stem);
+  // Compact label
+  const div = document.createElement('div');
+  div.style.cssText=`position:fixed;background:${hexC};color:#fff;font-family:'DM Mono',monospace;font-size:10px;font-weight:500;padding:2px 6px;border-radius:4px;pointer-events:auto;cursor:pointer;z-index:150;white-space:nowrap;box-shadow:0 1px 6px rgba(0,0,0,0.55);user-select:none;`;
+  div.textContent=`#${id}`;
+  div.title = comment ? `#${id}: ${comment}` : `Pin #${id}`;
+  // Click: open comment popup
+  div.addEventListener('click', e => {
+    e.stopPropagation();
+    const pin = annotations.find(a=>a.id===id);
+    if(pin) openPinPopup(pin, e.clientX, e.clientY);
+  });
+  document.body.appendChild(div);
+  const pinObj = {mesh, stem, labelDiv:div, worldPos:worldPos.clone(), id, colorIdx, color:col, comment:comment||''};
+  annotations.push(pinObj);
+  return pinObj;
+}
 
 function dropAnnotation(worldPos) {
   if(!viewerScene) return;
-  const id=++annotCount;
-  const col=PIN_COLORS[(id-1)%PIN_COLORS.length];
-  const hexC=getPinHex(id-1);
-  const mesh=new THREE.Mesh(new THREE.SphereGeometry(0.027,12,12),new THREE.MeshBasicMaterial({color:col}));
-  mesh.position.copy(worldPos); viewerScene.add(mesh);
-  const stemPts=[worldPos.clone(),worldPos.clone().add(new THREE.Vector3(0,0.1,0))];
-  const stem=new THREE.Line(new THREE.BufferGeometry().setFromPoints(stemPts),new THREE.LineBasicMaterial({color:col}));
-  viewerScene.add(stem);
-  const div=document.createElement('div');
-  div.style.cssText=`position:fixed;background:${hexC};color:#fff;font-family:'DM Mono',monospace;font-size:11px;font-weight:500;padding:3px 8px;border-radius:6px;pointer-events:auto;cursor:pointer;z-index:150;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.6);`;
-  div.textContent=`#${id}`;
-  div.title=`Pin #${id} — click to remove`;
-  div.addEventListener('click',()=>removeAnnotation(id));
-  document.body.appendChild(div);
-  annotations.push({mesh,stem,labelDiv:div,worldPos:worldPos.clone(),id,color:col});
-  document.getElementById('annot-count').textContent=annotations.length;
+  const id = ++annotCount;
+  const colorIdx = (id-1) % PIN_COLORS.length;
+  _spawnPin(worldPos, colorIdx, id, '');
+  document.getElementById('annot-count').textContent = annotations.length;
+  saveSession();
 }
 
 function removeAnnotation(id) {
-  const idx=annotations.findIndex(a=>a.id===id); if(idx===-1) return;
-  const a=annotations[idx]; viewerScene?.remove(a.mesh); viewerScene?.remove(a.stem); a.labelDiv?.remove();
+  const idx = annotations.findIndex(a=>a.id===id); if(idx===-1) return;
+  const a = annotations[idx];
+  viewerScene?.remove(a.mesh); viewerScene?.remove(a.stem); a.labelDiv?.remove();
   annotations.splice(idx,1);
-  document.getElementById('annot-count').textContent=annotations.length;
+  document.getElementById('annot-count').textContent = annotations.length;
+  saveSession();
 }
-function onClearAnnotations(){[...annotations].forEach(a=>removeAnnotation(a.id));}
+function onClearAnnotations(){ closePinPopup(); [...annotations].forEach(a=>removeAnnotation(a.id)); }
 
 function updateAnnotationLabels() {
   if(!viewerCamera||!viewerRenderer) return;
@@ -571,149 +712,35 @@ function updateAnnotationLabels() {
   annotations.forEach(a=>{
     const v=a.worldPos.clone().project(viewerCamera);
     const x=(v.x*0.5+0.5)*r.width+r.left, y=(-v.y*0.5+0.5)*r.height+r.top;
-    if(v.z<1){a.labelDiv.style.left=(x+10)+'px';a.labelDiv.style.top=(y-12)+'px';a.labelDiv.style.display='block';}
+    if(v.z<1){a.labelDiv.style.left=(x+8)+'px';a.labelDiv.style.top=(y-8)+'px';a.labelDiv.style.display='block';}
     else a.labelDiv.style.display='none';
   });
-}
-
-// ════════════════════════════════════════════════════════════
-//  PIN VISIBILITY (for export)
-// ════════════════════════════════════════════════════════════
-function isPinVisible(pin) {
-  if(!viewerCamera||!loadedModel) return true;
-  const v=pin.worldPos.clone().project(viewerCamera);
-  if(v.z>=1||Math.abs(v.x)>1.05||Math.abs(v.y)>1.05) return false;
-  const dir=pin.worldPos.clone().sub(viewerCamera.position).normalize();
-  raycaster.set(viewerCamera.position.clone(),dir);
-  const meshes=[]; loadedModel.traverse(c=>{if(c.isMesh)meshes.push(c);});
-  const hits=raycaster.intersectObjects(meshes,false);
-  if(!hits.length) return true;
-  return hits[0].distance>=(viewerCamera.position.distanceTo(pin.worldPos)-0.06);
-}
-
-// ════════════════════════════════════════════════════════════
-//  EXPORT PDF
-// ════════════════════════════════════════════════════════════
-async function exportPinReport() {
-  if(!viewerRenderer||!viewerScene||!viewerCamera){alert('Open a model first.');return;}
-  if(!window.jspdf){alert('jsPDF still loading — try again in a moment.');return;}
-  viewerRenderer.render(viewerScene,viewerCamera);
-  const imgData=viewerRenderer.domElement.toDataURL('image/jpeg',0.93);
-  const modelName=document.getElementById('viewer-title').textContent||'model';
-  const {jsPDF}=window.jspdf;
-  const pdf=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
-  const PW=297,PH=210;
-  // Background
-  pdf.setFillColor(10,10,11); pdf.rect(0,0,PW,PH,'F');
-  // Header
-  pdf.setTextColor(200,245,66); pdf.setFont('helvetica','bold'); pdf.setFontSize(17);
-  pdf.text('VR.browser — Pin Report',14,15);
-  pdf.setTextColor(160,160,170); pdf.setFont('helvetica','normal'); pdf.setFontSize(8);
-  pdf.text(`${modelName}   ·   ${new Date().toLocaleString()}   ·   ${annotations.length} pin(s)`,14,22);
-  // Viewport image
-  const imgX=14,imgY=27,imgW=180,imgH=112;
-  pdf.setDrawColor(44,44,50); pdf.setLineWidth(0.3); pdf.rect(imgX,imgY,imgW,imgH);
-  pdf.addImage(imgData,'JPEG',imgX,imgY,imgW,imgH);
-  // Pin dots on image
-  const cW=viewerRenderer.domElement.width, cH=viewerRenderer.domElement.height;
-  annotations.forEach(pin=>{
-    const v=pin.worldPos.clone().project(viewerCamera);
-    if(v.z>=1) return;
-    const sx=(v.x*0.5+0.5)*cW, sy=(1-(v.y*0.5+0.5))*cH;
-    const px=imgX+(sx/cW)*imgW, py=imgY+(sy/cH)*imgH;
-    if(px<imgX||px>imgX+imgW||py<imgY||py>imgY+imgH) return;
-    const hx=getPinHex(pin.id-1);
-    const r=parseInt(hx.slice(1,3),16),g=parseInt(hx.slice(3,5),16),b=parseInt(hx.slice(5,7),16);
-    pdf.setFillColor(r,g,b); pdf.circle(px,py,2.5,'F');
-    pdf.setTextColor(255,255,255); pdf.setFontSize(6.5); pdf.setFont('helvetica','bold');
-    pdf.text(`#${pin.id}`,px-2.2,py+1);
-  });
-  // Legend
-  const tx=202,ty=27,tw=81,th=imgH;
-  pdf.setFillColor(18,18,22); pdf.rect(tx,ty,tw,th,'F');
-  pdf.setDrawColor(44,44,50); pdf.rect(tx,ty,tw,th);
-  pdf.setTextColor(140,140,155); pdf.setFont('helvetica','bold'); pdf.setFontSize(7.5);
-  pdf.text('PIN REFERENCE',tx+4,ty+7);
-  pdf.setDrawColor(44,44,50); pdf.setLineWidth(0.15); pdf.line(tx,ty+10,tx+tw,ty+10);
-  const vis=annotations.filter(isPinVisible), hid=annotations.filter(p=>!isPinVisible(p));
-  let ry=ty+17;
-  [...vis,...hid].forEach((pin,i)=>{
-    if(ry>ty+th-7) return;
-    const hx=getPinHex(pin.id-1);
-    const r=parseInt(hx.slice(1,3),16),g=parseInt(hx.slice(3,5),16),b=parseInt(hx.slice(5,7),16);
-    const visible=isPinVisible(pin);
-    pdf.setFillColor(r,g,b); pdf.circle(tx+6,ry-0.5,2,'F');
-    pdf.setTextColor(210,210,220); pdf.setFont('helvetica','bold'); pdf.setFontSize(7.5);
-    pdf.text(`#${pin.id}`,tx+11,ry+0.5);
-    pdf.setFont('helvetica','normal'); pdf.setFontSize(6.5); pdf.setTextColor(110,110,125);
-    pdf.text(`${(pin.worldPos.x*100).toFixed(0)}, ${(pin.worldPos.y*100).toFixed(0)}, ${(pin.worldPos.z*100).toFixed(0)} cm`,tx+19,ry+0.5);
-    // Badge
-    if(visible){pdf.setFillColor(25,50,25);pdf.roundedRect(tx+tw-17,ry-3,15,4.5,1,1,'F');pdf.setTextColor(70,180,70);pdf.setFontSize(5.5);pdf.text('visible',tx+tw-15,ry+0.5);}
-    else{pdf.setFillColor(55,20,20);pdf.roundedRect(tx+tw-17,ry-3,15,4.5,1,1,'F');pdf.setTextColor(210,70,70);pdf.setFontSize(5.5);pdf.text('hidden',tx+tw-15,ry+0.5);}
-    if(i<annotations.length-1){pdf.setDrawColor(30,30,38);pdf.setLineWidth(0.1);pdf.line(tx+3,ry+5,tx+tw-3,ry+5);}
-    ry+=11;
-  });
-  if(!annotations.length){pdf.setTextColor(90,90,100);pdf.setFontSize(8);pdf.text('No pins placed.',tx+tw/2,ty+th/2,{align:'center'});}
-  // Footer
-  pdf.setFillColor(16,16,20); pdf.rect(0,PH-14,PW,14,'F');
-  pdf.setTextColor(90,90,105); pdf.setFont('helvetica','normal'); pdf.setFontSize(7.5);
-  pdf.text('Generated by VR.browser  ·  Visible = unobstructed from current camera angle',14,PH-5.5);
-  pdf.text(`${vis.length} visible  /  ${hid.length} hidden`,PW-14,PH-5.5,{align:'right'});
-  pdf.save(`${modelName}-pin-report.pdf`);
-}
-
-// ════════════════════════════════════════════════════════════
-//  DESKTOP INTERACTION
-// ════════════════════════════════════════════════════════════
-function setDesktopMode(mode, silent) {
-  desktopMode=mode;
-  ['orbit','meas','pin'].forEach(m=>{
-    const btn=document.getElementById('dm-'+m);
-    if(btn) btn.classList.toggle('active',m===mode||(m==='orbit'&&mode==='orbit'));
-  });
-  if(viewerControls) viewerControls.enabled=(mode==='orbit');
-  const cw=document.getElementById('viewer-canvas-wrap');
-  if(cw) cw.className=mode==='pin'?'canvas-pin':mode==='measure'?'canvas-meas':'canvas-orbit';
-}
-
-function onCanvasClick(e) {
-  if(desktopMode==='orbit'||!viewerCamera||!viewerRenderer||!loadedModel) return;
-  const cv=viewerRenderer.domElement, rect=cv.getBoundingClientRect();
-  mouseNDC.x=((e.clientX-rect.left)/rect.width)*2-1;
-  mouseNDC.y=-((e.clientY-rect.top)/rect.height)*2+1;
-  raycaster.setFromCamera(mouseNDC,viewerCamera);
-  const ms=[]; loadedModel.traverse(c=>{if(c.isMesh)ms.push(c);});
-  const hits=raycaster.intersectObjects(ms,false);
-  if(!hits.length) return;
-  const pt=hits[0].point;
-  if(desktopMode==='pin') {
-    dropAnnotation(pt);
-  } else if(desktopMode==='measure') {
-    if(measurePhase===0){
-      measureState.ptA=pt.clone(); measurePhase=1;
-      measureState.sphereA&&(measureState.sphereA.position.copy(pt),measureState.sphereA.visible=true);
-      measureState.sphereB&&(measureState.sphereB.visible=false);
-      measureState.lineObj&&(measureState.lineObj.visible=false);
-      const dr=document.getElementById('measure-readout'); if(dr) dr.textContent='Click pt B…';
-    } else {
-      measureState.ptB=pt.clone(); updateMeasureLine(); measurePhase=0;
-    }
-  }
 }
 
 // ════════════════════════════════════════════════════════════
 //  MEASURE
 // ════════════════════════════════════════════════════════════
 function buildMeasureObjects(scene) {
-  measureState.lineObj=new THREE.Line(
+  measureState.lineObj = new THREE.Line(
     new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(),new THREE.Vector3()]),
-    new THREE.LineBasicMaterial({color:0xf5a142,linewidth:2}));
+    new THREE.LineBasicMaterial({color:0xf5a142, linewidth:1}));
   measureState.lineObj.visible=false; scene.add(measureState.lineObj);
-  const sm=new THREE.MeshBasicMaterial({color:0xf5a142}),sg=new THREE.SphereGeometry(0.015,10,10);
-  measureState.sphereA=new THREE.Mesh(sg,sm.clone()); measureState.sphereA.visible=false;
-  measureState.sphereB=new THREE.Mesh(sg,sm.clone()); measureState.sphereB.visible=false;
+  const smat=new THREE.MeshBasicMaterial({color:0xf5a142}), sgeo=new THREE.SphereGeometry(0.008,8,8);
+  measureState.sphereA=new THREE.Mesh(sgeo,smat.clone()); measureState.sphereA.visible=false;
+  measureState.sphereB=new THREE.Mesh(sgeo,smat.clone()); measureState.sphereB.visible=false;
   scene.add(measureState.sphereA); scene.add(measureState.sphereB);
 }
+
+function _spawnMeasureLine(ptA, ptB) {
+  // Persistent saved measure line (for session restore) — simple line object added to scene
+  const geo = new THREE.BufferGeometry().setFromPoints([ptA.clone(), ptB.clone()]);
+  const line = new THREE.Line(geo, new THREE.LineBasicMaterial({color:0xf5a142,linewidth:1}));
+  const smat=new THREE.MeshBasicMaterial({color:0xf5a142}),sgeo=new THREE.SphereGeometry(0.008,8,8);
+  const sA=new THREE.Mesh(sgeo,smat.clone()); sA.position.copy(ptA); viewerScene.add(sA);
+  const sB=new THREE.Mesh(sgeo,smat.clone()); sB.position.copy(ptB); viewerScene.add(sB);
+  viewerScene.add(line);
+}
+
 function updateMeasureLine() {
   if(!measureState.ptA||!measureState.ptB) return;
   measureState.lineObj.geometry.setFromPoints([measureState.ptA.clone(),measureState.ptB.clone()]);
@@ -725,7 +752,7 @@ function updateMeasureLine() {
   const lbl=d>=1?d.toFixed(3)+' m':(d*100).toFixed(1)+' cm';
   document.getElementById('hud-measure').textContent='↔ '+lbl;
   document.getElementById('hud-measure').style.display='block';
-  const dr=document.getElementById('measure-readout'); if(dr) dr.textContent=lbl;
+  document.getElementById('measure-readout').textContent=lbl;
 }
 function clearMeasure() {
   measureState.ptA=measureState.ptB=null; measurePhase=0;
@@ -733,7 +760,140 @@ function clearMeasure() {
   measureState.sphereA&&(measureState.sphereA.visible=false);
   measureState.sphereB&&(measureState.sphereB.visible=false);
   document.getElementById('hud-measure').style.display='none';
-  const dr=document.getElementById('measure-readout'); if(dr) dr.textContent='—';
+  document.getElementById('measure-readout').textContent='—';
+}
+function finaliseMeasure() {
+  if(!measureState.ptA||!measureState.ptB) return;
+  const d=measureState.ptA.distanceTo(measureState.ptB);
+  const lbl=d>=1?d.toFixed(3)+' m':(d*100).toFixed(1)+' cm';
+  savedMeasurements.push({ptA:measureState.ptA.clone(),ptB:measureState.ptB.clone(),label:lbl});
+  _spawnMeasureLine(measureState.ptA,measureState.ptB);
+  saveSession();
+}
+
+// ════════════════════════════════════════════════════════════
+//  PIN VISIBILITY CHECK
+// ════════════════════════════════════════════════════════════
+function isPinVisible(pin) {
+  if(!viewerCamera||!loadedModel) return true;
+  const v=pin.worldPos.clone().project(viewerCamera);
+  if(v.z>=1||Math.abs(v.x)>1.05||Math.abs(v.y)>1.05) return false;
+  const dir=pin.worldPos.clone().sub(viewerCamera.position).normalize();
+  raycaster.set(viewerCamera.position.clone(),dir);
+  const ms=[]; loadedModel.traverse(c=>{if(c.isMesh)ms.push(c);});
+  const hits=raycaster.intersectObjects(ms,false);
+  return !hits.length||(hits[0].distance>=(viewerCamera.position.distanceTo(pin.worldPos)-0.05));
+}
+
+// ════════════════════════════════════════════════════════════
+//  EXPORT PDF — white background, pin colors, comments
+// ════════════════════════════════════════════════════════════
+async function exportPinReport() {
+  if(!viewerRenderer||!viewerScene||!viewerCamera){alert('Open a model first.');return;}
+  if(!window.jspdf){alert('jsPDF loading — try again shortly.');return;}
+  viewerRenderer.render(viewerScene,viewerCamera);
+  const imgData=viewerRenderer.domElement.toDataURL('image/jpeg',0.93);
+  const modelName=document.getElementById('viewer-title').textContent||'model';
+  const {jsPDF}=window.jspdf;
+  const pdf=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
+  const PW=297, PH=210;
+
+  // White background
+  pdf.setFillColor(255,255,255); pdf.rect(0,0,PW,PH,'F');
+
+  // Header
+  pdf.setTextColor(10,10,11); pdf.setFont('helvetica','bold'); pdf.setFontSize(16);
+  pdf.text('VR.browser — Pin Report',14,14);
+  pdf.setFont('helvetica','normal'); pdf.setFontSize(8); pdf.setTextColor(100,100,110);
+  pdf.text(`${modelName}   ·   ${new Date().toLocaleString()}   ·   ${annotations.length} pin(s)`,14,21);
+  // Accent line
+  pdf.setDrawColor(200,245,66); pdf.setLineWidth(1); pdf.line(14,24,PW-14,24);
+
+  // Viewport image — correct A4 landscape proportions (16:9 ish crop)
+  // Image area: 14 to 195mm wide (181mm), 27 to 142mm tall (115mm)
+  const imgX=14, imgY=27, imgW=181, imgH=115;
+  pdf.setDrawColor(200,200,210); pdf.setLineWidth(0.3); pdf.rect(imgX,imgY,imgW,imgH);
+
+  // Draw image maintaining correct aspect ratio
+  const canvasAspect = viewerRenderer.domElement.width / viewerRenderer.domElement.height;
+  let drawW=imgW, drawH=imgW/canvasAspect;
+  if(drawH>imgH){drawH=imgH; drawW=imgH*canvasAspect;}
+  const drawX=imgX+(imgW-drawW)/2, drawY=imgY+(imgH-drawH)/2;
+  pdf.addImage(imgData,'JPEG',drawX,drawY,drawW,drawH);
+
+  // Pin dots overlaid on image (projected correctly to draw area)
+  const cW=viewerRenderer.domElement.width, cH=viewerRenderer.domElement.height;
+  annotations.forEach(pin=>{
+    const v=pin.worldPos.clone().project(viewerCamera);
+    if(v.z>=1) return;
+    const sx=(v.x*0.5+0.5)*cW, sy=(1-(v.y*0.5+0.5))*cH;
+    const px=drawX+(sx/cW)*drawW, py=drawY+(sy/cH)*drawH;
+    if(px<imgX||px>imgX+imgW||py<imgY||py>imgY+imgH) return;
+    const hx=getPinHex(pin.colorIdx);
+    const cr=parseInt(hx.slice(1,3),16),cg=parseInt(hx.slice(3,5),16),cb=parseInt(hx.slice(5,7),16);
+    pdf.setFillColor(cr,cg,cb);
+    pdf.circle(px,py,2.2,'F');
+    pdf.setTextColor(255,255,255); pdf.setFontSize(6); pdf.setFont('helvetica','bold');
+    pdf.text(`#${pin.id}`,px-1.8,py+1);
+  });
+
+  // Legend (right column)
+  const tx=203, ty=27, tw=80, th=115;
+  pdf.setFillColor(248,248,252); pdf.rect(tx,ty,tw,th,'F');
+  pdf.setDrawColor(220,220,228); pdf.setLineWidth(0.2); pdf.rect(tx,ty,tw,th);
+  pdf.setTextColor(60,60,80); pdf.setFont('helvetica','bold'); pdf.setFontSize(8);
+  pdf.text('PIN REFERENCE',tx+4,ty+7);
+  pdf.setDrawColor(220,220,228); pdf.setLineWidth(0.15); pdf.line(tx,ty+10,tx+tw,ty+10);
+
+  const vis=annotations.filter(isPinVisible), hid=annotations.filter(p=>!isPinVisible(p));
+  let ry=ty+17;
+  [...vis,...hid].forEach((pin,i)=>{
+    if(ry>ty+th-8) return;
+    const hx=getPinHex(pin.colorIdx);
+    const cr=parseInt(hx.slice(1,3),16),cg=parseInt(hx.slice(3,5),16),cb=parseInt(hx.slice(5,7),16);
+    const visible=isPinVisible(pin);
+    // Colour dot
+    pdf.setFillColor(cr,cg,cb); pdf.circle(tx+5.5,ry-0.5,1.8,'F');
+    // Pin number in pin colour
+    pdf.setTextColor(cr,cg,cb); pdf.setFont('helvetica','bold'); pdf.setFontSize(7.5);
+    pdf.text(`#${pin.id}`,tx+10,ry+0.5);
+    // Position (grey)
+    pdf.setFont('helvetica','normal'); pdf.setFontSize(6.5); pdf.setTextColor(120,120,140);
+    pdf.text(`${(pin.worldPos.x*100).toFixed(0)}, ${(pin.worldPos.y*100).toFixed(0)}, ${(pin.worldPos.z*100).toFixed(0)} cm`,tx+18,ry+0.5);
+    // Visibility badge
+    if(visible){pdf.setFillColor(220,248,220);pdf.roundedRect(tx+tw-17,ry-3,15,4.5,1,1,'F');pdf.setTextColor(40,140,40);pdf.setFontSize(5.5);pdf.text('visible',tx+tw-15,ry+0.5);}
+    else       {pdf.setFillColor(252,220,220);pdf.roundedRect(tx+tw-17,ry-3,15,4.5,1,1,'F');pdf.setTextColor(180,40,40);pdf.setFontSize(5.5);pdf.text('hidden', tx+tw-15,ry+0.5);}
+    ry+=9;
+    // Comment (if any) — indented, same pin colour lighter
+    if(pin.comment){
+      const lines = pdf.splitTextToSize(pin.comment, tw-14);
+      pdf.setFont('helvetica','italic'); pdf.setFontSize(6); pdf.setTextColor(cr,cg,cb);
+      lines.slice(0,2).forEach((ln,li)=>{ pdf.text(ln, tx+10, ry+li*5); });
+      ry += Math.min(lines.length,2)*5+2;
+    }
+    if(i<annotations.length-1){pdf.setDrawColor(220,220,228);pdf.setLineWidth(0.1);pdf.line(tx+3,ry,tx+tw-3,ry);ry+=3;}
+  });
+  if(!annotations.length){pdf.setTextColor(150,150,170);pdf.setFontSize(9);pdf.text('No pins placed.',tx+tw/2,ty+th/2,{align:'center'});}
+
+  // Measurements section
+  if(savedMeasurements.length){
+    let my=ty+th+6;
+    pdf.setTextColor(60,60,80); pdf.setFont('helvetica','bold'); pdf.setFontSize(8);
+    pdf.text('MEASUREMENTS',tx+4,my);
+    pdf.setFont('helvetica','normal'); pdf.setFontSize(7); pdf.setTextColor(100,100,120);
+    savedMeasurements.forEach((m,i)=>{
+      my+=8; if(my>PH-20) return;
+      pdf.text(`${i+1}. ${m.label}`,tx+4,my);
+    });
+  }
+
+  // Footer
+  pdf.setDrawColor(200,200,210); pdf.setLineWidth(0.2); pdf.line(14,PH-12,PW-14,PH-12);
+  pdf.setTextColor(140,140,155); pdf.setFont('helvetica','normal'); pdf.setFontSize(7);
+  pdf.text('VR.browser  ·  Visible = unobstructed from current camera view', 14, PH-6);
+  pdf.text(`${vis.length} visible  /  ${hid.length} hidden`, PW-14, PH-6, {align:'right'});
+
+  pdf.save(`${modelName}-pin-report.pdf`);
 }
 
 // ════════════════════════════════════════════════════════════
@@ -759,29 +919,44 @@ function applyExplode(t) {
 function onExplodeSlider(val){applyExplode(parseFloat(val));}
 
 // ════════════════════════════════════════════════════════════
-//  VR LASER
+//  DESKTOP INTERACTION
 // ════════════════════════════════════════════════════════════
-function buildLaser(scene) {
-  const g=new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,0,0),new THREE.Vector3(0,0,-8)]);
-  laserLine=new THREE.Line(g,new THREE.LineBasicMaterial({color:0x4290f5,linewidth:2}));
-  laserLine.visible=false; scene.add(laserLine);
-  laserDot=new THREE.Mesh(new THREE.SphereGeometry(0.016,10,10),new THREE.MeshBasicMaterial({color:0x4290f5}));
-  laserDot.visible=false; scene.add(laserDot);
+function setDesktopMode(mode, silent) {
+  desktopMode=mode;
+  ['orbit','meas','pin'].forEach(m=>{
+    const btn=document.getElementById('dm-'+m);
+    if(btn) btn.classList.toggle('active', m===mode||(m==='orbit'&&mode==='orbit'));
+  });
+  if(viewerControls) viewerControls.enabled=(mode==='orbit');
+  const cw=document.getElementById('viewer-canvas-wrap');
+  if(cw) cw.className=`${mode==='pin'?'c-pin':mode==='measure'?'c-meas':'c-orbit'}`;
 }
-function updateLaser(ctrl) {
-  if(!ctrl||!loadedModel) return;
-  laserLine.position.setFromMatrixPosition(ctrl.matrixWorld);
-  laserLine.quaternion.setFromRotationMatrix(ctrl.matrixWorld);
-  laserLine.visible=true;
-  const origin=new THREE.Vector3().setFromMatrixPosition(ctrl.matrixWorld);
-  const dir=new THREE.Vector3(0,0,-1).applyQuaternion(new THREE.Quaternion().setFromRotationMatrix(ctrl.matrixWorld)).normalize();
-  raycaster.set(origin,dir);
+
+function onCanvasClick(e) {
+  if(e.target.closest('.pin-popup')) return;
+  closePinPopup();
+  if(desktopMode==='orbit'||!viewerCamera||!viewerRenderer||!loadedModel) return;
+  const cv=viewerRenderer.domElement, rect=cv.getBoundingClientRect();
+  mouseNDC.x=((e.clientX-rect.left)/rect.width)*2-1;
+  mouseNDC.y=-((e.clientY-rect.top)/rect.height)*2+1;
+  raycaster.setFromCamera(mouseNDC,viewerCamera);
   const ms=[]; loadedModel.traverse(c=>{if(c.isMesh)ms.push(c);});
   const hits=raycaster.intersectObjects(ms,false);
-  if(hits.length){
-    laserDot.position.copy(hits[0].point); laserDot.visible=true;
-    ctrl.userData.laserHit=hits[0].point.clone();
-  } else { laserDot.visible=false; ctrl.userData.laserHit=null; }
+  if(!hits.length) return;
+  const pt=hits[0].point;
+  if(desktopMode==='pin') {
+    dropAnnotation(pt);
+  } else if(desktopMode==='measure') {
+    if(measurePhase===0){
+      measureState.ptA=pt.clone(); measurePhase=1;
+      measureState.sphereA&&(measureState.sphereA.position.copy(pt),measureState.sphereA.visible=true);
+      measureState.sphereB&&(measureState.sphereB.visible=false);
+      measureState.lineObj&&(measureState.lineObj.visible=false);
+      document.getElementById('measure-readout').textContent='Click pt B…';
+    } else {
+      measureState.ptB=pt.clone(); updateMeasureLine(); measurePhase=0; finaliseMeasure();
+    }
+  }
 }
 
 // ════════════════════════════════════════════════════════════
@@ -797,7 +972,7 @@ function updateHUD() {
   ];
   pills.innerHTML=modes.map(m=>{
     const a=vrMode===m.id;
-    return `<span style="font-family:'DM Mono',monospace;font-size:12px;padding:5px 11px;border-radius:7px;border:1px solid ${m.color};color:${a?'#0a0a0b':m.color};background:${a?m.color:'rgba(0,0,0,0.6)'};">${m.icon} ${m.label}</span>`;
+    return `<span style="font-family:'DM Mono',monospace;font-size:12px;padding:5px 11px;border-radius:7px;border:1px solid ${m.color};color:${a?'#0a0a0b':m.color};background:${a?m.color:'rgba(0,0,0,0.65)'};">${m.icon} ${m.label}</span>`;
   }).join('');
 }
 function cycleVRMode() {
@@ -810,14 +985,38 @@ function cycleVRMode() {
 }
 
 // ════════════════════════════════════════════════════════════
+//  VR LASER
+// ════════════════════════════════════════════════════════════
+function buildLaser(scene) {
+  const g=new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,0,0),new THREE.Vector3(0,0,-8)]);
+  laserLine=new THREE.Line(g,new THREE.LineBasicMaterial({color:0x4290f5,linewidth:2}));
+  laserLine.visible=false; scene.add(laserLine);
+  laserDot=new THREE.Mesh(new THREE.SphereGeometry(0.012,10,10),new THREE.MeshBasicMaterial({color:0x4290f5}));
+  laserDot.visible=false; scene.add(laserDot);
+}
+function updateLaser(ctrl) {
+  if(!ctrl||!loadedModel) return;
+  laserLine.position.setFromMatrixPosition(ctrl.matrixWorld);
+  laserLine.quaternion.setFromRotationMatrix(ctrl.matrixWorld);
+  laserLine.visible=true;
+  const origin=new THREE.Vector3().setFromMatrixPosition(ctrl.matrixWorld);
+  const dir=new THREE.Vector3(0,0,-1).applyQuaternion(new THREE.Quaternion().setFromRotationMatrix(ctrl.matrixWorld)).normalize();
+  raycaster.set(origin,dir);
+  const ms=[]; loadedModel.traverse(c=>{if(c.isMesh)ms.push(c);});
+  const hits=raycaster.intersectObjects(ms,false);
+  if(hits.length){laserDot.position.copy(hits[0].point);laserDot.visible=true;ctrl.userData.laserHit=hits[0].point.clone();}
+  else{laserDot.visible=false;ctrl.userData.laserHit=null;}
+}
+
+// ════════════════════════════════════════════════════════════
 //  MANIPULATION
 // ════════════════════════════════════════════════════════════
 function ctrlWorldPos(c){return new THREE.Vector3().setFromMatrixPosition(c.matrixWorld);}
 function ctrlWorldQuat(c){return new THREE.Quaternion().setFromRotationMatrix(c.matrixWorld);}
 function applyOneHandedGrab(ctrl) {
   if(!grabState.left||!modelRoot) return;
-  const cur=ctrlWorldPos(ctrl),d=cur.clone().sub(grabState.left.prevPos);
-  modelRoot.position.add(d); grabState.left.prevPos.copy(cur);
+  const cur=ctrlWorldPos(ctrl),delta=cur.clone().sub(grabState.left.prevPos);
+  modelRoot.position.add(delta); grabState.left.prevPos.copy(cur);
 }
 function applyTwoHandedGrab(cL,cR) {
   if(!grabState.left||!grabState.right||!modelRoot) return;
@@ -863,32 +1062,12 @@ function setupControllers(renderer,scene) {
     return new THREE.Line(g,new THREE.LineBasicMaterial({color:col,transparent:true,opacity:0.5}));
   }
   cL.add(makeRay(0xc8f542)); cR.add(makeRay(0x4290f5));
-  // Left grip → grab
-  cL.addEventListener('squeezestart',()=>{
-    grabState.left={prevPos:ctrlWorldPos(cL),prevQuat:ctrlWorldQuat(cL)};
-    if(slicerActive){slicerActive=false;slicerMesh&&(slicerMesh.visible=false);setClipping(false);}
-  });
+  cL.addEventListener('squeezestart',()=>{grabState.left={prevPos:ctrlWorldPos(cL),prevQuat:ctrlWorldQuat(cL)};if(slicerActive){slicerActive=false;slicerMesh&&(slicerMesh.visible=false);setClipping(false);}});
   cL.addEventListener('squeezeend',()=>{grabState.left=null;});
-  // Left trigger → measure pt A
-  cL.addEventListener('selectstart',()=>{
-    if(vrMode==='measure'){
-      measureState.ptA=ctrlWorldPos(cL); measurePhase=1;
-      measureState.sphereA&&(measureState.sphereA.position.copy(measureState.ptA),measureState.sphereA.visible=true);
-    }
-  });
-  // Right grip → slice / second grab
-  cR.addEventListener('squeezestart',()=>{
-    grabState.right={prevPos:ctrlWorldPos(cR),prevQuat:ctrlWorldQuat(cR)};
-    if(!grabState.left&&vrMode==='slice'){slicerActive=true;slicerMesh&&(slicerMesh.visible=true);setClipping(true);}
-  });
-  cR.addEventListener('squeezeend',()=>{
-    grabState.right=null;
-    if(slicerActive){slicerActive=false;slicerMesh&&(slicerMesh.visible=false);setClipping(false);}
-  });
-  // Right trigger → measure pt B (laser mode: trigger just aims, A button pins)
-  cR.addEventListener('selectstart',()=>{
-    if(vrMode==='measure'&&measurePhase===1){measureState.ptB=ctrlWorldPos(cR);updateMeasureLine();measurePhase=0;}
-  });
+  cL.addEventListener('selectstart',()=>{if(vrMode==='measure'){measureState.ptA=ctrlWorldPos(cL);measurePhase=1;measureState.sphereA&&(measureState.sphereA.position.copy(measureState.ptA),measureState.sphereA.visible=true);}});
+  cR.addEventListener('squeezestart',()=>{grabState.right={prevPos:ctrlWorldPos(cR),prevQuat:ctrlWorldQuat(cR)};if(!grabState.left&&vrMode==='slice'){slicerActive=true;slicerMesh&&(slicerMesh.visible=true);setClipping(true);}});
+  cR.addEventListener('squeezeend',()=>{grabState.right=null;if(slicerActive){slicerActive=false;slicerMesh&&(slicerMesh.visible=false);setClipping(false);}});
+  cR.addEventListener('selectstart',()=>{if(vrMode==='measure'&&measurePhase===1){measureState.ptB=ctrlWorldPos(cR);updateMeasureLine();measurePhase=0;finaliseMeasure();}});
   cL.addEventListener('connected',e=>{cL.userData.gamepad=e.data?.gamepad;});
   cR.addEventListener('connected',e=>{cR.userData.gamepad=e.data?.gamepad;});
   scene.userData.ctrlL=cL; scene.userData.ctrlR=cR;
@@ -896,18 +1075,12 @@ function setupControllers(renderer,scene) {
 
 function pollGamepadButtons() {
   const cL=viewerScene?.userData.ctrlL, cR=viewerScene?.userData.ctrlR;
-  if(cL?.userData.gamepad){
-    const p=cL.userData.gamepad.buttons[3]?.pressed;
-    if(p&&!_lastThumbL) cycleVRMode(); _lastThumbL=!!p;
-  }
+  if(cL?.userData.gamepad){const p=cL.userData.gamepad.buttons[3]?.pressed;if(p&&!_lastThumbL)cycleVRMode();_lastThumbL=!!p;}
   if(cR?.userData.gamepad){
     const p3=cR.userData.gamepad.buttons[3]?.pressed;
-    if(p3&&!_lastThumbR) cycleVRMode(); _lastThumbR=!!p3;
-    // A button (index 4) → drop laser pin
+    if(p3&&!_lastThumbR)cycleVRMode();_lastThumbR=!!p3;
     const pA=cR.userData.gamepad.buttons[4]?.pressed;
-    if(pA&&!_prevFaceA&&vrMode==='laser'&&cR.userData.laserHit){
-      dropAnnotation(cR.userData.laserHit.clone());
-    }
+    if(pA&&!_prevFaceA&&vrMode==='laser'&&cR.userData.laserHit){dropAnnotation(cR.userData.laserHit.clone());}
     _prevFaceA=!!pA;
   }
 }
@@ -928,11 +1101,12 @@ function initViewer(fileId) {
   viewerScene=new THREE.Scene(); viewerScene.background=new THREE.Color(0x0a0a0b);
   viewerCamera=new THREE.PerspectiveCamera(60,wrap.clientWidth/wrap.clientHeight,0.01,500);
   viewerCamera.position.set(0,1.6,2.5);
-  viewerScene.add(new THREE.AmbientLight(0xffffff,0.65));
+  viewerScene.add(new THREE.AmbientLight(0xffffff,0.6));
   sunLight=new THREE.DirectionalLight(0xffffff,1.5);
-  const lr=lightAngleDeg*Math.PI/180;
-  sunLight.position.set(Math.sin(lr)*8,6,Math.cos(lr)*8); viewerScene.add(sunLight);
-  const fill=new THREE.DirectionalLight(0x8888ff,0.2); fill.position.set(-4,2,-3); viewerScene.add(fill);
+  const az0=lightAz*Math.PI/180, el0=lightEl*Math.PI/180;
+  sunLight.position.set(Math.cos(el0)*Math.sin(az0)*8,Math.sin(el0)*8,Math.cos(el0)*Math.cos(az0)*8);
+  viewerScene.add(sunLight);
+  viewerScene.add(new THREE.DirectionalLight(0x8888ff,0.18).position.set(-4,2,-3) && new THREE.DirectionalLight(0x8888ff,0.18));
   viewerScene.add(new THREE.GridHelper(20,40,0x222226,0x18181c));
 
   viewerControls=new THREE.OrbitControls(viewerCamera,viewerRenderer.domElement);
@@ -946,17 +1120,15 @@ function initViewer(fileId) {
   viewerRenderer.xr.addEventListener('sessionstart',()=>{
     setupControllers(viewerRenderer,viewerScene);
     if(viewerControls) viewerControls.enabled=false;
-    document.getElementById('vr-hud').style.display='block';
-    updateHUD();
+    document.getElementById('vr-hud').style.display='block'; updateHUD();
   });
   viewerRenderer.xr.addEventListener('sessionend',()=>{
     if(viewerControls) viewerControls.enabled=true;
     grabState.left=grabState.right=null;
     slicerActive=false; slicerMesh&&(slicerMesh.visible=false); setClipping(false);
-    if(laserLine) laserLine.visible=false;
-    if(laserDot) laserDot.visible=false;
-    document.getElementById('vr-hud').style.display='none';
-    setDesktopMode('orbit');
+    if(laserLine) laserLine.visible=false; if(laserDot) laserDot.visible=false;
+    document.getElementById('vr-hud').style.display='none'; setDesktopMode('orbit');
+    saveSession();
   });
 
   modelRoot=new THREE.Group(); viewerScene.add(modelRoot);
@@ -975,8 +1147,8 @@ function initViewer(fileId) {
       const ts=document.getElementById('tool-strip'); if(ts) ts.style.display='flex';
       ['hslice-tog','vslice-tog'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=false;});
       hSliceActive=vSliceActive=false;
-      if(hSliceEdge) hSliceEdge.visible=false;
-      if(vSliceEdge) vSliceEdge.visible=false;
+      if(hContourLine) hContourLine.visible=false;
+      if(vContourLine) vContourLine.visible=false;
       setDesktopMode('orbit');
       const maxDim=Math.max(size.x,size.y,size.z);
       viewerCamera.position.set(maxDim*1.5,maxDim*0.8,maxDim*1.5);
@@ -984,6 +1156,8 @@ function initViewer(fileId) {
       const sr=document.getElementById('size-readout');
       if(sr) sr.textContent=`${(size.x*100).toFixed(0)} × ${(size.y*100).toFixed(0)} × ${(size.z*100).toFixed(0)} cm`;
       checkXRSupport();
+      // Restore saved session after model is loaded
+      setTimeout(()=>restoreSession(loadSession(fileId)), 50);
     },
     prog=>{document.getElementById('loading-label').textContent=`Loading… ${prog.total?Math.round(prog.loaded/prog.total*100):'…'}%`;},
     err=>{document.getElementById('loading-label').textContent='Failed to load model';console.error(err);}
@@ -1034,6 +1208,7 @@ async function enterVR() {
     session.addEventListener('end',()=>{
       document.getElementById('vr-btn').textContent='⬡ Enter VR';
       if(slicerActive){slicerActive=false;slicerMesh&&(slicerMesh.visible=false);setClipping(false);}
+      saveSession();
     });
     document.getElementById('vr-btn').textContent='◼ Exit VR';
   } catch(e){alert('Could not start VR session: '+e.message);}
