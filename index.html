@@ -320,26 +320,43 @@
   }
   #viewer-overlay.active { display: flex; }
 
+  /* Canvas fills the top, toolbar sits at bottom — no overlap */
+  #viewer-canvas-wrap {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+  }
+  #viewer-canvas-wrap canvas {
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  /* Bottom bar: model name left, controls right */
   .viewer-bar {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 14px 20px;
-    background: rgba(0,0,0,0.7);
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 10;
+    padding: 10px 20px;
+    background: rgba(0,0,0,0.85);
+    border-top: 1px solid rgba(255,255,255,0.08);
+    flex-shrink: 0;
+    gap: 12px;
   }
   .viewer-title {
     font-family: 'DM Mono', monospace;
     font-size: 13px;
     color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+    flex-shrink: 1;
   }
   .viewer-controls {
     display: flex;
     gap: 8px;
+    flex-shrink: 0;
+    align-items: center;
   }
   .vr-btn {
     background: var(--accent);
@@ -358,15 +375,6 @@
     background: var(--surface2);
     color: var(--text);
     border: 1px solid var(--border);
-  }
-
-  #viewer-canvas-wrap {
-    flex: 1;
-    position: relative;
-  }
-  #viewer-canvas-wrap canvas {
-    width: 100% !important;
-    height: 100% !important;
   }
 
   .loading-overlay {
@@ -433,7 +441,7 @@
 
     <div class="field-row">
       <div class="field-label">Google Drive Folder ID</div>
-      <input type="text" id="folder-id-input" placeholder="1OtwMUU-oHisoufPNRCl4IUDT7qVR7dcG" />
+      <input type="text" id="folder-id-input" placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs" />
       <div class="hint">
         From your shareable folder link:<br>
         <code style="color:var(--accent2)">drive.google.com/drive/folders/<strong style="color:var(--accent)">THIS_PART</strong></code>
@@ -442,7 +450,7 @@
 
     <div class="field-row">
       <div class="field-label">Google API Key</div>
-      <input type="text" id="api-key-input" placeholder="AIzaSyAu0q693wWtUyIPhkra3sLFn04XQjpKk9k" />
+      <input type="text" id="api-key-input" placeholder="AIzaSy..." />
       <div class="hint">
         Free key from <a href="https://console.cloud.google.com/" target="_blank">Google Cloud Console</a> — enable the Drive API. Only reads public folders.
       </div>
@@ -498,53 +506,80 @@
 
 <!-- ═══════════════════════════════════════════ VIEWER OVERLAY -->
 <div id="viewer-overlay">
-  <div class="viewer-bar">
-    <span class="viewer-title" id="viewer-title">—</span>
-    <div class="viewer-controls">
-      <span style="font-family:'DM Mono',monospace;font-size:11px;color:#c8f542;background:rgba(200,245,66,0.08);border:1px solid rgba(200,245,66,0.2);border-radius:6px;padding:4px 10px;margin-right:2px;">L grip → move</span>
-      <span style="font-family:'DM Mono',monospace;font-size:11px;color:#42f5c8;background:rgba(66,245,200,0.08);border:1px solid rgba(66,245,200,0.2);border-radius:6px;padding:4px 10px;margin-right:6px;">R grip → slice</span>
-      <button class="vr-btn secondary" onclick="closeViewer()">← Back</button>
-      <button class="vr-btn" id="vr-btn" onclick="enterVR()">Enter VR</button>
+
+  <!-- ── 3D CANVAS fills all space above the bottom bar ── -->
+  <div id="viewer-canvas-wrap">
+    <div class="loading-overlay" id="loading-overlay">
+      <div class="spinner"></div>
+      <span class="loading-label" id="loading-label">Loading model…</span>
     </div>
   </div>
-  <!-- Desktop tool strip (shown once model loads) -->
-  <div id="explode-wrap" style="display:none;align-items:center;gap:16px;padding:10px 20px;background:rgba(10,10,11,0.9);border-bottom:1px solid rgba(255,255,255,0.07);flex-wrap:wrap;">
-    <!-- Size readout -->
-    <div style="display:flex;align-items:center;gap:8px;">
+
+  <!-- ── TOOL STRIP (shown once model loads) ── -->
+  <div id="explode-wrap" style="display:none;align-items:center;gap:14px;padding:8px 20px;background:rgba(10,10,11,0.95);border-top:1px solid rgba(255,255,255,0.07);flex-wrap:wrap;">
+
+    <!-- Size -->
+    <div style="display:flex;align-items:center;gap:7px;">
       <span style="font-family:'DM Mono',monospace;font-size:10px;color:#6b6b72;text-transform:uppercase;letter-spacing:.08em;">Size</span>
-      <span id="size-readout" style="font-family:'DM Mono',monospace;font-size:12px;color:#e8e8e6;">—</span>
+      <span id="size-readout" style="font-family:'DM Mono',monospace;font-size:11px;color:#e8e8e6;">—</span>
     </div>
-    <div style="width:1px;height:20px;background:rgba(255,255,255,0.07);"></div>
+    <div style="width:1px;height:18px;background:rgba(255,255,255,0.07);"></div>
+
     <!-- Explode -->
-    <div style="display:flex;align-items:center;gap:8px;">
+    <div style="display:flex;align-items:center;gap:7px;">
       <span style="font-family:'DM Mono',monospace;font-size:10px;color:#6b6b72;text-transform:uppercase;letter-spacing:.08em;">Explode</span>
-      <input type="range" min="0" max="1" step="0.01" value="0" oninput="onExplodeSlider(this.value)" style="width:100px;accent-color:#c8f542;">
-      <span id="explode-val" style="font-family:'DM Mono',monospace;font-size:11px;color:#c8f542;min-width:30px;">0%</span>
+      <input type="range" min="0" max="1" step="0.01" value="0" oninput="onExplodeSlider(this.value)" style="width:90px;accent-color:#c8f542;">
+      <span id="explode-val" style="font-family:'DM Mono',monospace;font-size:10px;color:#c8f542;min-width:26px;">0%</span>
     </div>
-    <div style="width:1px;height:20px;background:rgba(255,255,255,0.07);"></div>
-    <!-- Measure readout -->
-    <div style="display:flex;align-items:center;gap:8px;">
+    <div style="width:1px;height:18px;background:rgba(255,255,255,0.07);"></div>
+
+    <!-- Desktop Horizontal slice (Y axis — up/down) -->
+    <div style="display:flex;align-items:center;gap:7px;">
+      <span style="font-family:'DM Mono',monospace;font-size:10px;color:#42f5c8;text-transform:uppercase;letter-spacing:.08em;">H-Cut ↕</span>
+      <input type="range" id="hslice-slider" min="0" max="1" step="0.005" value="1"
+        oninput="onHSliceSlider(this.value)" style="width:90px;accent-color:#42f5c8;">
+      <button onclick="onHSliceOff()" style="font-family:'DM Mono',monospace;font-size:10px;color:#42f5c8;background:transparent;border:1px solid rgba(66,245,200,0.25);border-radius:5px;padding:2px 6px;cursor:pointer;">off</button>
+    </div>
+    <div style="width:1px;height:18px;background:rgba(255,255,255,0.07);"></div>
+
+    <!-- Desktop Vertical slice (X axis — left/right) -->
+    <div style="display:flex;align-items:center;gap:7px;">
+      <span style="font-family:'DM Mono',monospace;font-size:10px;color:#c8f542;text-transform:uppercase;letter-spacing:.08em;">V-Cut ↔</span>
+      <input type="range" id="vslice-slider" min="0" max="1" step="0.005" value="0.5"
+        oninput="onVSliceSlider(this.value)" style="width:90px;accent-color:#c8f542;">
+      <button onclick="onVSliceOff()" style="font-family:'DM Mono',monospace;font-size:10px;color:#c8f542;background:transparent;border:1px solid rgba(200,245,66,0.25);border-radius:5px;padding:2px 6px;cursor:pointer;">off</button>
+    </div>
+    <div style="width:1px;height:18px;background:rgba(255,255,255,0.07);"></div>
+
+    <!-- Measure -->
+    <div style="display:flex;align-items:center;gap:7px;">
       <span style="font-family:'DM Mono',monospace;font-size:10px;color:#6b6b72;text-transform:uppercase;letter-spacing:.08em;">↔ Measure</span>
-      <span id="measure-readout" style="font-family:'DM Mono',monospace;font-size:12px;color:#f5a142;">—</span>
+      <span id="measure-readout" style="font-family:'DM Mono',monospace;font-size:11px;color:#f5a142;">—</span>
     </div>
-    <div style="width:1px;height:20px;background:rgba(255,255,255,0.07);"></div>
-    <!-- Annotations -->
-    <div style="display:flex;align-items:center;gap:8px;">
+    <div style="width:1px;height:18px;background:rgba(255,255,255,0.07);"></div>
+
+    <!-- Pins -->
+    <div style="display:flex;align-items:center;gap:7px;">
       <span style="font-family:'DM Mono',monospace;font-size:10px;color:#6b6b72;text-transform:uppercase;letter-spacing:.08em;">◎ Pins</span>
-      <span id="annot-count" style="font-family:'DM Mono',monospace;font-size:12px;color:#f54242;">0 pins</span>
-      <button onclick="onClearAnnotations()" style="font-family:'DM Mono',monospace;font-size:10px;color:#6b6b72;background:transparent;border:1px solid rgba(255,255,255,0.07);border-radius:5px;padding:2px 7px;cursor:pointer;">clear</button>
+      <span id="annot-count" style="font-family:'DM Mono',monospace;font-size:11px;color:#f54242;">0 pins</span>
+      <button onclick="onClearAnnotations()" style="font-family:'DM Mono',monospace;font-size:10px;color:#6b6b72;background:transparent;border:1px solid rgba(255,255,255,0.07);border-radius:5px;padding:2px 6px;cursor:pointer;">clear</button>
     </div>
-    <div style="width:1px;height:20px;background:rgba(255,255,255,0.07);"></div>
-    <!-- Actions -->
+
+    <!-- Right-side actions -->
     <div style="display:flex;gap:6px;margin-left:auto;">
       <button onclick="onResetTransform()" style="font-family:'DM Mono',monospace;font-size:11px;color:#e8e8e6;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:7px;padding:5px 12px;cursor:pointer;">↺ Reset</button>
       <button onclick="onSnapshot()" style="font-family:'DM Mono',monospace;font-size:11px;color:#0a0a0b;background:#c8f542;border:none;border-radius:7px;padding:5px 12px;cursor:pointer;font-weight:500;">⬡ Snapshot</button>
     </div>
   </div>
-  <div id="viewer-canvas-wrap">
-    <div class="loading-overlay" id="loading-overlay">
-      <div class="spinner"></div>
-      <span class="loading-label" id="loading-label">Loading model…</span>
+
+  <!-- ── BOTTOM VIEWER BAR: title left, controls right ── -->
+  <div class="viewer-bar">
+    <span class="viewer-title" id="viewer-title">—</span>
+    <div class="viewer-controls">
+      <span style="font-family:'DM Mono',monospace;font-size:10px;color:#c8f542;background:rgba(200,245,66,0.08);border:1px solid rgba(200,245,66,0.2);border-radius:6px;padding:3px 9px;">L grip → move</span>
+      <span style="font-family:'DM Mono',monospace;font-size:10px;color:#42f5c8;background:rgba(66,245,200,0.08);border:1px solid rgba(66,245,200,0.2);border-radius:6px;padding:3px 9px;">R grip → slice</span>
+      <button class="vr-btn secondary" onclick="closeViewer()">← Back</button>
+      <button class="vr-btn" id="vr-btn" onclick="enterVR()">Enter VR</button>
     </div>
   </div>
 </div>
@@ -578,12 +613,22 @@ let modelRoot   = null;
 let loadedModel = null;
 let modelSize   = new THREE.Vector3();
 
-// Slicer
+// Slicer (VR controller-driven)
 let slicerPlane  = null;
 let slicerMesh   = null;
 let capMesh      = null;
 let slicerGroup  = null;
 let slicerActive = false;
+
+// Desktop slice planes — driven by the two sliders
+// hSlicePlane: horizontal (Y axis) — moves up/down
+// vSlicePlane: vertical   (X axis) — moves left/right
+let hSlicePlane  = null;   // THREE.Plane, null = off
+let vSlicePlane  = null;   // THREE.Plane, null = off
+let hSliceActive = false;
+let vSliceActive = false;
+let hSliceCapMesh = null;
+let vSliceCapMesh = null;
 
 // Grab / manipulation
 const grabState = { left: null, right: null };
@@ -606,15 +651,21 @@ let vrMode = 'grab';
 let _lastThumbL = false, _lastThumbR = false;
 
 // ════════════════════════════════════════════════════════════
-//  BOOT
+//  HARDCODED CONFIG — no setup screen needed
+// ════════════════════════════════════════════════════════════
+const HARDCODED_FOLDER_ID = '1OtwMUU-oHisoufPNRCl4IUDT7qVR7dcG';
+const HARDCODED_API_KEY   = 'AIzaSyAu0q693wWtUyIPhkra3sLFn04XQjpKk9k';
+
+// ════════════════════════════════════════════════════════════
+//  BOOT — skip setup, go straight to gallery
 // ════════════════════════════════════════════════════════════
 (function boot() {
+  config = { folderId: HARDCODED_FOLDER_ID, apiKey: HARDCODED_API_KEY };
   try {
-    const saved = localStorage.getItem(CACHE_KEY);
-    if (saved) { config = JSON.parse(saved); showBrowser(); }
     const tc = localStorage.getItem(THUMB_KEY);
     if (tc) thumbCache = JSON.parse(tc);
   } catch(e) {}
+  showBrowser();
 })();
 
 // ════════════════════════════════════════════════════════════
@@ -752,6 +803,8 @@ function cleanupViewer() {
   annotations=[]; annotCount=0;
   viewerScene=viewerCamera=viewerControls=loadedModel=modelRoot=null;
   slicerPlane=slicerMesh=capMesh=slicerGroup=null; slicerActive=false;
+  hSlicePlane=vSlicePlane=hSliceCapMesh=vSliceCapMesh=null;
+  hSliceActive=vSliceActive=false;
   grabState.left=grabState.right=null;
   measureState={ptA:null,ptB:null,lineObj:null,sphereA:null,sphereB:null}; measurePhase=0;
   explodeAmount=0; explodeOrigins.clear();
@@ -780,8 +833,8 @@ function buildSlicer(scene) {
   capMesh.renderOrder=1; capMesh.visible=false; scene.add(capMesh);
 }
 function setClipping(active) {
-  if (!loadedModel) return;
-  loadedModel.traverse(c=>{if(!c.isMesh)return; c.material.clippingPlanes=active?[slicerPlane]:[]; c.material.needsUpdate=true;});
+  slicerActive = active;
+  applyDesktopClipping();
   if(capMesh) capMesh.visible=active;
 }
 function updateSlicer(ctrl) {
@@ -963,6 +1016,105 @@ function onSnapshot() {
 }
 
 // ════════════════════════════════════════════════════════════
+//  DESKTOP SLICE SLIDERS
+// ════════════════════════════════════════════════════════════
+// Both sliders use the model's bounding box to convert a 0-1
+// slider value into a world-space plane constant.
+
+function getModelBounds() {
+  if (!loadedModel) return { minY:0, maxY:2, minX:-1, maxX:1 };
+  const box = new THREE.Box3().setFromObject(modelRoot);
+  return { minY: box.min.y, maxY: box.max.y, minX: box.min.x, maxX: box.max.x };
+}
+
+// Horizontal cut: slider 1.0 = full model visible (plane above top), 0.0 = fully cut
+function onHSliceSlider(val) {
+  if (!hSlicePlane || !loadedModel) return;
+  const t = parseFloat(val);
+  const { minY, maxY } = getModelBounds();
+  const planeY = minY + t * (maxY - minY + 0.1);
+  // Plane: normal = -Y (clips everything ABOVE planeY), constant = planeY
+  // Using normal (0,1,0) clips everything below; we want to clip above, so normal = (0,-1,0)
+  hSlicePlane.normal.set(0, -1, 0);
+  hSlicePlane.constant = planeY;
+  hSliceActive = t < 0.999;
+  applyDesktopClipping();
+  // Move cap mesh
+  if (hSliceCapMesh) {
+    hSliceCapMesh.visible = hSliceActive;
+    hSliceCapMesh.position.set(0, planeY, 0);
+    hSliceCapMesh.quaternion.setFromUnitVectors(new THREE.Vector3(0,0,1), new THREE.Vector3(0,1,0));
+  }
+}
+
+function onHSliceOff() {
+  hSliceActive = false;
+  applyDesktopClipping();
+  if (hSliceCapMesh) hSliceCapMesh.visible = false;
+  const sl = document.getElementById('hslice-slider');
+  if (sl) sl.value = 1;
+}
+
+// Vertical cut: slider 0.5 = centre, 0 = left half visible, 1 = right half visible
+function onVSliceSlider(val) {
+  if (!vSlicePlane || !loadedModel) return;
+  const t = parseFloat(val);
+  const { minX, maxX } = getModelBounds();
+  const planeX = minX + t * (maxX - minX);
+  // Clip everything to the RIGHT of planeX: normal = (1,0,0), clips right side
+  vSlicePlane.normal.set(1, 0, 0);
+  vSlicePlane.constant = -planeX;
+  vSliceActive = (t > 0.001 && t < 0.999);
+  applyDesktopClipping();
+  if (vSliceCapMesh) {
+    vSliceCapMesh.visible = vSliceActive;
+    vSliceCapMesh.position.set(planeX, 0, 0);
+    vSliceCapMesh.quaternion.setFromUnitVectors(new THREE.Vector3(0,0,1), new THREE.Vector3(1,0,0));
+  }
+}
+
+function onVSliceOff() {
+  vSliceActive = false;
+  applyDesktopClipping();
+  if (vSliceCapMesh) vSliceCapMesh.visible = false;
+  const sl = document.getElementById('vslice-slider');
+  if (sl) sl.value = 0.5;
+}
+
+// Build the active clipping plane list from all active sources and apply to model
+function applyDesktopClipping() {
+  if (!loadedModel) return;
+  const planes = [];
+  if (hSliceActive && hSlicePlane) planes.push(hSlicePlane);
+  if (vSliceActive && vSlicePlane) planes.push(vSlicePlane);
+  // VR slicer plane is applied separately via setClipping() — we merge here if also active
+  if (slicerActive && slicerPlane) planes.push(slicerPlane);
+  loadedModel.traverse(c => {
+    if (!c.isMesh) return;
+    c.material.clippingPlanes = planes;
+    c.material.needsUpdate = true;
+  });
+}
+
+function buildDesktopSlicePlanes(scene) {
+  hSlicePlane = new THREE.Plane(new THREE.Vector3(0,-1,0), 0);
+  vSlicePlane = new THREE.Plane(new THREE.Vector3(1,0,0),  0);
+
+  const capMat = (col) => new THREE.MeshStandardMaterial({
+    color: col, transparent: true, opacity: 0.3,
+    side: THREE.DoubleSide, depthWrite: false, roughness: 0.3
+  });
+
+  hSliceCapMesh = new THREE.Mesh(new THREE.PlaneGeometry(6,6), capMat(0x42f5c8));
+  hSliceCapMesh.renderOrder = 2; hSliceCapMesh.visible = false;
+  scene.add(hSliceCapMesh);
+
+  vSliceCapMesh = new THREE.Mesh(new THREE.PlaneGeometry(6,6), capMat(0xc8f542));
+  vSliceCapMesh.renderOrder = 2; vSliceCapMesh.visible = false;
+  scene.add(vSliceCapMesh);
+}
+
+// ════════════════════════════════════════════════════════════
 //  CONTROLLERS
 // ════════════════════════════════════════════════════════════
 function setupControllers(renderer,scene) {
@@ -1045,6 +1197,7 @@ function initViewer(fileId) {
 
   buildSlicer(viewerScene);
   buildMeasureObjects(viewerScene);
+  buildDesktopSlicePlanes(viewerScene);
 
   viewerRenderer.xr.addEventListener('sessionstart',()=>{
     setupControllers(viewerRenderer,viewerScene);
@@ -1073,6 +1226,11 @@ function initViewer(fileId) {
       cacheExplodeOrigins();
       document.getElementById('loading-overlay').classList.add('hidden');
       const ew=document.getElementById('explode-wrap'); if(ew) ew.style.display='flex';
+      // Reset desktop slice sliders to neutral
+      const hsl=document.getElementById('hslice-slider'); if(hsl){hsl.value=1;} hSliceActive=false;
+      const vsl=document.getElementById('vslice-slider'); if(vsl){vsl.value=0.5;} vSliceActive=false;
+      if(hSliceCapMesh) hSliceCapMesh.visible=false;
+      if(vSliceCapMesh) vSliceCapMesh.visible=false;
       const maxDim=Math.max(size.x,size.y,size.z);
       viewerCamera.position.set(maxDim*1.5,maxDim*0.8,maxDim*1.5);
       viewerCamera.lookAt(0,size.y/2,0); viewerControls.target.set(0,size.y/2,0); viewerControls.update();
@@ -1133,558 +1291,6 @@ async function enterVR() {
     });
     document.getElementById('vr-btn').textContent='◼ Exit VR';
   } catch(e){alert('Could not start VR session: '+e.message);}
-}
-</script>
-
-// ── SETUP ───────────────────────────────────────────────────
-function saveConfig() {
-  const folderId = document.getElementById('folder-id-input').value.trim();
-  const apiKey   = document.getElementById('api-key-input').value.trim();
-  if (!folderId || !apiKey) { alert('Please fill in both fields.'); return; }
-  config = { folderId, apiKey };
-  localStorage.setItem(CACHE_KEY, JSON.stringify(config));
-  showBrowser();
-}
-
-function resetConfig() {
-  localStorage.removeItem(CACHE_KEY);
-  config = null;
-  document.getElementById('browser-screen').style.display = 'none';
-  document.getElementById('setup-screen').style.display = 'flex';
-}
-
-// ── BROWSER ─────────────────────────────────────────────────
-function showBrowser() {
-  document.getElementById('setup-screen').style.display = 'none';
-  document.getElementById('browser-screen').style.display = 'block';
-  document.getElementById('folder-badge').textContent = config.folderId.slice(0, 20) + '…';
-  loadModels();
-}
-
-async function loadModels() {
-  const grid = document.getElementById('model-grid');
-  grid.innerHTML = '<div class="status-msg"><div class="spinner" style="margin:0 auto"></div></div>';
-
-  const url = `https://www.googleapis.com/drive/v3/files?q='${config.folderId}'+in+parents+and+mimeType='model/gltf-binary'+and+trashed=false&fields=files(id,name,size,modifiedTime)&key=${config.apiKey}`;
-
-  try {
-    let res = await fetch(url);
-    let data = await res.json();
-
-    if (!data.files || data.files.length === 0) {
-      const url2 = `https://www.googleapis.com/drive/v3/files?q='${config.folderId}'+in+parents+and+trashed=false&fields=files(id,name,size,modifiedTime,mimeType)&key=${config.apiKey}`;
-      res = await fetch(url2);
-      data = await res.json();
-      if (data.files) {
-        data.files = data.files.filter(f => f.name.toLowerCase().endsWith('.glb'));
-      }
-    }
-
-    if (data.error) throw new Error(data.error.message);
-
-    currentModels = data.files || [];
-    document.getElementById('count-badge').textContent = currentModels.length + ' file' + (currentModels.length !== 1 ? 's' : '');
-    renderGrid(currentModels);
-  } catch(e) {
-    grid.innerHTML = `<div class="status-msg error"><span class="big">⚠</span>${e.message}<br><br><small>Check your API key and make sure the folder is shared publicly.</small></div>`;
-  }
-}
-
-function renderGrid(models) {
-  const grid = document.getElementById('model-grid');
-  if (!models.length) {
-    grid.innerHTML = '<div class="status-msg"><span class="big">📂</span>No .glb files found in this folder.<br>Drop some models in and refresh.</div>';
-    return;
-  }
-  grid.innerHTML = '';
-  models.forEach(model => {
-    const card = document.createElement('div');
-    card.className = 'model-card';
-    const sizeMB = model.size ? (model.size / 1024 / 1024).toFixed(1) + ' MB' : '—';
-    const name = model.name.replace(/\.glb$/i, '');
-    card.innerHTML = `
-      <div class="thumb-wrap" id="thumb-${model.id}">
-        <div class="thumb-placeholder"><span class="icon">⬡</span><span>Rendering…</span></div>
-      </div>
-      <div class="card-body">
-        <div class="model-name" title="${name}">${name}</div>
-        <div class="model-meta">${sizeMB}</div>
-      </div>
-      <button class="launch-btn" onclick="event.stopPropagation();openViewer('${model.id}','${name.replace(/'/g,"\\'")}')">▶ View in VR</button>
-    `;
-    card.addEventListener('click', () => openViewer(model.id, name));
-    grid.appendChild(card);
-    requestAnimationFrame(() => renderThumb(model.id, name));
-  });
-}
-
-// ── THUMBNAIL RENDERER ───────────────────────────────────────
-async function renderThumb(fileId, name) {
-  const wrap = document.getElementById('thumb-' + fileId);
-  if (!wrap) return;
-
-  if (thumbCache[fileId]) {
-    const img = document.createElement('img');
-    img.src = thumbCache[fileId];
-    img.style.cssText = 'width:100%;height:100%;object-fit:contain;';
-    wrap.innerHTML = '';
-    wrap.appendChild(img);
-    return;
-  }
-
-  const canvas = document.createElement('canvas');
-  canvas.width = 300; canvas.height = 300;
-  wrap.innerHTML = '';
-  wrap.appendChild(canvas);
-
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-  renderer.setSize(300, 300);
-  renderer.setPixelRatio(1);
-  renderer.outputEncoding = THREE.sRGBEncoding;
-
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(45, 1, 0.01, 1000);
-
-  scene.add(new THREE.AmbientLight(0xffffff, 0.7));
-  const dir = new THREE.DirectionalLight(0xffffff, 1.2);
-  dir.position.set(2, 4, 3);
-  scene.add(dir);
-  const rim = new THREE.DirectionalLight(0xc8f542, 0.3);
-  rim.position.set(-3, 1, -2);
-  scene.add(rim);
-
-  const glbUrl = `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media&key=${config.apiKey}`;
-
-  try {
-    const loader = new THREE.GLTFLoader();
-    const gltf = await new Promise((resolve, reject) => {
-      loader.load(glbUrl, resolve, null, reject);
-    });
-
-    const model = gltf.scene;
-    scene.add(model);
-
-    const box = new THREE.Box3().setFromObject(model);
-    const size = box.getSize(new THREE.Vector3());
-    const center = box.getCenter(new THREE.Vector3());
-    const maxDim = Math.max(size.x, size.y, size.z);
-    const scale = 2 / maxDim;
-    model.scale.setScalar(scale);
-    model.position.sub(center.multiplyScalar(scale));
-
-    camera.position.set(1.8, 1.2, 1.8);
-    camera.lookAt(0, 0, 0);
-
-    renderer.render(scene, camera);
-
-    const dataURL = canvas.toDataURL('image/jpeg', 0.8);
-    thumbCache[fileId] = dataURL;
-    try { localStorage.setItem(THUMB_KEY, JSON.stringify(thumbCache)); } catch(e) {}
-
-    renderer.dispose();
-  } catch(e) {
-    wrap.innerHTML = `<div class="thumb-placeholder"><span class="icon" style="opacity:0.3">⬡</span><span style="font-size:10px">${name.slice(0,12)}</span></div>`;
-    renderer.dispose();
-  }
-}
-
-// ── VIEWER ──────────────────────────────────────────────────
-function openViewer(fileId, name) {
-  document.getElementById('viewer-overlay').classList.add('active');
-  document.getElementById('viewer-title').textContent = name;
-  document.getElementById('loading-overlay').classList.remove('hidden');
-  document.getElementById('loading-label').textContent = 'Loading model…';
-
-  if (viewerRenderer) { cleanupViewer(); }
-  initViewer(fileId);
-}
-
-function closeViewer() {
-  document.getElementById('viewer-overlay').classList.remove('active');
-  cleanupViewer();
-}
-
-function cleanupViewer() {
-  if (animId) cancelAnimationFrame(animId);
-  if (viewerRenderer) {
-    if (viewerRenderer.xr && viewerRenderer.xr.isPresenting) viewerRenderer.xr.getSession()?.end();
-    viewerRenderer.dispose();
-    viewerRenderer = null;
-  }
-  const wrap = document.getElementById('viewer-canvas-wrap');
-  const canvas = wrap.querySelector('canvas');
-  if (canvas) canvas.remove();
-  viewerScene = viewerCamera = viewerControls = loadedModel = modelRoot = null;
-  slicerPlane = slicerMesh = capMesh = slicerGroup = null;
-  slicerActive = false;
-  grabState.left = grabState.right = null;
-}
-
-// ── SLICER SETUP ─────────────────────────────────────────────
-function buildSlicer(scene) {
-  slicerPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
-
-  slicerGroup = new THREE.Group();
-  scene.add(slicerGroup);
-
-  const planeSize = 0.55;
-  const planeGeo  = new THREE.PlaneGeometry(planeSize, planeSize);
-
-  // Translucent blade – the moving indicator in your hand
-  const bladeMat = new THREE.MeshStandardMaterial({
-    color: 0x42f5c8,
-    transparent: true,
-    opacity: 0.18,
-    side: THREE.DoubleSide,
-    depthWrite: false,
-    roughness: 0.1,
-    metalness: 0.05,
-  });
-  slicerMesh = new THREE.Mesh(planeGeo, bladeMat);
-
-  // Glowing border
-  const edgeMat = new THREE.LineBasicMaterial({ color: 0x42f5c8, linewidth: 2 });
-  slicerMesh.add(new THREE.LineSegments(new THREE.EdgesGeometry(planeGeo), edgeMat));
-
-  // Centre dot
-  const dotMat = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide });
-  slicerMesh.add(new THREE.Mesh(new THREE.CircleGeometry(0.006, 16), dotMat));
-
-  slicerGroup.add(slicerMesh);
-  slicerMesh.visible = false;
-
-  // ── CAP MESH ─────────────────────────────────────────────────
-  // A large world-space plane that sits exactly on the cut surface.
-  // It's NOT parented to slicerGroup – it lives in world space and
-  // is repositioned every frame to match the clipping plane equation,
-  // so it always fills the cut hole regardless of model transform.
-  // Size is large enough to cover any reasonably sized model (4 m).
-  const capSize = 4;
-  const capGeo  = new THREE.PlaneGeometry(capSize, capSize);
-  const capMat  = new THREE.MeshStandardMaterial({
-    color: 0x42f5c8,
-    transparent: true,
-    opacity: 0.28,
-    side: THREE.DoubleSide,
-    depthWrite: false,
-    depthTest: true,
-    roughness: 0.4,
-    metalness: 0.1,
-    // The cap itself must NOT be clipped by slicerPlane, otherwise it
-    // disappears. We leave its clippingPlanes array empty (default).
-  });
-  capMesh = new THREE.Mesh(capGeo, capMat);
-  capMesh.renderOrder = 1; // draw after opaque geometry
-  capMesh.visible = false;
-  scene.add(capMesh);
-}
-
-// Apply / remove clipping plane on every mesh of the model
-function setClipping(active) {
-  if (!loadedModel) return;
-  loadedModel.traverse(child => {
-    if (!child.isMesh) return;
-    child.material.clippingPlanes = active ? [slicerPlane] : [];
-    child.material.needsUpdate    = true;
-  });
-  if (capMesh) capMesh.visible = active;
-}
-
-// Every frame while slicing: sync blade visual + clipping plane + cap position
-function updateSlicer(controller) {
-  if (!slicerActive || !controller || !slicerPlane) return;
-
-  // Blade follows the grip exactly
-  slicerGroup.position.setFromMatrixPosition(controller.matrixWorld);
-  slicerGroup.quaternion.setFromRotationMatrix(controller.matrixWorld);
-
-  // Normal = palm-forward (-Z of grip space)
-  const normal = new THREE.Vector3(0, 0, -1)
-    .applyQuaternion(slicerGroup.quaternion)
-    .normalize();
-
-  slicerPlane.normal.copy(normal);
-  slicerPlane.constant = -normal.dot(slicerGroup.position);
-
-  // Reposition the cap mesh to sit exactly on the clipping plane.
-  // The cap lives in world space; we align it to the plane's equation:
-  //   centre = normal * (-constant),  orientation = plane normal
-  if (capMesh) {
-    // Place cap at the point on the plane closest to the world origin
-    const capPos = normal.clone().multiplyScalar(-slicerPlane.constant);
-    capMesh.position.copy(capPos);
-    // Orient the PlaneGeometry (whose default normal is +Z) to face along slicerPlane.normal
-    capMesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), normal);
-  }
-}
-
-// ── MANIPULATION HELPERS ──────────────────────────────────────
-function ctrlWorldPos(ctrl) {
-  return new THREE.Vector3().setFromMatrixPosition(ctrl.matrixWorld);
-}
-function ctrlWorldQuat(ctrl) {
-  return new THREE.Quaternion().setFromRotationMatrix(ctrl.matrixWorld);
-}
-
-// One-handed: translate modelRoot by how much the left controller moved
-function applyOneHandedGrab(ctrl) {
-  const gs = grabState.left;
-  if (!gs || !modelRoot) return;
-
-  const curPos  = ctrlWorldPos(ctrl);
-  const delta   = curPos.clone().sub(gs.prevPos);
-  modelRoot.position.add(delta);
-
-  gs.prevPos.copy(curPos);
-}
-
-// Two-handed: full 6-DOF grab (translate + rotate + uniform scale)
-// Uses the midpoint and the vector between the two controllers.
-function applyTwoHandedGrab(ctrlL, ctrlR) {
-  if (!grabState.left || !grabState.right || !modelRoot) return;
-
-  const curL = ctrlWorldPos(ctrlL);
-  const curR = ctrlWorldPos(ctrlR);
-  const prevL = grabState.left.prevPos;
-  const prevR = grabState.right.prevPos;
-
-  // Midpoints
-  const curMid  = curL.clone().add(curR).multiplyScalar(0.5);
-  const prevMid = prevL.clone().add(prevR).multiplyScalar(0.5);
-
-  // Scale: ratio of current span to previous span
-  const curSpan  = curL.distanceTo(curR);
-  const prevSpan = prevL.distanceTo(prevR);
-  const scaleDelta = prevSpan > 0.001 ? curSpan / prevSpan : 1;
-
-  // Rotation: angle change of the inter-controller vector projected onto XZ
-  const curVec  = new THREE.Vector2(curR.x - curL.x,  curR.z - curL.z).normalize();
-  const prevVec = new THREE.Vector2(prevR.x - prevL.x, prevR.z - prevL.z).normalize();
-  const angleY  = Math.atan2(
-    prevVec.x * curVec.y - prevVec.y * curVec.x,
-    prevVec.x * curVec.x + prevVec.y * curVec.y
-  );
-
-  // Apply: scale around midpoint → rotate around midpoint → translate
-  const rot = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0), angleY);
-
-  // Offset from midpoint to model origin before transform
-  const offset = modelRoot.position.clone().sub(prevMid);
-  offset.multiplyScalar(scaleDelta);
-  offset.applyQuaternion(rot);
-
-  modelRoot.position.copy(curMid).add(offset);
-  modelRoot.quaternion.premultiply(rot);
-  modelRoot.scale.multiplyScalar(scaleDelta);
-
-  grabState.left.prevPos.copy(curL);
-  grabState.right.prevPos.copy(curR);
-}
-
-// ── CONTROLLER WIRING ────────────────────────────────────────
-function setupControllers(renderer, scene) {
-  const ctrlL = renderer.xr.getController(0); // left
-  const ctrlR = renderer.xr.getController(1); // right
-  scene.add(ctrlL);
-  scene.add(ctrlR);
-
-  // Controller ray dots
-  function makeRay(color) {
-    const geo = new THREE.BufferGeometry().setFromPoints([
-      new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,-0.07)
-    ]);
-    return new THREE.Line(geo, new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0.5 }));
-  }
-  ctrlL.add(makeRay(0xc8f542)); // green-yellow = grab hand
-  ctrlR.add(makeRay(0x42f5c8)); // teal = slice hand
-
-  // ── LEFT CONTROLLER: grab / move ─────────────────────────────
-  ctrlL.addEventListener('squeezestart', () => {
-    grabState.left = { prevPos: ctrlWorldPos(ctrlL), prevQuat: ctrlWorldQuat(ctrlL) };
-  });
-  ctrlL.addEventListener('squeezeend', () => {
-    grabState.left = null;
-  });
-
-  // ── RIGHT CONTROLLER: slice ───────────────────────────────────
-  ctrlR.addEventListener('squeezestart', () => {
-    // If left is already grabbing, treat right grip as second grab hand too
-    if (grabState.left) {
-      grabState.right = { prevPos: ctrlWorldPos(ctrlR), prevQuat: ctrlWorldQuat(ctrlR) };
-      return; // don't slice when two-handing
-    }
-    slicerActive = true;
-    if (slicerMesh) slicerMesh.visible = true;
-    setClipping(true);
-    // Record right grip as secondary grab anchor in case left joins later
-    grabState.right = { prevPos: ctrlWorldPos(ctrlR), prevQuat: ctrlWorldQuat(ctrlR) };
-  });
-  ctrlR.addEventListener('squeezeend', () => {
-    grabState.right = null;
-    slicerActive = false;
-    if (slicerMesh) slicerMesh.visible = false;
-    setClipping(false);
-  });
-}
-
-// ── INIT VIEWER ──────────────────────────────────────────────
-function initViewer(fileId) {
-  const wrap = document.getElementById('viewer-canvas-wrap');
-
-  viewerRenderer = new THREE.WebGLRenderer({ antialias: true, stencil: true });
-  viewerRenderer.setPixelRatio(window.devicePixelRatio);
-  viewerRenderer.setSize(wrap.clientWidth, wrap.clientHeight);
-  viewerRenderer.outputEncoding = THREE.sRGBEncoding;
-  viewerRenderer.xr.enabled = true;
-  viewerRenderer.localClippingEnabled = true;
-  wrap.appendChild(viewerRenderer.domElement);
-
-  viewerScene = new THREE.Scene();
-  viewerScene.background = new THREE.Color(0x0a0a0b);
-
-  viewerCamera = new THREE.PerspectiveCamera(60, wrap.clientWidth / wrap.clientHeight, 0.01, 500);
-  viewerCamera.position.set(0, 1.6, 2.5);
-
-  viewerScene.add(new THREE.AmbientLight(0xffffff, 0.8));
-  const sun = new THREE.DirectionalLight(0xffffff, 1.4);
-  sun.position.set(3, 8, 5);
-  viewerScene.add(sun);
-  const fill = new THREE.DirectionalLight(0x42f5c8, 0.25);
-  fill.position.set(-4, 2, -3);
-  viewerScene.add(fill);
-
-  viewerScene.add(new THREE.GridHelper(20, 40, 0x222226, 0x18181c));
-
-  viewerControls = new THREE.OrbitControls(viewerCamera, viewerRenderer.domElement);
-  viewerControls.enableDamping = true;
-  viewerControls.dampingFactor = 0.07;
-  viewerControls.target.set(0, 0.8, 0);
-
-  // Build slicer (cap mesh also created here)
-  buildSlicer(viewerScene);
-
-  // Wire controllers once XR session begins
-  viewerRenderer.xr.addEventListener('sessionstart', () => {
-    setupControllers(viewerRenderer, viewerScene);
-    // Disable orbit controls in VR – manipulation is via controllers
-    if (viewerControls) viewerControls.enabled = false;
-  });
-  viewerRenderer.xr.addEventListener('sessionend', () => {
-    if (viewerControls) viewerControls.enabled = true;
-    grabState.left = grabState.right = null;
-    slicerActive = false;
-    if (slicerMesh) slicerMesh.visible = false;
-    setClipping(false);
-  });
-
-  // Load model into a wrapper Group so we can freely transform it
-  modelRoot = new THREE.Group();
-  viewerScene.add(modelRoot);
-
-  const glbUrl = `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media&key=${config.apiKey}`;
-  const loader = new THREE.GLTFLoader();
-
-  loader.load(glbUrl, (gltf) => {
-    const model = gltf.scene;
-    const box   = new THREE.Box3().setFromObject(model);
-    const center = box.getCenter(new THREE.Vector3());
-    const size   = box.getSize(new THREE.Vector3());
-
-    // Centre the model and seat it on the floor
-    model.position.x -= center.x;
-    model.position.z -= center.z;
-    model.position.y -= box.min.y;
-
-    // Prep all materials for clipping + interior visibility
-    model.traverse(child => {
-      if (!child.isMesh) return;
-      child.material.clippingPlanes = [];
-      child.material.side = THREE.DoubleSide;
-      child.material.needsUpdate = true;
-    });
-
-    modelRoot.add(model);
-    loadedModel = model;
-
-    document.getElementById('loading-overlay').classList.add('hidden');
-
-    const maxDim = Math.max(size.x, size.y, size.z);
-    viewerCamera.position.set(maxDim * 1.5, maxDim * 0.8, maxDim * 1.5);
-    viewerCamera.lookAt(0, size.y / 2, 0);
-    viewerControls.target.set(0, size.y / 2, 0);
-    viewerControls.update();
-
-    checkXRSupport();
-  }, (prog) => {
-    const pct = prog.total ? Math.round(prog.loaded / prog.total * 100) : '…';
-    document.getElementById('loading-label').textContent = `Loading… ${pct}%`;
-  }, (err) => {
-    document.getElementById('loading-label').textContent = 'Failed to load model';
-    console.error(err);
-  });
-
-  // Render loop
-  viewerRenderer.setAnimationLoop(() => {
-    if (viewerControls && viewerControls.enabled) viewerControls.update();
-
-    if (viewerRenderer.xr.isPresenting) {
-      const ctrlL = viewerRenderer.xr.getController(0);
-      const ctrlR = viewerRenderer.xr.getController(1);
-
-      if (grabState.left && grabState.right) {
-        // Two-handed: scale + rotate + translate
-        applyTwoHandedGrab(ctrlL, ctrlR);
-      } else if (grabState.left) {
-        // One-handed: translate only
-        applyOneHandedGrab(ctrlL);
-      }
-
-      // Slicer runs independently on right hand (only when not two-handing)
-      if (slicerActive && !grabState.left) {
-        updateSlicer(ctrlR);
-      }
-    }
-
-    if (viewerRenderer) viewerRenderer.render(viewerScene, viewerCamera);
-  });
-
-  window.addEventListener('resize', () => {
-    if (!viewerRenderer) return;
-    const w = wrap.clientWidth, h = wrap.clientHeight;
-    viewerRenderer.setSize(w, h);
-    if (viewerCamera) { viewerCamera.aspect = w/h; viewerCamera.updateProjectionMatrix(); }
-  });
-}
-
-async function checkXRSupport() {
-  const btn = document.getElementById('vr-btn');
-  if (!navigator.xr) { btn.textContent = 'VR not supported'; btn.disabled = true; return; }
-  const supported = await navigator.xr.isSessionSupported('immersive-vr').catch(() => false);
-  if (supported) { btn.textContent = '⬡ Enter VR'; btn.disabled = false; }
-  else { btn.textContent = 'VR not available'; btn.style.opacity = '0.5'; }
-}
-
-async function enterVR() {
-  if (!navigator.xr || !viewerRenderer) return;
-  try {
-    const session = await navigator.xr.requestSession('immersive-vr', {
-      requiredFeatures: ['local-floor'],
-      optionalFeatures: ['bounded-floor', 'hand-tracking']
-    });
-    viewerRenderer.xr.setSession(session);
-    session.addEventListener('end', () => {
-      document.getElementById('vr-btn').textContent = '⬡ Enter VR';
-      // Clean up slicer if still active when leaving VR
-      if (slicerActive) {
-        slicerActive = false;
-        if (slicerMesh) slicerMesh.visible = false;
-        setClipping(false);
-      }
-    });
-    document.getElementById('vr-btn').textContent = '◼ Exit VR';
-  } catch(e) {
-    alert('Could not start VR session: ' + e.message);
-  }
 }
 </script>
 </body>
