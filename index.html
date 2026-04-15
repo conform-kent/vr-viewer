@@ -426,7 +426,7 @@ function restoreSession(session) {
 // ════════════════════════════════════════════════════════════
 function showBrowser() {
   document.getElementById('browser-screen').style.display='block';
-  document.getElementById('folder-badge').textContent=config.folderId.slice(0,20)+'…';
+  const fb=document.getElementById('folder-badge'); if(fb) fb.textContent=config.folderId.slice(0,20)+'…';
   loadModels();
 }
 
