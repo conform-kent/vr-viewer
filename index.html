@@ -200,18 +200,20 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
         <span id="light-val" style="font-family:'DM Mono',monospace;font-size:10px;color:#f5a142;min-width:42px;">45°/40°</span>
       </div>
       <div style="width:1px;height:13px;background:rgba(255,255,255,0.07)"></div>
-      <!-- Surface analysis / Zebra -->
+      <!-- Zebra stripes (curvature analysis) -->
       <div style="display:flex;align-items:center;gap:4px;">
-        <span style="font-family:'DM Mono',monospace;font-size:9px;color:#6b6b72;text-transform:uppercase;letter-spacing:.08em;">Surface</span>
-        <button id="zebra-off"  onclick="setZebraMode('off')"  style="font-family:'DM Mono',monospace;font-size:9px;padding:2px 6px;border-radius:4px;border:1px solid rgba(200,245,66,0.4);background:rgba(200,245,66,0.15);color:#c8f542;cursor:pointer;">off</button>
-        <button id="zebra-h"   onclick="setZebraMode('h')"    style="font-family:'DM Mono',monospace;font-size:9px;padding:2px 6px;border-radius:4px;border:1px solid rgba(255,255,255,0.12);background:transparent;color:#6b6b72;cursor:pointer;">≡ H</button>
-        <button id="zebra-v"   onclick="setZebraMode('v')"    style="font-family:'DM Mono',monospace;font-size:9px;padding:2px 6px;border-radius:4px;border:1px solid rgba(255,255,255,0.12);background:transparent;color:#6b6b72;cursor:pointer;">⫶ V</button>
-        <button id="zebra-grid" onclick="setZebraMode('grid')" style="font-family:'DM Mono',monospace;font-size:9px;padding:2px 6px;border-radius:4px;border:1px solid rgba(255,255,255,0.12);background:transparent;color:#6b6b72;cursor:pointer;">⊞ Grid</button>
+        <span style="font-family:'DM Mono',monospace;font-size:9px;color:#6b6b72;text-transform:uppercase;letter-spacing:.08em;">Zebra</span>
+        <button id="zebra-off" onclick="setZebraMode('off')" style="font-family:'DM Mono',monospace;font-size:9px;padding:2px 6px;border-radius:4px;border:1px solid rgba(200,245,66,0.4);background:rgba(200,245,66,0.15);color:#c8f542;cursor:pointer;">off</button>
+        <button id="zebra-h"  onclick="setZebraMode('h')"   style="font-family:'DM Mono',monospace;font-size:9px;padding:2px 6px;border-radius:4px;border:1px solid rgba(255,255,255,0.12);background:transparent;color:#6b6b72;cursor:pointer;">≡ H</button>
+        <button id="zebra-v"  onclick="setZebraMode('v')"   style="font-family:'DM Mono',monospace;font-size:9px;padding:2px 6px;border-radius:4px;border:1px solid rgba(255,255,255,0.12);background:transparent;color:#6b6b72;cursor:pointer;">⫶ V</button>
       </div>
       <div style="width:1px;height:13px;background:rgba(255,255,255,0.07)"></div>
+      <!-- Grid overlay toggle (separate) -->
+      <button id="grid-tog-btn" onclick="toggleGridOverlay()" style="font-family:'DM Mono',monospace;font-size:9px;padding:2px 7px;border-radius:4px;border:1px solid rgba(255,255,255,0.12);background:transparent;color:#6b6b72;cursor:pointer;" title="Wireframe grid overlay">⊞ Grid</button>
+      <!-- Texture toggle -->
+      <button id="tex-tog-btn" onclick="toggleTexture()" style="font-family:'DM Mono',monospace;font-size:9px;padding:2px 7px;border-radius:4px;border:1px solid rgba(255,255,255,0.12);background:transparent;color:#6b6b72;cursor:pointer;" title="Toggle texture / clay / transparent">Tex</button>
       <!-- Auto-rotate -->
-      <button id="autorot-btn" onclick="toggleAutoRotate()" title="Auto-rotate model"
-        style="font-family:'DM Mono',monospace;font-size:9px;padding:2px 7px;border-radius:4px;border:1px solid rgba(255,255,255,0.12);background:transparent;color:#6b6b72;cursor:pointer;">⟳ Auto</button>
+      <button id="autorot-btn" onclick="toggleAutoRotate()" style="font-family:'DM Mono',monospace;font-size:9px;padding:2px 7px;border-radius:4px;border:1px solid rgba(255,255,255,0.12);background:transparent;color:#6b6b72;cursor:pointer;">⟳ Auto</button>
     </div>
 
     <!-- Row B -->
@@ -239,6 +241,8 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
       </div>
       <!-- Right -->
       <div style="display:flex;gap:6px;margin-left:auto;align-items:center;">
+        <button onclick="toggleAllAnnotations()" id="hide-all-btn" style="font-family:'DM Mono',monospace;font-size:10px;color:#6b6b72;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:4px 10px;cursor:pointer;" title="Hide/show pins and dimensions">👁 All</button>
+        <button onclick="onResetRotation()" style="font-family:'DM Mono',monospace;font-size:11px;color:#e8e8e6;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:7px;padding:4px 11px;cursor:pointer;" title="Reset rotation only">↺ Rot</button>
         <button onclick="exportPinReport()" style="font-family:'DM Mono',monospace;font-size:10px;color:#4290f5;background:rgba(66,144,245,0.08);border:1px solid rgba(66,144,245,0.25);border-radius:6px;padding:4px 10px;cursor:pointer;">⬡ Export PDF</button>
         <button onclick="onResetTransform()" style="font-family:'DM Mono',monospace;font-size:11px;color:#e8e8e6;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:7px;padding:4px 11px;cursor:pointer;">↺ Reset</button>
         <button onclick="onSnapshot()" style="font-family:'DM Mono',monospace;font-size:11px;color:#0a0a0b;background:#c8f542;border:none;border-radius:7px;padding:4px 11px;cursor:pointer;font-weight:500;">⬡ Snapshot</button>
@@ -380,12 +384,24 @@ const explodeOrigins = new Map();
 
 // ── Auto-rotate ───────────────────────────────────────────────
 let autoRotate = false;
-let autoRotateSpeed = 0.005; // radians per frame
+let autoRotateSpeed = 0.005;
+
+// ── Grid group (follows model Y rotation) ────────────────────
+let gridGroup = null;
+
+// ── Grid overlay (wireframe on model) ────────────────────────
+let gridOverlayActive = false;
+let gridOverlayObjects = [];
+
+// ── Texture display mode: 'tex' | 'clay' | 'alpha' ──────────
+let texMode = 'tex';
+let savedMaterials = new Map(); // uuid → original material props
 
 // ── Zebra/surface analysis ────────────────────────────────────
-// 'off' | 'h' (horizontal stripes) | 'v' (vertical stripes) | 'grid'
 let zebraMode = 'off';
-let zebraLight = null; // SpotLight used for stripe simulation
+let zebraObjects = [];
+let zebraGridMesh = null;
+let zebraTexture = null; // DataTexture for stripe pattern
 
 // ── VR modes ─────────────────────────────────────────────────
 // No longer cycling modes — each input has a dedicated binding
@@ -691,7 +707,11 @@ function cleanupViewer() {
   // Clean up zebra analysis objects
   zebraObjects.forEach(o=>viewerScene?.remove(o)); zebraObjects=[];
   if(zebraGridMesh){viewerScene?.remove(zebraGridMesh);zebraGridMesh=null;}
-  zebraMode='off'; autoRotate=false;
+  if(zebraTexture){zebraTexture.dispose();zebraTexture=null;}
+  gridOverlayObjects.forEach(o=>viewerScene?.remove(o)); gridOverlayObjects=[];
+  gridOverlayActive=false; gridGroup=null;
+  zebraMode='off'; autoRotate=false; texMode='tex'; allAnnotationsVisible=true;
+  savedMaterials.clear();
   if(viewerRenderer){
     if(viewerRenderer.xr?.isPresenting) viewerRenderer.xr.getSession()?.end();
     viewerRenderer.setAnimationLoop(null);
@@ -754,10 +774,12 @@ function buildContourLines(scene) {
   hContourLine = new THREE.LineSegments(empty, mat); hContourLine.visible=false;
   vContourLine = new THREE.LineSegments(empty, matV); vContourLine.visible=false;
   hContourLine.frustumCulled=false; vContourLine.frustumCulled=false;
+  // Add to scene (will be re-parented to modelRoot when model loads)
   scene.add(hContourLine); scene.add(vContourLine);
 }
 
-// Extract all world-space edge segments where the plane crosses the model
+// Extract edge segments where plane crosses model — works in world space
+// The plane is passed in world space; we transform mesh verts to world space to match.
 function computeContour(plane, lineObj) {
   if(!loadedModel||!lineObj) return;
   const pts = [];
@@ -773,35 +795,26 @@ function computeContour(plane, lineObj) {
     child.updateWorldMatrix(true, false);
     mw.copy(child.matrixWorld);
 
-    const getV = (i, v) => {
-      v.fromBufferAttribute(pos, i);
-      v.applyMatrix4(mw);
-    };
-
-    // Handle indexed and non-indexed geometry
+    const getV = (i, v) => { v.fromBufferAttribute(pos, i); v.applyMatrix4(mw); };
     const index = geo.index;
     const triCount = index ? index.count/3 : pos.count/3;
     for(let t=0; t<triCount; t++) {
-      const i0 = index ? index.getX(t*3)   : t*3;
-      const i1 = index ? index.getX(t*3+1) : t*3+1;
-      const i2 = index ? index.getX(t*3+2) : t*3+2;
+      const i0=index?index.getX(t*3):t*3, i1=index?index.getX(t*3+1):t*3+1, i2=index?index.getX(t*3+2):t*3+2;
       getV(i0,va); getV(i1,vb); getV(i2,vc);
-      const da = pn.dot(va)+pc, db = pn.dot(vb)+pc, dc = pn.dot(vc)+pc;
-      // Find edges that straddle the plane (sign change)
-      const edges = [[va,da,vb,db],[vb,db,vc,dc],[vc,dc,va,da]];
-      for(const [pa2,da2,pb2,db2] of edges) {
-        if((da2<0&&db2>0)||(da2>0&&db2<0)) {
-          const t2=da2/(da2-db2);
-          pts.push(pa2.clone().lerp(pb2,t2));
+      const da=pn.dot(va)+pc, db=pn.dot(vb)+pc, dc=pn.dot(vc)+pc;
+      const edges=[[va,da,vb,db],[vb,db,vc,dc],[vc,dc,va,da]];
+      for(const [pa2,da2,pb2,db2] of edges){
+        if((da2<0&&db2>0)||(da2>0&&db2<0)){
+          pts.push(pa2.clone().lerp(pb2, da2/(da2-db2)));
         }
       }
     }
   });
 
   if(pts.length<2){ lineObj.visible=false; return; }
-  // Pair up consecutive pts as line segments
-  // Contour extraction gives pairs naturally; just use as-is
   lineObj.geometry.dispose();
+  // Contour line lives in the scene (world space), NOT in modelRoot local space
+  // so no inverse transform needed
   lineObj.geometry = new THREE.BufferGeometry().setFromPoints(pts);
   lineObj.visible = true;
 }
@@ -886,66 +899,169 @@ function toggleAutoRotate() {
 //  Mode 'grid': 5cm wireframe grid wrapped around model
 //  Mode 'off': remove all
 // ════════════════════════════════════════════════════════════
-let zebraObjects = []; // scene objects added for zebra mode
-let zebraGridMesh = null;
+// ════════════════════════════════════════════════════════════
+//  ZEBRA STRIPES — canvas texture applied as emissive map
+//  Real zebra = alternating black/white bands painted onto model surface
+// ════════════════════════════════════════════════════════════
+function makeZebraTexture(horizontal, stripes=12) {
+  const size=256, band=size/stripes;
+  const canvas=document.createElement('canvas'); canvas.width=canvas.height=size;
+  const ctx=canvas.getContext('2d');
+  ctx.fillStyle='#000'; ctx.fillRect(0,0,size,size);
+  ctx.fillStyle='#fff';
+  for(let i=0;i<stripes;i+=2){
+    if(horizontal){ ctx.fillRect(0,i*band,size,band); }
+    else           { ctx.fillRect(i*band,0,band,size); }
+  }
+  const tex=new THREE.CanvasTexture(canvas);
+  tex.wrapS=tex.wrapT=THREE.RepeatWrapping;
+  tex.repeat.set(1,1);
+  return tex;
+}
 
 function setZebraMode(mode) {
-  // Clean up previous
-  zebraObjects.forEach(o=>viewerScene&&viewerScene.remove(o));
-  zebraObjects=[];
-  if(zebraGridMesh){ viewerScene&&viewerScene.remove(zebraGridMesh); zebraGridMesh=null; }
-  // Restore base ambient
+  // Clean up previous zebra state
+  zebraObjects.forEach(o=>viewerScene&&viewerScene.remove(o)); zebraObjects=[];
+  if(zebraTexture){zebraTexture.dispose();zebraTexture=null;}
+  // Restore materials
+  if(loadedModel) loadedModel.traverse(c=>{
+    if(!c.isMesh) return;
+    const s=savedMaterials.get(c.uuid);
+    if(s){ c.material.emissive&&c.material.emissive.set(0,0,0); c.material.emissiveMap=null; c.material.needsUpdate=true; }
+  });
   viewerScene&&viewerScene.traverse(o=>{if(o.isAmbientLight) o.intensity=0.6;});
-  // Restore model materials to normal
-  loadedModel&&loadedModel.traverse(c=>{if(c.isMesh){c.material.wireframe=false;c.material.needsUpdate=true;}});
 
   zebraMode=mode;
-  const btns=['zebra-off','zebra-h','zebra-v','zebra-grid'];
-  btns.forEach(id=>{
-    const b=document.getElementById(id);
-    if(!b) return;
+  // Update button states
+  ['zebra-off','zebra-h','zebra-v'].forEach(id=>{
+    const b=document.getElementById(id); if(!b) return;
     const active=id===`zebra-${mode}`;
     b.style.background=active?'rgba(200,245,66,0.15)':'transparent';
     b.style.borderColor=active?'rgba(200,245,66,0.4)':'rgba(255,255,255,0.12)';
     b.style.color=active?'#c8f542':'#6b6b72';
   });
-
   if(mode==='off') return;
 
-  if(mode==='grid') {
-    // Wireframe overlay on model — add a cloned wireframe child
-    if(loadedModel){
-      loadedModel.traverse(c=>{
-        if(!c.isMesh) return;
-        const wf=new THREE.Mesh(c.geometry, new THREE.MeshBasicMaterial({
-          color:0xc8f542, wireframe:true, opacity:0.18, transparent:true}));
-        wf.matrix.copy(c.matrixWorld); wf.matrixAutoUpdate=false;
-        viewerScene.add(wf); zebraObjects.push(wf);
-      });
+  // Create stripe texture and apply as emissive so it's lighting-independent
+  const tex=makeZebraTexture(mode==='h');
+  zebraTexture=tex;
+  viewerScene&&viewerScene.traverse(o=>{if(o.isAmbientLight) o.intensity=0.15;});
+  if(loadedModel) loadedModel.traverse(c=>{
+    if(!c.isMesh||!c.material) return;
+    // Clone material if not already cloned to avoid affecting other instances
+    if(!c.material._zebraCloned){
+      c.material=c.material.clone();
+      c.material._zebraCloned=true;
     }
-    return;
-  }
+    c.material.emissiveMap=tex;
+    c.material.emissive=new THREE.Color(1,1,1);
+    c.material.emissiveIntensity=0.9;
+    c.material.needsUpdate=true;
+  });
+}
 
-  // Stripe lighting: 8 alternating directional lights oriented H or V
-  // Creates alternating light/dark bands that reveal surface curvature
-  const STRIPES=8;
-  for(let i=0;i<STRIPES;i++){
-    const t=i/STRIPES;
-    const bright=(i%2===0);
-    const dl=new THREE.DirectionalLight(bright?0xffffff:0x111114, bright?2.0:0);
-    if(mode==='h'){
-      // H stripes: lights orbit vertically
-      const ang=(t*Math.PI*2);
-      dl.position.set(0, Math.sin(ang)*6, Math.cos(ang)*6);
-    } else {
-      // V stripes: lights orbit horizontally
-      const ang=(t*Math.PI*2);
-      dl.position.set(Math.cos(ang)*6, 2, Math.sin(ang)*6);
-    }
-    viewerScene.add(dl); zebraObjects.push(dl);
+// ════════════════════════════════════════════════════════════
+//  WIREFRAME GRID OVERLAY (separate toggle)
+// ════════════════════════════════════════════════════════════
+function toggleGridOverlay() {
+  gridOverlayActive = !gridOverlayActive;
+  const btn=document.getElementById('grid-tog-btn');
+  if(btn){
+    btn.style.background=gridOverlayActive?'rgba(200,245,66,0.15)':'transparent';
+    btn.style.borderColor=gridOverlayActive?'rgba(200,245,66,0.4)':'rgba(255,255,255,0.12)';
+    btn.style.color=gridOverlayActive?'#c8f542':'#6b6b72';
   }
-  // Reduce ambient so stripes are visible
-  viewerScene&&viewerScene.traverse(o=>{if(o.isAmbientLight) o.intensity=0.1;});
+  // Clean up existing
+  gridOverlayObjects.forEach(o=>viewerScene&&viewerScene.remove(o));
+  gridOverlayObjects=[];
+  if(!gridOverlayActive) return;
+  // Add wireframe overlay for each mesh
+  if(loadedModel) loadedModel.traverse(c=>{
+    if(!c.isMesh) return;
+    const wf=new THREE.LineSegments(
+      new THREE.WireframeGeometry(c.geometry),
+      new THREE.LineBasicMaterial({color:0xc8f542,transparent:true,opacity:0.15}));
+    // Match the mesh world transform
+    c.updateWorldMatrix(true,false);
+    wf.matrix.copy(c.matrixWorld);
+    wf.matrixAutoUpdate=false;
+    viewerScene.add(wf); gridOverlayObjects.push(wf);
+  });
+}
+
+// ════════════════════════════════════════════════════════════
+//  TEXTURE / DISPLAY MODE: tex → clay → transparent → tex
+// ════════════════════════════════════════════════════════════
+function toggleTexture() {
+  const modes=['tex','clay','alpha'];
+  const next=modes[(modes.indexOf(texMode)+1)%modes.length];
+  texMode=next;
+  const btn=document.getElementById('tex-tog-btn');
+  const labels={tex:'Tex',clay:'Clay',alpha:'Alpha'};
+  if(btn){
+    btn.textContent=labels[next];
+    const on=(next!=='tex');
+    btn.style.background=on?'rgba(200,245,66,0.15)':'transparent';
+    btn.style.borderColor=on?'rgba(200,245,66,0.4)':'rgba(255,255,255,0.12)';
+    btn.style.color=on?'#c8f542':'#6b6b72';
+  }
+  if(!loadedModel) return;
+  loadedModel.traverse(c=>{
+    if(!c.isMesh||!c.material) return;
+    if(next==='tex'){
+      // Restore original texture
+      const s=savedMaterials.get(c.uuid);
+      if(s){ c.material.map=s.map; c.material.color.copy(s.color); c.material.opacity=1; c.material.transparent=false; }
+    } else if(next==='clay'){
+      // Flat grey clay — no texture
+      if(!savedMaterials.has(c.uuid)) savedMaterials.set(c.uuid,{map:c.material.map,color:c.material.color.clone(),opacity:c.material.opacity,transparent:c.material.transparent});
+      c.material.map=null;
+      c.material.color.set(0x888890);
+      c.material.opacity=1; c.material.transparent=false;
+    } else {
+      // Semi-transparent
+      if(!savedMaterials.has(c.uuid)) savedMaterials.set(c.uuid,{map:c.material.map,color:c.material.color.clone(),opacity:c.material.opacity,transparent:c.material.transparent});
+      c.material.map=null;
+      c.material.color.set(0xaaaacc);
+      c.material.opacity=0.35; c.material.transparent=true;
+    }
+    c.material.needsUpdate=true;
+  });
+}
+
+// ════════════════════════════════════════════════════════════
+//  RESET ROTATION ONLY
+// ════════════════════════════════════════════════════════════
+function onResetRotation() {
+  if(!modelRoot) return;
+  modelRoot.quaternion.identity();
+}
+
+// ════════════════════════════════════════════════════════════
+//  HIDE/SHOW ALL PINS & DIMENSIONS TOGETHER
+// ════════════════════════════════════════════════════════════
+let allAnnotationsVisible = true;
+function toggleAllAnnotations() {
+  allAnnotationsVisible = !allAnnotationsVisible;
+  const btn=document.getElementById('hide-all-btn');
+  if(btn){
+    btn.textContent=allAnnotationsVisible?'👁 All':'🙈 All';
+    btn.style.color=allAnnotationsVisible?'#6b6b72':'#c8f542';
+    btn.style.borderColor=allAnnotationsVisible?'rgba(255,255,255,0.1)':'rgba(200,245,66,0.3)';
+  }
+  // Pins
+  annotationsVisible=allAnnotationsVisible;
+  annotations.forEach(a=>{
+    a.mesh.visible=allAnnotationsVisible; a.stem.visible=allAnnotationsVisible;
+    a.labelDiv.style.display=allAnnotationsVisible?'':'none';
+  });
+  const avb=document.getElementById('annot-vis-btn'); if(avb) avb.textContent=allAnnotationsVisible?'👁':'🙈';
+  // Measurement lines + spheres
+  savedMeasurements.forEach(m=>{
+    m.line.visible=allAnnotationsVisible; m.sA.visible=allAnnotationsVisible; m.sB.visible=allAnnotationsVisible;
+  });
+  // Measurement labels
+  measLabelDivs.forEach(div=>{div.style.display=allAnnotationsVisible?'block':'none';});
 }
 function closePinPopup() {
   if(pinPopupEl){ pinPopupEl.remove(); pinPopupEl=null; }
@@ -1763,29 +1879,25 @@ function initViewer(fileId) {
   sunLight.position.set(Math.cos(el0)*Math.sin(az0)*8,Math.sin(el0)*8,Math.cos(el0)*Math.cos(az0)*8);
   viewerScene.add(sunLight);
   const fill=new THREE.DirectionalLight(0x8888ff,0.18); fill.position.set(-4,2,-3); viewerScene.add(fill);
-  // ── 1×1 m metric grid: 10cm subdivisions + bold centre cross ──
-  (function buildMetricGrid(scene) {
-    const HALF=0.5; // 1m total
+  // ── 1×1 m metric grid in a group so it can follow model rotation ──
+  gridGroup = new THREE.Group();
+  (function buildMetricGrid(grp) {
+    const HALF=0.5;
     const mat10cm = new THREE.LineBasicMaterial({color:0x404048,transparent:true,opacity:0.8});
     const mat1m   = new THREE.LineBasicMaterial({color:0x606068,transparent:true,opacity:1.0});
     const matCtr  = new THREE.LineBasicMaterial({color:0x808088,transparent:true,opacity:1.0});
     const pts10=[],pts1m=[],ptsCtr=[];
-    // Build lines every 10cm from -0.5 to +0.5
     for(let i=-5;i<=5;i++){
       const v=i*0.1;
-      const isCtr=(i===0);
-      const is1m=(i===-5||i===5);
+      const isCtr=(i===0), is1m=(i===-5||i===5);
       const arr=isCtr?ptsCtr:is1m?pts1m:pts10;
-      // Horizontal line
       arr.push(new THREE.Vector3(-HALF,0,v),new THREE.Vector3(HALF,0,v));
-      // Vertical line
       arr.push(new THREE.Vector3(v,0,-HALF),new THREE.Vector3(v,0,HALF));
     }
-    const mkL=(pts,mat)=>scene.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(pts),mat));
-    if(pts10.length) mkL(pts10,mat10cm);
-    if(pts1m.length) mkL(pts1m,mat1m);
-    if(ptsCtr.length) mkL(ptsCtr,matCtr);
-  })(viewerScene);
+    const mkL=(pts,mat)=>{if(pts.length)grp.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(pts),mat));};
+    mkL(pts10,mat10cm); mkL(pts1m,mat1m); mkL(ptsCtr,matCtr);
+  })(gridGroup);
+  viewerScene.add(gridGroup);
 
   viewerControls=new THREE.OrbitControls(viewerCamera,viewerRenderer.domElement);
   viewerControls.enableDamping=true; viewerControls.dampingFactor=0.07; viewerControls.target.set(0,0.8,0);
@@ -1867,6 +1979,14 @@ function initViewer(fileId) {
 
   viewerRenderer.setAnimationLoop(()=>{
     if(viewerControls?.enabled) viewerControls.update();
+    // Sync grid Y rotation to model so it always aligns under the model
+    if(gridGroup && modelRoot) {
+      gridGroup.position.set(modelRoot.position.x, 0, modelRoot.position.z);
+      gridGroup.rotation.y = modelRoot.rotation.y;
+    }
+    // Recompute slice contours every frame so they stay correct after model rotation
+    if(hSliceActive && hSlicePlane && hContourLine) computeContour(hSlicePlane, hContourLine);
+    if(vSliceActive && vSlicePlane && vContourLine) computeContour(vSlicePlane, vContourLine);
     // Auto-rotate
     if(autoRotate&&modelRoot&&!viewerRenderer.xr.isPresenting){
       modelRoot.rotateY(autoRotateSpeed);
