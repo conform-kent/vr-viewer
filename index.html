@@ -6,9 +6,166 @@
 <title>VR Model Browser</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap');
-:root{--bg:#0a0a0b;--surface:#111113;--surface2:#18181c;--border:rgba(255,255,255,0.07);--border-hover:rgba(255,255,255,0.18);--text:#e8e8e6;--muted:#6b6b72;--accent:#c8f542;--accent2:#42f5c8;--danger:#f54242;--radius:12px;}
+:root{
+  --bg:#0d0d10;--surface:#141418;--surface2:#1c1c22;--surface3:#242428;
+  --border:rgba(255,255,255,0.07);--border-hi:rgba(255,255,255,0.14);
+  --text:#e4e4e0;--muted:#60606a;--accent:#c8f542;--accent2:#42f5c8;
+  --danger:#f54242;--warn:#f5a142;--blue:#4290f5;
+  --panel-w:220px;--right-w:300px;--bottom-h:72px;
+}
 *{margin:0;padding:0;box-sizing:border-box;}
-body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;min-height:100vh;overflow-x:hidden;}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;min-height:100vh;overflow-x:hidden;}
+/* ── BROWSER ── */
+#browser-screen{display:none;min-height:100vh;}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(13,13,16,0.94);backdrop-filter:blur(12px);z-index:10;}
+.topbar-left{display:flex;align-items:center;gap:14px;}
+.wordmark{font-family:'DM Mono',monospace;font-size:14px;font-weight:400;letter-spacing:-0.3px;}
+.wordmark span{color:var(--accent);}
+.btn-icon{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:7px 14px;color:var(--muted);font-family:'DM Mono',monospace;font-size:12px;cursor:pointer;transition:all 0.18s;}
+.btn-icon:hover{border-color:var(--border-hi);color:var(--text);}
+.content{padding:24px;}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+.section-title{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;}
+.count-badge{font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);background:rgba(200,245,66,0.1);border-radius:5px;padding:2px 7px;}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px;}
+.model-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;cursor:pointer;transition:border-color 0.18s,transform 0.14s,box-shadow 0.18s;position:relative;}
+.model-card:hover{border-color:var(--border-hi);transform:translateY(-2px);box-shadow:0 10px 28px rgba(0,0,0,0.45);}
+.thumb-wrap{width:100%;aspect-ratio:1;background:var(--surface2);position:relative;overflow:hidden;}
+.thumb-wrap canvas{width:100%!important;height:100%!important;display:block;}
+.thumb-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;color:var(--muted);font-family:'DM Mono',monospace;font-size:11px;}
+.thumb-placeholder .icon{font-size:26px;opacity:0.35;}
+.card-body{padding:10px 12px 12px;}
+.model-name{font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px;}
+.model-meta{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);}
+.launch-btn{position:absolute;bottom:8px;right:8px;background:var(--accent);color:#0a0a0b;border:none;border-radius:7px;padding:4px 9px;font-family:'DM Mono',monospace;font-size:10px;font-weight:500;cursor:pointer;opacity:0;transition:opacity 0.15s;pointer-events:none;}
+.model-card:hover .launch-btn{opacity:1;pointer-events:auto;}
+.status-msg{text-align:center;padding:60px 24px;color:var(--muted);font-family:'DM Mono',monospace;font-size:12px;line-height:1.7;}
+.status-msg .big{font-size:30px;display:block;margin-bottom:12px;}
+.status-msg.error{color:var(--danger);}
+/* ── VIEWER SHELL ── */
+#viewer-overlay{display:none;position:fixed;inset:0;background:var(--bg);z-index:100;flex-direction:row;}
+#viewer-overlay.active{display:flex;}
+/* Canvas takes the middle */
+#viewer-canvas-wrap{flex:1;position:relative;overflow:hidden;}
+#viewer-canvas-wrap canvas{width:100%!important;height:100%!important;}
+.loading-overlay{position:absolute;inset:0;background:#0d0d10;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;z-index:5;transition:opacity 0.4s;}
+.loading-overlay.hidden{opacity:0;pointer-events:none;}
+.spinner{width:34px;height:34px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.75s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loading-label{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);}
+
+/* ── LEFT PANEL ── */
+#left-panel{width:var(--panel-w);background:var(--surface);border-right:1px solid var(--border);display:none;flex-direction:column;overflow-y:auto;flex-shrink:0;}
+.lp-section{padding:14px 14px 10px;border-bottom:1px solid var(--border);}
+.lp-title{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:10px;}
+.lp-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.lp-label{font-family:'DM Mono',monospace;font-size:11px;color:var(--text);}
+.lp-val{font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);min-width:32px;text-align:right;}
+.lp-slider{width:100%;accent-color:var(--accent);margin:4px 0 10px;}
+.lp-slider.teal{accent-color:var(--accent2);}
+.lp-slider.warn{accent-color:var(--warn);}
+/* Toggle switch */
+.tog{position:relative;display:inline-block;width:32px;height:18px;flex-shrink:0;}
+.tog input{opacity:0;width:0;height:0;}
+.tog-s{position:absolute;cursor:pointer;inset:0;background:rgba(255,255,255,0.1);border-radius:18px;transition:background 0.18s;}
+.tog-s:before{content:'';position:absolute;height:14px;width:14px;left:2px;bottom:2px;background:#fff;border-radius:50%;transition:transform 0.18s;}
+.tog input:checked+.tog-s{background:var(--accent);}
+.tog.teal input:checked+.tog-s{background:var(--accent2);}
+.tog input:checked+.tog-s:before{transform:translateX(14px);}
+/* Zebra / tex button groups */
+.btn-group{display:flex;gap:4px;width:100%;}
+.bg-btn{flex:1;font-family:'DM Mono',monospace;font-size:10px;padding:5px 0;border-radius:5px;border:1px solid var(--border-hi);background:transparent;color:var(--muted);cursor:pointer;transition:all 0.14s;text-align:center;}
+.bg-btn:hover{border-color:rgba(255,255,255,0.25);color:var(--text);}
+.bg-btn.active{background:var(--accent);color:#0a0a0b;border-color:transparent;font-weight:500;}
+/* Tex buttons with icons */
+.tex-btn{flex:1;font-family:'DM Mono',monospace;font-size:9px;padding:7px 0;border-radius:6px;border:1px solid var(--border-hi);background:var(--surface2);color:var(--muted);cursor:pointer;transition:all 0.14s;text-align:center;display:flex;flex-direction:column;align-items:center;gap:2px;}
+.tex-btn .ti{font-size:16px;}
+.tex-btn:hover{border-color:rgba(255,255,255,0.25);color:var(--text);}
+.tex-btn.active{background:rgba(200,245,66,0.12);color:var(--accent);border-color:rgba(200,245,66,0.35);}
+
+/* ── BOTTOM TOOLBAR ── */
+#bottom-bar{position:absolute;bottom:0;left:var(--panel-w);right:var(--right-w);height:var(--bottom-h);background:rgba(13,13,16,0.95);border-top:1px solid var(--border);display:none;align-items:center;justify-content:center;gap:4px;padding:0 12px;z-index:20;backdrop-filter:blur(8px);}
+/* Icon toolbar buttons */
+.tb-btn{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 14px;border-radius:10px;border:1px solid transparent;background:transparent;color:var(--muted);cursor:pointer;transition:all 0.15s;font-family:'DM Mono',monospace;min-width:64px;}
+.tb-btn svg,.tb-btn .tb-icon{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+.tb-btn .tb-label{font-size:9px;letter-spacing:.04em;text-transform:uppercase;}
+.tb-btn .tb-sub{font-size:8px;color:var(--accent);opacity:0;}
+.tb-btn:hover{background:var(--surface2);border-color:var(--border-hi);color:var(--text);}
+.tb-btn.active{background:rgba(200,245,66,0.12);border-color:rgba(200,245,66,0.35);color:var(--accent);}
+.tb-btn.active-measure{background:rgba(245,161,66,0.12);border-color:rgba(245,161,66,0.35);color:var(--warn);}
+.tb-btn.active-pin{background:rgba(245,66,66,0.12);border-color:rgba(245,66,66,0.35);color:var(--danger);}
+.tb-btn.floor-snap-on .tb-sub{opacity:1;}
+.tb-sep{width:1px;height:32px;background:var(--border);margin:0 4px;}
+/* VR/AR buttons */
+#bottom-vr-strip{position:absolute;bottom:0;left:0;right:0;height:var(--bottom-h);background:rgba(13,13,16,0.95);border-top:1px solid var(--border);display:none;align-items:center;justify-content:space-between;padding:0 20px;z-index:20;}
+
+/* ── RIGHT PANEL — Annotations & Pins ── */
+#right-panel{width:var(--right-w);background:var(--surface);border-left:1px solid var(--border);display:none;flex-direction:column;flex-shrink:0;}
+.rp-head{padding:14px 16px 10px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.rp-title{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.08em;color:var(--text);text-transform:uppercase;font-weight:500;}
+.rp-meta{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);}
+/* Pin table */
+#pin-table{flex:1;overflow-y:auto;}
+.pt-header{display:grid;grid-template-columns:40px 56px 1fr 28px;gap:0;padding:6px 12px;border-bottom:1px solid var(--border);background:var(--surface2);}
+.pt-header span{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;}
+.pt-row{display:grid;grid-template-columns:40px 56px 1fr 28px;gap:0;padding:6px 12px;border-bottom:1px solid rgba(255,255,255,0.03);align-items:center;cursor:default;transition:background 0.12s;}
+.pt-row:hover{background:rgba(255,255,255,0.025);}
+.pt-row.highlighted{background:rgba(200,245,66,0.05);border-left:2px solid var(--accent);}
+.pt-id{font-family:'DM Mono',monospace;font-size:11px;font-weight:500;display:flex;align-items:center;gap:5px;}
+.pt-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.pt-locate{background:transparent;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:2px;border-radius:3px;transition:color 0.12s;}
+.pt-locate:hover{color:var(--text);}
+.pt-del{background:transparent;border:none;color:rgba(245,66,66,0.5);cursor:pointer;font-size:12px;padding:2px;transition:color 0.12s;}
+.pt-del:hover{color:var(--danger);}
+.pt-comment-wrap{min-width:0;}
+.pt-comment{font-size:11px;color:#9090a0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:text;}
+.pt-comment.empty{font-style:italic;color:var(--muted);font-size:10px;}
+.pt-ta{width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--border-hi);border-radius:4px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:11px;padding:3px 6px;resize:none;outline:none;height:52px;}
+.pt-ta:focus{border-color:var(--accent);}
+/* Measure table rows */
+.pm-row{display:grid;grid-template-columns:40px 80px 1fr 28px;gap:0;padding:6px 12px;border-bottom:1px solid rgba(255,255,255,0.03);align-items:center;transition:background 0.12s;}
+.pm-row:hover{background:rgba(255,255,255,0.025);}
+.pm-id{font-family:'DM Mono',monospace;font-size:11px;color:var(--warn);}
+.pm-label{font-family:'DM Mono',monospace;font-size:11px;color:var(--warn);}
+/* Meas popup */
+.meas-popup{position:fixed;z-index:210;background:#16161c;border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:8px 11px;min-width:170px;box-shadow:0 8px 28px rgba(0,0,0,0.75);font-family:'DM Mono',monospace;}
+.meas-popup-title{font-size:10px;color:var(--warn);font-weight:500;margin-bottom:7px;}
+.meas-popup-actions{display:flex;flex-direction:column;gap:4px;}
+.meas-popup-actions button{font-family:'DM Mono',monospace;font-size:10px;padding:4px 8px;border-radius:4px;cursor:pointer;border:1px solid rgba(255,255,255,0.09);background:rgba(255,255,255,0.04);color:var(--text);text-align:left;}
+.meas-popup-actions button:hover{background:rgba(255,255,255,0.09);}
+.meas-del-btn{color:var(--danger)!important;border-color:rgba(245,66,66,0.22)!important;}
+/* Pin comment popup */
+.pin-popup{position:fixed;z-index:210;background:#16161c;border:1px solid rgba(255,255,255,0.14);border-radius:9px;padding:10px 12px;width:210px;box-shadow:0 8px 28px rgba(0,0,0,0.75);font-family:'DM Mono',monospace;}
+.pin-popup-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;}
+.pin-popup-title{font-size:11px;font-weight:500;color:var(--text);}
+.pin-popup-close{background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;line-height:1;}
+.pin-popup textarea{width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--border-hi);border-radius:5px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:11px;line-height:1.45;padding:5px 7px;resize:vertical;outline:none;min-height:55px;}
+.pin-popup textarea:focus{border-color:rgba(255,255,255,0.24);}
+.pin-popup-actions{display:flex;gap:5px;margin-top:7px;justify-content:flex-end;}
+.pin-popup-actions button{font-family:'DM Mono',monospace;font-size:10px;padding:3px 8px;border-radius:4px;cursor:pointer;border:none;}
+.pin-save{background:var(--accent);color:#0a0a0b;font-weight:500;}
+.pin-del{background:rgba(245,66,66,0.13);color:var(--danger);border:1px solid rgba(245,66,66,0.28)!important;}
+/* Measurement labels */
+.meas-label{position:fixed;pointer-events:none;z-index:140;font-family:'DM Mono',monospace;font-size:11px;font-weight:500;color:var(--warn);background:rgba(13,13,16,0.85);border:1px solid rgba(245,161,66,0.3);border-radius:4px;padding:2px 6px;white-space:nowrap;transform:translate(-50%,-50%);}
+/* Confirm popup */
+.confirm-popup{position:fixed;z-index:300;background:#16161c;border:1px solid rgba(255,255,255,0.14);border-radius:10px;padding:16px 20px;width:270px;box-shadow:0 12px 40px rgba(0,0,0,0.85);font-family:'DM Mono',monospace;top:50%;left:50%;transform:translate(-50%,-50%);}
+.confirm-popup p{font-size:12px;color:#c0c0cc;line-height:1.55;margin-bottom:14px;}
+.confirm-popup .confirm-btns{display:flex;gap:8px;justify-content:flex-end;}
+.confirm-popup .confirm-btns button{font-family:'DM Mono',monospace;font-size:11px;padding:5px 14px;border-radius:5px;cursor:pointer;border:none;}
+.confirm-ok{background:var(--danger);color:#fff;font-weight:500;}
+.confirm-ok.orange{background:var(--warn);}
+.confirm-cancel{background:rgba(255,255,255,0.07);color:#b0b0bb;}
+/* Sidebar (collapsed right comments) */
+#sidebar{display:none;}
+/* Canvas cursor */
+.c-orbit{cursor:grab;} .c-pin{cursor:crosshair;} .c-meas{cursor:cell;}
+/* Viewer bar (VR/AR strip) */
+.vr-btn{background:var(--accent);color:#0a0a0b;border:none;border-radius:7px;padding:7px 14px;font-family:'DM Mono',monospace;font-size:11px;font-weight:500;cursor:pointer;transition:opacity 0.15s;}
+.vr-btn:hover{opacity:0.82;}
+.vr-btn.secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+/* VR HUD */
+#vr-hud{display:none;position:fixed;inset:0;pointer-events:none;z-index:200;}
+</style>
 /* Browser */
 #browser-screen{display:none;min-height:100vh;}
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:18px 24px;border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(10,10,11,0.93);backdrop-filter:blur(12px);z-index:10;}
@@ -137,7 +294,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
       </svg>
       <div style="display:flex;flex-direction:column;gap:1px;">
         <span class="wordmark">VR<span>.</span>browser</span>
-        <span style="font-family:'DM Mono',monospace;font-size:9px;color:#5a5a6a;letter-spacing:.06em;">v0.1.9α · Design Review</span>
+        <span style="font-family:'DM Mono',monospace;font-size:9px;color:#5a5a6a;letter-spacing:.06em;">v0.2 · Design Review</span>
       </div>
     </div>
     <button class="btn-icon" onclick="loadModels()">↺ Refresh</button>
@@ -151,127 +308,151 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
   </div>
 </div>
 
-<!-- VIEWER -->
+<!-- VIEWER — 3 column layout: Left panel | Canvas | Right panel -->
 <div id="viewer-overlay">
-  <div id="viewer-canvas-wrap">
+
+  <!-- Left control panel -->
+  <div id="left-panel">
+    <!-- Slicing section -->
+    <div class="lp-section">
+      <div class="lp-title">Slicing</div>
+      <div class="lp-row"><span class="lp-label">H-Cut ↕</span><label class="tog teal"><input type="checkbox" id="hslice-tog" onchange="onHSliceToggle(this.checked)"><span class="tog-s"></span></label></div>
+      <input type="range" class="lp-slider teal" id="hslice-sl" min="0" max="1" step="0.005" value="0.5" oninput="onHSliceSlider(this.value)">
+      <div class="lp-row"><span class="lp-label">V-Cut ↔</span><label class="tog"><input type="checkbox" id="vslice-tog" onchange="onVSliceToggle(this.checked)"><span class="tog-s"></span></label></div>
+      <input type="range" class="lp-slider" id="vslice-sl" min="0" max="1" step="0.005" value="0.5" oninput="onVSliceSlider(this.value)">
+    </div>
+    <!-- Explode -->
+    <div class="lp-section">
+      <div class="lp-title">Explode</div>
+      <div class="lp-row"><span class="lp-label" id="explode-val">0%</span></div>
+      <input type="range" class="lp-slider" min="0" max="1" step="0.01" value="0" oninput="onExplodeSlider(this.value)">
+    </div>
+    <!-- Zebra -->
+    <div class="lp-section">
+      <div class="lp-title">Zebra</div>
+      <div class="btn-group">
+        <button class="bg-btn active" id="zebra-off" onclick="setZebraMode('off')">Off</button>
+        <button class="bg-btn" id="zebra-h" onclick="setZebraMode('h')">H</button>
+        <button class="bg-btn" id="zebra-v" onclick="setZebraMode('v')">V</button>
+      </div>
+    </div>
+    <!-- Grid -->
+    <div class="lp-section">
+      <div class="lp-row"><span class="lp-label">Grid overlay</span><label class="tog"><input type="checkbox" id="grid-overlay-tog" onchange="toggleGridOverlay()"><span class="tog-s"></span></label></div>
+    </div>
+    <!-- Texture -->
+    <div class="lp-section">
+      <div class="lp-title">Texture</div>
+      <div class="btn-group">
+        <button class="tex-btn active" id="tex-btn-tex" onclick="setTexMode('tex')"><span class="ti">🖼</span>Tex</button>
+        <button class="tex-btn" id="tex-btn-clay" onclick="setTexMode('clay')"><span class="ti">⬟</span>Clay</button>
+        <button class="tex-btn" id="tex-btn-alpha" onclick="setTexMode('alpha')"><span class="ti">◻</span>Alpha</button>
+      </div>
+    </div>
+    <!-- Light -->
+    <div class="lp-section">
+      <div class="lp-title">Light</div>
+      <div class="lp-row"><span class="lp-label">Azimuth</span><span class="lp-val" id="light-az-val">45°</span></div>
+      <input type="range" class="lp-slider warn" id="light-az" min="0" max="360" step="1" value="45" oninput="onLightSlider()">
+      <div class="lp-row"><span class="lp-label">Elevation</span><span class="lp-val" id="light-el-val">40°</span></div>
+      <input type="range" class="lp-slider warn" id="light-el" min="5" max="85" step="1" value="40" oninput="onLightSlider()">
+    </div>
+    <!-- Model info -->
+    <div class="lp-section" style="margin-top:auto;">
+      <div class="lp-title">Bounding Box</div>
+      <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text);" id="size-readout">—</div>
+    </div>
+  </div>
+
+  <!-- Centre canvas -->
+  <div id="viewer-canvas-wrap" style="position:relative;flex:1;overflow:hidden;padding-bottom:var(--bottom-h);">
     <div class="loading-overlay" id="loading-overlay">
       <div class="spinner"></div>
       <span class="loading-label" id="loading-label">Loading model…</span>
     </div>
   </div>
 
-  <!-- Tool strip -->
-  <div id="tool-strip" style="display:none;flex-direction:column;background:rgba(8,8,10,0.97);border-top:1px solid rgba(255,255,255,0.05);">
-
-    <!-- Row A -->
-    <div style="display:flex;align-items:center;gap:11px;padding:6px 16px;border-bottom:1px solid rgba(255,255,255,0.04);flex-wrap:wrap;">
-      <div style="display:flex;align-items:center;gap:5px;">
-        <span style="font-family:'DM Mono',monospace;font-size:9px;color:#6b6b72;text-transform:uppercase;letter-spacing:.08em;">Size</span>
-        <span id="size-readout" style="font-family:'DM Mono',monospace;font-size:11px;color:#e8e8e6;">—</span>
-      </div>
-      <div style="width:1px;height:13px;background:rgba(255,255,255,0.07)"></div>
-      <!-- Explode -->
-      <div style="display:flex;align-items:center;gap:5px;">
-        <span style="font-family:'DM Mono',monospace;font-size:9px;color:#6b6b72;text-transform:uppercase;letter-spacing:.08em;">Explode</span>
-        <input type="range" min="0" max="1" step="0.01" value="0" oninput="onExplodeSlider(this.value)" style="width:72px;accent-color:#c8f542;">
-        <span id="explode-val" style="font-family:'DM Mono',monospace;font-size:10px;color:#c8f542;min-width:20px;">0%</span>
-      </div>
-      <div style="width:1px;height:13px;background:rgba(255,255,255,0.07)"></div>
-      <!-- H-Cut -->
-      <div style="display:flex;align-items:center;gap:5px;">
-        <span style="font-family:'DM Mono',monospace;font-size:9px;color:#42f5c8;text-transform:uppercase;letter-spacing:.08em;">H-Cut ↕</span>
-        <label class="tog teal"><input type="checkbox" id="hslice-tog" onchange="onHSliceToggle(this.checked)"><span class="tog-s"></span></label>
-        <input type="range" id="hslice-sl" min="0" max="1" step="0.005" value="0.5" oninput="onHSliceSlider(this.value)" style="width:72px;accent-color:#42f5c8;">
-      </div>
-      <div style="width:1px;height:13px;background:rgba(255,255,255,0.07)"></div>
-      <!-- V-Cut -->
-      <div style="display:flex;align-items:center;gap:5px;">
-        <span style="font-family:'DM Mono',monospace;font-size:9px;color:#c8f542;text-transform:uppercase;letter-spacing:.08em;">V-Cut ↔</span>
-        <label class="tog"><input type="checkbox" id="vslice-tog" onchange="onVSliceToggle(this.checked)"><span class="tog-s"></span></label>
-        <input type="range" id="vslice-sl" min="0" max="1" step="0.005" value="0.5" oninput="onVSliceSlider(this.value)" style="width:72px;accent-color:#c8f542;">
-      </div>
-      <div style="width:1px;height:13px;background:rgba(255,255,255,0.07)"></div>
-      <!-- Light azimuth + elevation -->
-      <div style="display:flex;align-items:center;gap:5px;">
-        <span style="font-family:'DM Mono',monospace;font-size:9px;color:#f5a142;text-transform:uppercase;letter-spacing:.08em;">☀ Az</span>
-        <input type="range" id="light-az" min="0" max="360" step="1" value="45" oninput="onLightSlider()" style="width:66px;accent-color:#f5a142;">
-        <span style="font-family:'DM Mono',monospace;font-size:9px;color:#f5a142;text-transform:uppercase;letter-spacing:.08em;">El</span>
-        <input type="range" id="light-el" min="5" max="85" step="1" value="40" oninput="onLightSlider()" style="width:66px;accent-color:#f5a142;">
-        <span id="light-val" style="font-family:'DM Mono',monospace;font-size:10px;color:#f5a142;min-width:42px;">45°/40°</span>
-      </div>
-      <div style="width:1px;height:13px;background:rgba(255,255,255,0.07)"></div>
-      <!-- Zebra stripes (curvature analysis) -->
-      <div style="display:flex;align-items:center;gap:4px;">
-        <span style="font-family:'DM Mono',monospace;font-size:9px;color:#6b6b72;text-transform:uppercase;letter-spacing:.08em;">Zebra</span>
-        <button id="zebra-off" onclick="setZebraMode('off')" style="font-family:'DM Mono',monospace;font-size:9px;padding:2px 6px;border-radius:4px;border:1px solid rgba(200,245,66,0.4);background:rgba(200,245,66,0.15);color:#c8f542;cursor:pointer;">off</button>
-        <button id="zebra-h"  onclick="setZebraMode('h')"   style="font-family:'DM Mono',monospace;font-size:9px;padding:2px 6px;border-radius:4px;border:1px solid rgba(255,255,255,0.12);background:transparent;color:#6b6b72;cursor:pointer;">≡ H</button>
-        <button id="zebra-v"  onclick="setZebraMode('v')"   style="font-family:'DM Mono',monospace;font-size:9px;padding:2px 6px;border-radius:4px;border:1px solid rgba(255,255,255,0.12);background:transparent;color:#6b6b72;cursor:pointer;">⫶ V</button>
-      </div>
-      <div style="width:1px;height:13px;background:rgba(255,255,255,0.07)"></div>
-      <!-- Grid overlay toggle (separate) -->
-      <button id="grid-tog-btn" onclick="toggleGridOverlay()" style="font-family:'DM Mono',monospace;font-size:9px;padding:2px 7px;border-radius:4px;border:1px solid rgba(255,255,255,0.12);background:transparent;color:#6b6b72;cursor:pointer;" title="Wireframe grid overlay">⊞ Grid</button>
-      <!-- Texture toggle -->
-      <button id="tex-tog-btn" onclick="toggleTexture()" style="font-family:'DM Mono',monospace;font-size:9px;padding:2px 7px;border-radius:4px;border:1px solid rgba(255,255,255,0.12);background:transparent;color:#6b6b72;cursor:pointer;" title="Toggle texture / clay / transparent">Tex</button>
-      <!-- Auto-rotate -->
-      <button id="autorot-btn" onclick="toggleAutoRotate()" style="font-family:'DM Mono',monospace;font-size:9px;padding:2px 7px;border-radius:4px;border:1px solid rgba(255,255,255,0.12);background:transparent;color:#6b6b72;cursor:pointer;">⟳ Auto</button>
+  <!-- Right panel — Annotations & Pins -->
+  <div id="right-panel">
+    <div class="rp-head">
+      <span class="rp-title">Annotations &amp; Pins</span>
+      <span class="rp-meta" id="annot-count">0 pins</span>
     </div>
-
-    <!-- Row B -->
-    <div style="display:flex;align-items:center;gap:9px;padding:5px 16px;flex-wrap:wrap;">
-      <!-- Mode buttons with keyboard shortcuts -->
-      <div style="display:flex;align-items:center;gap:4px;">
-        <span style="font-family:'DM Mono',monospace;font-size:9px;color:#6b6b72;text-transform:uppercase;letter-spacing:.08em;margin-right:2px;">Mode</span>
-        <button id="dm-orbit" class="dm-btn m-orbit active" onclick="setDesktopMode('orbit')" title="Keyboard: O">Orbit<kbd>O</kbd></button>
-        <button id="dm-meas"  class="dm-btn m-meas"         onclick="setDesktopMode('measure')" title="Keyboard: M">↔ Measure<kbd>M</kbd></button>
-        <button id="dm-pin"   class="dm-btn m-pin"           onclick="setDesktopMode('pin')" title="Keyboard: P">◎ Pin<kbd>P</kbd></button>
-      </div>
-      <div style="width:1px;height:13px;background:rgba(255,255,255,0.07)"></div>
-      <!-- Measure -->
-      <div style="display:flex;align-items:center;gap:5px;">
-        <span id="measure-readout" style="font-family:'DM Mono',monospace;font-size:11px;color:#f5a142;">—</span>
-        <button id="meas-floor-btn" onclick="toggleMeasFloorSnap()" title="Snap measurement to floor plane (Y=0)"
-          style="font-family:'DM Mono',monospace;font-size:9px;padding:1px 5px;border-radius:4px;border:1px solid rgba(255,255,255,0.07);background:transparent;color:#6b6b72;cursor:pointer;">⊥ Floor</button>
-        <button onclick="confirmClearMeasurements()" style="font-family:'DM Mono',monospace;font-size:9px;color:#f5a142;background:transparent;border:1px solid rgba(245,161,66,0.3);border-radius:4px;padding:1px 5px;cursor:pointer;" title="Clear all measurements">clr all</button>
-      </div>
-      <div style="width:1px;height:13px;background:rgba(255,255,255,0.07)"></div>
-      <!-- Pins toggle + count -->
-      <div style="display:flex;align-items:center;gap:5px;">
-        <span style="font-family:'DM Mono',monospace;font-size:9px;color:#6b6b72;text-transform:uppercase;letter-spacing:.08em;">◎ Pins</span>
-        <span id="annot-count" style="font-family:'DM Mono',monospace;font-size:11px;color:#f54242;">0</span>
-        <button onclick="toggleAnnotationsVisible()" id="annot-vis-btn" style="font-family:'DM Mono',monospace;font-size:9px;color:#6b6b72;background:transparent;border:1px solid rgba(255,255,255,0.07);border-radius:4px;padding:1px 5px;cursor:pointer;" title="Show/hide all pins">👁</button>
-        <button onclick="confirmClearPins()" style="font-family:'DM Mono',monospace;font-size:9px;color:#f54242;background:transparent;border:1px solid rgba(245,66,66,0.3);border-radius:4px;padding:1px 5px;cursor:pointer;" title="Clear all pins">clear</button>
-      </div>
-      <!-- Right -->
-      <div style="display:flex;gap:6px;margin-left:auto;align-items:center;">
-        <button onclick="toggleAllAnnotations()" id="hide-all-btn" style="font-family:'DM Mono',monospace;font-size:10px;color:#6b6b72;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:4px 10px;cursor:pointer;" title="Hide/show pins and dimensions">👁 All</button>
-        <button onclick="onResetRotation()" style="font-family:'DM Mono',monospace;font-size:11px;color:#e8e8e6;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:7px;padding:4px 11px;cursor:pointer;" title="Reset rotation only">↺ Rot</button>
-        <button onclick="exportPinReport()" style="font-family:'DM Mono',monospace;font-size:10px;color:#4290f5;background:rgba(66,144,245,0.08);border:1px solid rgba(66,144,245,0.25);border-radius:6px;padding:4px 10px;cursor:pointer;">⬡ Export PDF</button>
-        <button onclick="onResetTransform()" style="font-family:'DM Mono',monospace;font-size:11px;color:#e8e8e6;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:7px;padding:4px 11px;cursor:pointer;">↺ Reset</button>
-        <button onclick="onSnapshot()" style="font-family:'DM Mono',monospace;font-size:11px;color:#0a0a0b;background:#c8f542;border:none;border-radius:7px;padding:4px 11px;cursor:pointer;font-weight:500;">⬡ Snapshot</button>
-      </div>
+    <!-- Pin table -->
+    <div class="pt-header">
+      <span>ID</span><span>LOCATE</span><span>COMMENT</span><span></span>
     </div>
+    <div id="pin-table-body" style="flex:1;overflow-y:auto;min-height:0;"></div>
+    <!-- Measurements header -->
+    <div class="pt-header" style="border-top:1px solid var(--border);margin-top:4px;">
+      <span>M-ID</span><span style="grid-column:span 2;">DIMENSION</span><span></span>
+    </div>
+    <div id="meas-table-body" style="overflow-y:auto;max-height:160px;"></div>
   </div>
 
-  <!-- Bottom bar -->
-  <div class="viewer-bar">
-    <div style="display:flex;align-items:center;gap:10px;min-width:0;flex-shrink:1;overflow:hidden;">
-      <!-- Logo in viewer -->
-      <svg width="22" height="22" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;opacity:0.7;">
-        <polygon points="16,4 26,9.5 26,22.5 16,28 6,22.5 6,9.5" fill="none" stroke="#c8f542" stroke-width="1.8" stroke-linejoin="round"/>
-        <line x1="11" y1="13" x2="16" y2="20" stroke="#c8f542" stroke-width="1.8" stroke-linecap="round"/>
-        <line x1="21" y1="13" x2="16" y2="20" stroke="#c8f542" stroke-width="1.8" stroke-linecap="round"/>
-        <line x1="13" y1="13" x2="19" y2="13" stroke="rgba(200,245,66,0.45)" stroke-width="1.2" stroke-linecap="round"/>
-      </svg>
-      <div style="display:flex;flex-direction:column;gap:0;min-width:0;">
-        <span class="viewer-title" id="viewer-title" style="line-height:1.2;">—</span>
-        <span style="font-family:'DM Mono',monospace;font-size:9px;color:#5a5a6a;letter-spacing:.05em;">VR.browser v0.1.9α</span>
-      </div>
-    </div>
-    <div class="viewer-controls">
-      <button class="vr-btn secondary" onclick="closeViewer()">← Back</button>
-      <button id="ar-btn" class="vr-btn secondary" onclick="enterAR()" style="display:none;">⬡ AR</button>
-      <button class="vr-btn" id="vr-btn" onclick="enterVR()">Enter VR</button>
-    </div>
+  <!-- Bottom toolbar (icon bar) -->
+  <div id="bottom-bar">
+    <!-- Mode group -->
+    <button class="tb-btn active" id="dm-orbit" onclick="setDesktopMode('orbit')" title="O">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="9" ry="4"/><line x1="12" y1="3" x2="12" y2="21"/></svg>
+      <span class="tb-label">Orbit</span>
+    </button>
+    <button class="tb-btn" id="dm-meas" onclick="setDesktopMode('measure')" title="M">
+      <svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="8" x2="3" y2="16"/><line x1="21" y1="8" x2="21" y2="16"/></svg>
+      <span class="tb-label">Measure</span>
+      <span class="tb-sub" id="floor-snap-lbl">Floor Snap</span>
+    </button>
+    <button class="tb-btn" id="dm-pin" onclick="setDesktopMode('pin')" title="P">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><line x1="12" y1="12" x2="12" y2="21"/></svg>
+      <span class="tb-label">Pin</span>
+    </button>
+    <div class="tb-sep"></div>
+    <!-- Floor snap -->
+    <button class="tb-btn" id="meas-floor-btn" onclick="toggleMeasFloorSnap()" title="Snap to floor">
+      <svg viewBox="0 0 24 24"><line x1="4" y1="20" x2="20" y2="20"/><line x1="12" y1="4" x2="12" y2="18"/><polyline points="8,14 12,18 16,14"/></svg>
+      <span class="tb-label">Floor</span>
+    </button>
+    <div class="tb-sep"></div>
+    <!-- Auto-rotate -->
+    <button class="tb-btn" id="autorot-btn" onclick="toggleAutoRotate()">
+      <svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 11-9-9"/><polyline points="21 3 21 9 15 9"/></svg>
+      <span class="tb-label">Auto-rot</span>
+    </button>
+    <!-- Reset rot -->
+    <button class="tb-btn" onclick="onResetRotation()">
+      <svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 109-9"/><polyline points="3 3 3 9 9 9"/></svg>
+      <span class="tb-label">Reset Rot</span>
+    </button>
+    <!-- Full reset -->
+    <button class="tb-btn" onclick="onResetTransform()">
+      <svg viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
+      <span class="tb-label">Full Reset</span>
+    </button>
+    <div class="tb-sep"></div>
+    <!-- Hide all -->
+    <button class="tb-btn" id="hide-all-btn" onclick="toggleAllAnnotations()">
+      <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+      <span class="tb-label">👁 All</span>
+    </button>
+    <div class="tb-sep"></div>
+    <!-- Export PDF -->
+    <button class="tb-btn" onclick="exportPinReport()">
+      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+      <span class="tb-label">Export PDF</span>
+    </button>
+    <!-- Snapshot -->
+    <button class="tb-btn" onclick="onSnapshot()">
+      <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+      <span class="tb-label">Snapshot</span>
+    </button>
+    <div class="tb-sep"></div>
+    <!-- Back / VR / AR -->
+    <button class="tb-btn" onclick="closeViewer()">
+      <svg viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      <span class="tb-label">Back</span>
+    </button>
+    <button class="vr-btn" id="vr-btn" onclick="enterVR()" style="margin-left:4px;height:42px;">⬡ Enter VR</button>
+    <button id="ar-btn" class="vr-btn secondary" onclick="enterAR()" style="display:none;height:42px;">⬡ AR</button>
   </div>
 </div>
 
@@ -620,15 +801,15 @@ function updateMeasLabels() {
   const r=viewerRenderer.domElement.getBoundingClientRect();
   savedMeasurements.forEach(m=>{
     const div=getOrCreateMeasLabel(m.id);
+    if(!allAnnotationsVisible){div.style.display='none';return;}
     const mid=m.ptA.clone().add(m.ptB).multiplyScalar(0.5);
     const v=mid.project(viewerCamera);
     if(v.z>=1){div.style.display='none';return;}
     div.style.display='block';
-    div.style.left=(v.x*0.5+0.5)*r.width +r.left+'px';
-    div.style.top =(-v.y*0.5+0.5)*r.height+r.top +'px';
+    div.style.left=(v.x*0.5+0.5)*r.width+r.left+'px';
+    div.style.top=(-v.y*0.5+0.5)*r.height+r.top+'px';
     div.textContent=m.label;
   });
-  // Clean up labels for deleted measurements
   [...measLabelDivs.keys()].forEach(id=>{ if(!savedMeasurements.find(m=>m.id===id)) removeMeasLabel(id); });
 }
 
@@ -920,8 +1101,10 @@ function applyAllClipping() {
 function onLightSlider() {
   lightAz = parseFloat(document.getElementById('light-az').value);
   lightEl = parseFloat(document.getElementById('light-el').value);
-  const lv=document.getElementById('light-val');
-  if(lv) lv.textContent=`${Math.round(lightAz)}°/${Math.round(lightEl)}°`;
+  const azv=document.getElementById('light-az-val'); if(azv) azv.textContent=Math.round(lightAz)+'°';
+  const elv=document.getElementById('light-el-val'); if(elv) elv.textContent=Math.round(lightEl)+'°';
+  // Legacy element (may not exist in new design)
+  const lv=document.getElementById('light-val'); if(lv) lv.textContent=`${Math.round(lightAz)}°/${Math.round(lightEl)}°`;
   if(!sunLight) return;
   const az=lightAz*Math.PI/180, el=lightEl*Math.PI/180, r=8;
   sunLight.position.set(Math.cos(el)*Math.sin(az)*r, Math.sin(el)*r, Math.cos(el)*Math.cos(az)*r);
@@ -1041,43 +1224,62 @@ function toggleGridOverlay() {
   });
 }
 
-// ════════════════════════════════════════════════════════════
-//  TEXTURE / DISPLAY MODE: tex → clay → transparent → tex
-// ════════════════════════════════════════════════════════════
-function toggleTexture() {
-  const modes=['tex','clay','alpha'];
-  const next=modes[(modes.indexOf(texMode)+1)%modes.length];
+// setTexMode replaces the old toggleTexture cycle
+function setTexMode(next) {
   texMode=next;
-  const btn=document.getElementById('tex-tog-btn');
-  const labels={tex:'Tex',clay:'Clay',alpha:'Alpha'};
-  if(btn){
-    btn.textContent=labels[next];
-    const on=(next!=='tex');
-    btn.style.background=on?'rgba(200,245,66,0.15)':'transparent';
-    btn.style.borderColor=on?'rgba(200,245,66,0.4)':'rgba(255,255,255,0.12)';
-    btn.style.color=on?'#c8f542':'#6b6b72';
-  }
+  ['tex','clay','alpha'].forEach(m=>{
+    const b=document.getElementById('tex-btn-'+m); if(!b) return;
+    b.classList.toggle('active', m===next);
+  });
+  // Legacy button compat
+  const old=document.getElementById('tex-tog-btn');
+  if(old) old.textContent={tex:'Tex',clay:'Clay',alpha:'Alpha'}[next]||'Tex';
   if(!loadedModel) return;
   loadedModel.traverse(c=>{
     if(!c.isMesh||!c.material) return;
     if(next==='tex'){
-      // Restore original texture
       const s=savedMaterials.get(c.uuid);
       if(s){ c.material.map=s.map; c.material.color.copy(s.color); c.material.opacity=1; c.material.transparent=false; }
     } else if(next==='clay'){
-      // Flat grey clay — no texture
       if(!savedMaterials.has(c.uuid)) savedMaterials.set(c.uuid,{map:c.material.map,color:c.material.color.clone(),opacity:c.material.opacity,transparent:c.material.transparent});
-      c.material.map=null;
-      c.material.color.set(0x888890);
-      c.material.opacity=1; c.material.transparent=false;
+      c.material.map=null; c.material.color.set(0x888890); c.material.opacity=1; c.material.transparent=false;
     } else {
-      // Semi-transparent
       if(!savedMaterials.has(c.uuid)) savedMaterials.set(c.uuid,{map:c.material.map,color:c.material.color.clone(),opacity:c.material.opacity,transparent:c.material.transparent});
-      c.material.map=null;
-      c.material.color.set(0xaaaacc);
-      c.material.opacity=0.35; c.material.transparent=true;
+      c.material.map=null; c.material.color.set(0xaaaacc); c.material.opacity=0.35; c.material.transparent=true;
     }
     c.material.needsUpdate=true;
+  });
+}
+function toggleTexture(){ setTexMode({tex:'clay',clay:'alpha',alpha:'tex'}[texMode]||'tex'); }
+
+function toggleAutoRotate() {
+  autoRotate=!autoRotate;
+  const b=document.getElementById('autorot-btn');
+  if(b) b.classList.toggle('active',autoRotate);
+}
+
+function toggleMeasFloorSnap() {
+  measFloorSnap=!measFloorSnap;
+  const b=document.getElementById('meas-floor-btn');
+  if(b) b.classList.toggle('active',measFloorSnap);
+  const lb=document.getElementById('floor-snap-lbl');
+  if(b) b.classList.toggle('floor-snap-on',measFloorSnap);
+}
+
+function toggleGridOverlay() {
+  gridOverlayActive=!gridOverlayActive;
+  const tog=document.getElementById('grid-overlay-tog');
+  if(tog) tog.checked=gridOverlayActive;
+  const b=document.getElementById('grid-tog-btn');
+  if(b) b.classList.toggle('active',gridOverlayActive);
+  gridOverlayObjects.forEach(o=>viewerScene&&viewerScene.remove(o)); gridOverlayObjects=[];
+  if(!gridOverlayActive) return;
+  if(loadedModel) loadedModel.traverse(c=>{
+    if(!c.isMesh) return;
+    const wf=new THREE.LineSegments(new THREE.WireframeGeometry(c.geometry),
+      new THREE.LineBasicMaterial({color:0xc8f542,transparent:true,opacity:0.15}));
+    c.updateWorldMatrix(true,false); wf.matrix.copy(c.matrixWorld); wf.matrixAutoUpdate=false;
+    viewerScene.add(wf); gridOverlayObjects.push(wf);
   });
 }
 
@@ -1264,85 +1466,79 @@ function updateAnnotationLabels() {
 }
 
 // ════════════════════════════════════════════════════════════
-//  SIDEBAR — collapsible pin comment panel
+//  RIGHT PANEL — PIN TABLE & MEASURE TABLE
 // ════════════════════════════════════════════════════════════
-function showSidebar() {
-  const sb=document.getElementById('sidebar');
-  if(sb){ sb.style.display='flex'; sb.classList.remove('collapsed'); }
-}
-function toggleSidebar() {
-  const sb=document.getElementById('sidebar');
-  if(!sb) return;
-  sb.classList.toggle('collapsed');
-}
-
-function rebuildSidebar() {
-  const body=document.getElementById('sidebar-body');
-  const empty=document.getElementById('sbar-empty');
-  if(!body) return;
-  [...body.querySelectorAll('.sbar-pin')].forEach(el=>el.remove());
-  if(!annotations.length){
-    if(empty) empty.style.display='block';
-    return;
-  }
-  if(empty) empty.style.display='none';
+function rebuildPinTable() {
+  const body=document.getElementById('pin-table-body'); if(!body) return;
+  body.innerHTML='';
+  const ac=document.getElementById('annot-count');
+  if(ac) ac.textContent=annotations.length+(annotations.length===1?' pin':' pins');
   annotations.forEach(pin=>{
     const hx=getPinHex(pin.colorIdx);
-    const row=document.createElement('div');
-    row.className='sbar-pin'; row.dataset.id=pin.id;
+    const row=document.createElement('div'); row.className='pt-row';
     if(pin.id===highlightedPinId) row.classList.add('highlighted');
-
-    // Dot + number header
-    const head=document.createElement('div');
-    head.style.cssText='display:flex;align-items:center;gap:8px;width:100%;';
-    head.innerHTML=`
-      <div class="sbar-dot" style="background:${hx};flex-shrink:0;"></div>
-      <span class="sbar-pin-num" style="color:${hx};flex:1;">#${pin.id}</span>
-      <button onclick="event.stopPropagation();highlightPin(${pin.id});"
-        style="font-family:'DM Mono',monospace;font-size:9px;padding:1px 5px;border-radius:4px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:#6b6b72;cursor:pointer;">
-        ${pin.id===highlightedPinId?'✦':'locate'}
-      </button>
-      <button onclick="event.stopPropagation();removeAnnotation(${pin.id});"
-        style="font-family:'DM Mono',monospace;font-size:9px;padding:1px 5px;border-radius:4px;border:1px solid rgba(245,66,66,0.2);background:transparent;color:#f54242;cursor:pointer;">✕</button>`;
-    row.appendChild(head);
-
-    // Inline editable comment textarea
-    const ta=document.createElement('textarea');
-    ta.value=pin.comment||'';
-    ta.placeholder='Add comment…';
-    ta.style.cssText=`width:100%;margin-top:6px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:5px;color:#c0c0cc;font-family:'DM Sans',sans-serif;font-size:11px;line-height:1.45;padding:5px 7px;resize:vertical;outline:none;min-height:44px;transition:border-color 0.15s;`;
-    ta.addEventListener('focus',()=>{ ta.style.borderColor='rgba(255,255,255,0.22)'; });
-    ta.addEventListener('blur', ()=>{ ta.style.borderColor='rgba(255,255,255,0.08)'; });
-
-    // Save button — appears once user types
-    const saveBtn=document.createElement('button');
-    saveBtn.textContent='Save';
-    saveBtn.style.cssText=`display:none;margin-top:5px;font-family:'DM Mono',monospace;font-size:10px;padding:3px 10px;border-radius:5px;border:none;background:#c8f542;color:#0a0a0b;font-weight:500;cursor:pointer;`;
-    saveBtn.onclick=(ev)=>{
-      ev.stopPropagation();
-      pin.comment=ta.value;
-      if(pin.labelDiv) pin.labelDiv.title=pin.comment?`#${pin.id}: ${pin.comment}`:`Pin #${pin.id}`;
-      saveBtn.style.display='none';
-      saveBtn.textContent='Saved ✓';
-      setTimeout(()=>{saveBtn.textContent='Save';},1200);
-      saveSession();
-    };
-    ta.addEventListener('input',()=>{ saveBtn.style.display='block'; });
-
-    row.appendChild(ta);
-    row.appendChild(saveBtn);
-    // Clicking the row (not textarea/button) highlights the pin
-    row.addEventListener('click',(ev)=>{
-      if(ev.target===ta||ev.target===saveBtn) return;
-      highlightPin(pin.id);
-    });
+    // ID cell
+    const idCell=document.createElement('div'); idCell.className='pt-id';
+    idCell.innerHTML=`<span class="pt-dot" style="background:${hx}"></span><span style="color:${hx}">P${String(pin.id).padStart(2,'0')}</span>`;
+    // Locate cell
+    const locCell=document.createElement('div');
+    const locBtn=document.createElement('button'); locBtn.className='pt-locate';
+    locBtn.textContent=pin.id===highlightedPinId?'✦':'⊕';
+    locBtn.title='Locate';
+    locBtn.onclick=(e)=>{e.stopPropagation();highlightPin(pin.id);};
+    locCell.appendChild(locBtn);
+    // Comment cell — inline editable
+    const comCell=document.createElement('div'); comCell.className='pt-comment-wrap';
+    if(pin._editing){
+      const ta=document.createElement('textarea'); ta.className='pt-ta'; ta.value=pin.comment||''; ta.placeholder='Add comment…';
+      ta.onblur=()=>{ pin.comment=ta.value; pin._editing=false; saveSession(); rebuildPinTable(); };
+      ta.onkeydown=(e)=>{ if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();ta.blur();} };
+      comCell.appendChild(ta);
+      requestAnimationFrame(()=>ta.focus());
+    } else {
+      const span=document.createElement('div'); span.className='pt-comment'+(pin.comment?'':' empty');
+      span.textContent=pin.comment||'Click to add comment';
+      span.onclick=()=>{ pin._editing=true; rebuildPinTable(); };
+      comCell.appendChild(span);
+    }
+    // Delete cell
+    const delCell=document.createElement('div');
+    const delBtn=document.createElement('button'); delBtn.className='pt-del'; delBtn.textContent='✕';
+    delBtn.onclick=(e)=>{e.stopPropagation();removeAnnotation(pin.id);};
+    delCell.appendChild(delBtn);
+    row.appendChild(idCell); row.appendChild(locCell); row.appendChild(comCell); row.appendChild(delCell);
+    row.addEventListener('click',()=>highlightPin(pin.id));
     body.appendChild(row);
   });
+  if(!annotations.length){
+    body.innerHTML='<div style="padding:16px;font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted);text-align:center;">No pins yet</div>';
+  }
+  // Measurements table
+  rebuildMeasTable();
 }
+
+function rebuildMeasTable() {
+  const body=document.getElementById('meas-table-body'); if(!body) return;
+  body.innerHTML='';
+  savedMeasurements.forEach((m,i)=>{
+    const row=document.createElement('div'); row.className='pm-row';
+    row.innerHTML=`<span class="pm-id">M${String(i+1).padStart(2,'0')}</span><span class="pm-label" style="grid-column:span 2">${m.label}</span>`;
+    const delBtn=document.createElement('button'); delBtn.className='pt-del'; delBtn.textContent='✕';
+    delBtn.onclick=()=>{deleteMeasurement(m.id);};
+    row.appendChild(delBtn);
+    body.appendChild(row);
+  });
+  if(!savedMeasurements.length){
+    body.innerHTML='<div style="padding:10px 12px;font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted);">No measurements</div>';
+  }
+}
+
+// Keep rebuildSidebar as alias so old call sites still work
+function rebuildSidebar(){ rebuildPinTable(); }
 
 function highlightPin(id) {
   highlightedPinId = (highlightedPinId===id) ? null : id;
-  rebuildSidebar();
+  rebuildPinTable();
 }
 
 // ════════════════════════════════════════════════════════════
@@ -1602,7 +1798,7 @@ async function exportPinReport() {
   // Footer
   pdf.setDrawColor(200,200,215); pdf.setLineWidth(0.15); pdf.line(14,PH-8,PW-14,PH-8);
   pdf.setFont('helvetica','normal'); pdf.setFontSize(6); pdf.setTextColor(150,150,170);
-  pdf.text(`VR.browser v0.1.9α  ·  Exported ${new Date().toLocaleDateString()}`, 14, PH-3);
+  pdf.text(`VR.browser v0.2  ·  Exported ${new Date().toLocaleDateString()}`, 14, PH-3);
 
   pdf.save(`${modelName}-pin-report.pdf`);
 }
@@ -1634,24 +1830,22 @@ function onExplodeSlider(val){applyExplode(parseFloat(val));}
 // ════════════════════════════════════════════════════════════
 function setDesktopMode(mode, silent) {
   desktopMode=mode;
-  const modeMap={orbit:'orbit', meas:'measure', pin:'pin'};
-  ['orbit','meas','pin'].forEach(m=>{
-    const btn=document.getElementById('dm-'+m);
-    if(btn) btn.classList.toggle('active', modeMap[m]===mode);
+  ['dm-orbit','dm-meas','dm-pin'].forEach(id=>{
+    const b=document.getElementById(id); if(!b) return;
+    b.classList.remove('active','active-measure','active-pin');
   });
+  const cls={'orbit':'active','measure':'active-measure','pin':'active-pin'};
+  const ids={'orbit':'dm-orbit','measure':'dm-meas','pin':'dm-pin'};
+  const b=document.getElementById(ids[mode]); if(b) b.classList.add(cls[mode]||'active');
   if(viewerControls){
-    viewerControls.enabled=true; // always on so scroll+middle-mouse work
-    // In orbit mode: all controls. In pin/measure: only middle-mouse pan + scroll zoom
-    viewerControls.enableRotate = (mode==='orbit');
-    viewerControls.enableZoom   = true;
-    viewerControls.enablePan    = true; // middle-mouse pan always works
-    // Disable left-button drag (would conflict with picking) in non-orbit modes
-    viewerControls.mouseButtons = mode==='orbit'
-      ? {LEFT:THREE.MOUSE.ROTATE, MIDDLE:THREE.MOUSE.DOLLY, RIGHT:THREE.MOUSE.PAN}
-      : {LEFT:null,               MIDDLE:THREE.MOUSE.DOLLY, RIGHT:THREE.MOUSE.PAN};
+    viewerControls.enabled=true;
+    viewerControls.enableRotate=(mode==='orbit');
+    viewerControls.mouseButtons=mode==='orbit'
+      ?{LEFT:THREE.MOUSE.ROTATE,MIDDLE:THREE.MOUSE.DOLLY,RIGHT:THREE.MOUSE.PAN}
+      :{LEFT:null,MIDDLE:THREE.MOUSE.DOLLY,RIGHT:THREE.MOUSE.PAN};
   }
   const cw=document.getElementById('viewer-canvas-wrap');
-  if(cw) cw.className=`${mode==='pin'?'c-pin':mode==='measure'?'c-meas':'c-orbit'}`;
+  if(cw) cw.style.cursor=mode==='pin'?'crosshair':mode==='measure'?'cell':'grab';
 }
 
 function getCanvasHit(e) {
@@ -1681,7 +1875,7 @@ function getMeasSphereHit(e) {
   return hits.length ? hits[0].object : null;
 }
 
-// Right-click → open measure endpoint popup
+// Right-click → open measure endpoint popup (works in any mode)
 function onCanvasRightClick(e) {
   e.preventDefault();
   if(!viewerCamera||!viewerRenderer) return;
@@ -1701,7 +1895,7 @@ function onCanvasClick(e) {
     if(pt){ finishMovePin(pt); setDesktopMode('orbit'); } return;
   }
 
-  // ── Moving a measurement endpoint — next click on model surface ──
+  // ── Moving a measurement endpoint ─────────────────────
   if(measMovingId!==null) {
     const pt=getCanvasHit(e);
     if(pt){ updateMeasEndpoint(measMovingId,measMovingEndpoint,pt); }
@@ -1709,21 +1903,22 @@ function onCanvasClick(e) {
     clearMeasure(); setDesktopMode('orbit'); return;
   }
 
-  if(desktopMode==='orbit') return;
-
-  // ── In measure mode: check if clicking an existing endpoint sphere first ──
-  if(desktopMode==='measure') {
+  // ── Check measure spheres in ALL modes (left-click opens popup) ──
+  if(savedMeasurements.length) {
     const sphere=getMeasSphereHit(e);
     if(sphere?.userData.measId!=null){
       openMeasPopup(sphere.userData.measId, sphere.userData.endpoint, e.clientX, e.clientY);
       return;
     }
-    // Otherwise place measure point on model surface (or floor if snap active)
+  }
+
+  if(desktopMode==='orbit') return;
+
+  // ── Measure mode: place points ─────────────────────────
+  if(desktopMode==='measure') {
     const pt=getCanvasHit(e);
-    // Also try floor plane ray if no model hit or floor snap enabled
-    let finalPt = pt;
-    if(measFloorSnap || !pt){
-      // Ray-intersect the floor plane (Y=0)
+    let finalPt=pt;
+    if(measFloorSnap||!pt){
       const cv2=viewerRenderer.domElement, rect2=cv2.getBoundingClientRect();
       const nx=((e.clientX-rect2.left)/rect2.width)*2-1;
       const ny=-((e.clientY-rect2.top)/rect2.height)*2+1;
@@ -1739,9 +1934,10 @@ function onCanvasClick(e) {
       measureState.sphereA&&(measureState.sphereA.position.copy(finalPt),measureState.sphereA.visible=true);
       measureState.sphereB&&(measureState.sphereB.visible=false);
       measureState.lineObj&&(measureState.lineObj.visible=false);
-      document.getElementById('measure-readout').textContent='Click pt B…';
+      const dr=document.getElementById('measure-readout'); if(dr) dr.textContent='Click pt B…';
     } else {
       measureState.ptB=finalPt.clone(); updateMeasureLine(); measurePhase=0; finaliseMeasure();
+      rebuildMeasTable();
     }
     return;
   }
@@ -1749,20 +1945,12 @@ function onCanvasClick(e) {
   const pt=getCanvasHit(e); if(!pt) return;
   if(desktopMode==='pin') dropAnnotation(pt);
 }
-
 // HUD is now static — these are stubs for backward compat
 function updateHUD(){}
 function cycleVRMode(){}
 
 // ── Measure floor snap ────────────────────────────────────────
 let measFloorSnap = false;
-function toggleMeasFloorSnap() {
-  measFloorSnap=!measFloorSnap;
-  const b=document.getElementById('meas-floor-btn'); if(!b) return;
-  b.style.background=measFloorSnap?'rgba(200,245,66,0.15)':'transparent';
-  b.style.borderColor=measFloorSnap?'rgba(200,245,66,0.4)':'rgba(255,255,255,0.07)';
-  b.style.color=measFloorSnap?'#c8f542':'#6b6b72';
-}
 // Apply floor snap: if enabled, snap Y to floor (Y=0 in world space)
 function snapToFloor(pt) {
   if(!measFloorSnap) return pt;
@@ -1945,11 +2133,20 @@ function clearFrozenContour() {
 let _arRotInterval=null;
 function arAction(action){
   if(!modelRoot) return;
-  if(action==='rot-l'){ modelRoot.rotateY(-0.12); }
-  else if(action==='rot-r'){ modelRoot.rotateY(0.12); }
+  if(action==='rot-l'){ modelRoot.rotateY(-0.15); }
+  else if(action==='rot-r'){ modelRoot.rotateY(0.15); }
   else if(action==='up'){ modelRoot.position.y+=0.05; }
   else if(action==='down'){ modelRoot.position.y-=0.05; }
-  else if(action==='center'){ modelRoot.position.set(0,modelRoot.position.y,0); }
+  else if(action==='center'){
+    if(viewerCamera){
+      // Place model 1.5m ahead of camera, same Y height
+      const fwd=new THREE.Vector3(0,0,-1).applyQuaternion(viewerCamera.quaternion);
+      fwd.y=0; if(fwd.length()>0.001) fwd.normalize(); else fwd.set(0,0,-1);
+      const y=modelRoot.position.y;
+      modelRoot.position.copy(viewerCamera.position).addScaledVector(fwd,1.5);
+      modelRoot.position.y=y;
+    } else { modelRoot.position.set(0,modelRoot.position.y,0); }
+  }
 }
 
 function showScaleHUD(pct) {
@@ -2106,6 +2303,10 @@ function initViewer(fileId) {
   sunLight.position.set(Math.cos(el0)*Math.sin(az0)*8,Math.sin(el0)*8,Math.cos(el0)*Math.cos(az0)*8);
   viewerScene.add(sunLight);
   const fill=new THREE.DirectionalLight(0x8888ff,0.18); fill.position.set(-4,2,-3); viewerScene.add(fill);
+  // Soft floor cone — SpotLight aimed straight down, soft penumbra
+  const floorSpot=new THREE.SpotLight(0xffffff,0.35,8,Math.PI/5,0.85,2);
+  floorSpot.position.set(0,4,0); floorSpot.target.position.set(0,0,0);
+  viewerScene.add(floorSpot); viewerScene.add(floorSpot.target);
   // ── 1×1 m metric grid in a group so it can follow model rotation ──
   gridGroup = new THREE.Group();
   (function buildMetricGrid(grp) {
@@ -2171,7 +2372,12 @@ function initViewer(fileId) {
         modelRoot.add(model); loadedModel=model; modelSize.copy(size);
         cacheExplodeOrigins();
         const ov=document.getElementById('loading-overlay'); if(ov) ov.classList.add('hidden');
-        const ts=document.getElementById('tool-strip'); if(ts) ts.style.display='flex';
+        // Show new 3-panel layout
+        const lp=document.getElementById('left-panel'); if(lp) lp.style.display='flex';
+        const rp=document.getElementById('right-panel'); if(rp) rp.style.display='flex';
+        const bb=document.getElementById('bottom-bar'); if(bb) bb.style.display='flex';
+        // Legacy tool-strip hidden in new design
+        const ts=document.getElementById('tool-strip'); if(ts) ts.style.display='none';
         const sb=document.getElementById('sidebar'); if(sb){sb.style.display='flex';sb.classList.add('collapsed');}
         rebuildSidebar();
         ['hslice-tog','vslice-tog'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=false;});
