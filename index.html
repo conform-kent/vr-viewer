@@ -46,7 +46,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 #viewer-overlay{display:none;position:fixed;inset:0;background:var(--bg);z-index:100;flex-direction:row;}
 #viewer-overlay.active{display:flex;}
 /* Canvas takes the middle */
-#viewer-canvas-wrap{flex:1;position:relative;overflow:hidden;}
+#viewer-canvas-wrap{flex:1;position:relative;overflow:hidden;margin-bottom:var(--bottom-h);}
 #viewer-canvas-wrap canvas{width:100%!important;height:100%!important;}
 .loading-overlay{position:absolute;inset:0;background:#0d0d10;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;z-index:5;transition:opacity 0.4s;}
 .loading-overlay.hidden{opacity:0;pointer-events:none;}
@@ -55,7 +55,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .loading-label{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);}
 
 /* ── LEFT PANEL ── */
-#left-panel{width:var(--panel-w);background:var(--surface);border-right:1px solid var(--border);display:none;flex-direction:column;overflow-y:auto;flex-shrink:0;}
+#left-panel{width:var(--panel-w);background:var(--surface);border-right:1px solid var(--border);display:none;flex-direction:column;overflow-y:auto;flex-shrink:0;margin-bottom:var(--bottom-h);}
 .lp-section{padding:14px 14px 10px;border-bottom:1px solid var(--border);}
 .lp-title{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:10px;}
 .lp-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
@@ -84,7 +84,10 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .tex-btn.active{background:rgba(200,245,66,0.12);color:var(--accent);border-color:rgba(200,245,66,0.35);}
 
 /* ── BOTTOM TOOLBAR ── */
-#bottom-bar{position:absolute;bottom:0;left:var(--panel-w);right:var(--right-w);height:var(--bottom-h);background:rgba(13,13,16,0.95);border-top:1px solid var(--border);display:none;align-items:center;justify-content:center;gap:4px;padding:0 12px;z-index:20;backdrop-filter:blur(8px);}
+#bottom-bar{position:fixed;bottom:0;left:var(--panel-w);right:var(--right-w);height:var(--bottom-h);background:rgba(13,13,16,0.97);border-top:1px solid var(--border);display:none;align-items:center;justify-content:center;gap:4px;padding:0 12px;z-index:50;backdrop-filter:blur(8px);}
+
+/* ── RIGHT PANEL — Annotations & Pins ── */
+#right-panel{width:var(--right-w);background:var(--surface);border-left:1px solid var(--border);display:none;flex-direction:column;flex-shrink:0;margin-bottom:var(--bottom-h);}
 /* Icon toolbar buttons */
 .tb-btn{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 14px;border-radius:10px;border:1px solid transparent;background:transparent;color:var(--muted);cursor:pointer;transition:all 0.15s;font-family:'DM Mono',monospace;min-width:64px;}
 .tb-btn svg,.tb-btn .tb-icon{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
@@ -256,8 +259,8 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
     </div>
   </div>
 
-  <!-- Centre canvas -->
-  <div id="viewer-canvas-wrap" style="position:relative;flex:1;overflow:hidden;padding-bottom:var(--bottom-h);">
+  <!-- Centre canvas — no padding-bottom needed, bottom-bar is position:absolute -->
+  <div id="viewer-canvas-wrap" style="position:relative;flex:1;overflow:hidden;">
     <div class="loading-overlay" id="loading-overlay">
       <div class="spinner"></div>
       <span class="loading-label" id="loading-label">Loading model…</span>
@@ -282,8 +285,14 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
     <div id="meas-table-body" style="overflow-y:auto;max-height:160px;"></div>
   </div>
 
-  <!-- Bottom toolbar (icon bar) -->
-  <div id="bottom-bar">
+  <!-- Bottom toolbar (icon bar) — position:fixed so it doesn't affect canvas layout -->
+  <div id="bottom-bar" style="position:fixed;bottom:0;left:var(--panel-w);right:var(--right-w);">
+    <!-- Model title (left side) -->
+    <div style="display:flex;flex-direction:column;margin-right:8px;min-width:0;max-width:160px;">
+      <span id="viewer-title" style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">—</span>
+      <span style="font-family:'DM Mono',monospace;font-size:8px;color:var(--muted);">v0.2</span>
+    </div>
+    <div class="tb-sep"></div>
     <!-- Mode group -->
     <button class="tb-btn active" id="dm-orbit" onclick="setDesktopMode('orbit')" title="O">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="9" ry="4"/><line x1="12" y1="3" x2="12" y2="21"/></svg>
