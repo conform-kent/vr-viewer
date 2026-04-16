@@ -273,17 +273,47 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
   </div>
 </div>
 
-<!-- VR HUD -->
-<div id="vr-hud" style="display:none;position:fixed;bottom:0;left:0;right:0;padding:12px 16px;pointer-events:none;z-index:200;">
-  <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;" id="hud-pills">
-    <!-- Static control hints -->
-    <span style="font-family:'DM Mono',monospace;font-size:11px;padding:4px 10px;border-radius:6px;background:rgba(0,0,0,0.65);border:1px solid rgba(200,245,66,0.3);color:#c8f542;">R trigger → laser  ·  A → pin</span>
-    <span style="font-family:'DM Mono',monospace;font-size:11px;padding:4px 10px;border-radius:6px;background:rgba(0,0,0,0.65);border:1px solid rgba(255,255,255,0.15);color:#aaa;">L trigger → slice  ·  R stick → rotate  ·  L stick → scale</span>
+<!-- VR/AR HUD -->
+<div id="vr-hud" style="display:none;position:fixed;inset:0;pointer-events:none;z-index:200;">
+
+  <!-- Scale readout (shown briefly when scaling) -->
+  <div id="hud-scale" style="display:none;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'DM Mono',monospace;font-size:32px;color:#c8f542;text-shadow:0 0 20px rgba(200,245,66,0.7);pointer-events:none;"></div>
+
+  <!-- Measure readout -->
+  <div id="hud-measure" style="display:none;position:absolute;bottom:120px;left:50%;transform:translateX(-50%);text-align:center;font-family:'DM Mono',monospace;font-size:20px;color:#c8f542;text-shadow:0 0 12px rgba(200,245,66,0.5);"></div>
+
+  <!-- VR palm menu (shown when palm-up detected) -->
+  <div id="vr-palm-menu" style="display:none;position:absolute;bottom:16px;left:50%;transform:translateX(-50%);pointer-events:auto;">
+    <div style="background:rgba(10,10,14,0.92);border:1px solid rgba(255,255,255,0.15);border-radius:14px;padding:12px 16px;display:flex;flex-direction:column;gap:8px;min-width:280px;box-shadow:0 8px 32px rgba(0,0,0,0.8);">
+      <div style="font-family:'DM Mono',monospace;font-size:10px;color:#6b6b72;text-align:center;letter-spacing:.08em;margin-bottom:2px;">VR MENU · PALM UP TO CLOSE</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+        <button onclick="vrMenuAction('reset')" style="font-family:'DM Mono',monospace;font-size:11px;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.05);color:#e8e8e6;cursor:pointer;">↺ Reset view</button>
+        <button id="pm-mr-btn" onclick="vrMenuAction('mr')" style="font-family:'DM Mono',monospace;font-size:11px;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.05);color:#e8e8e6;cursor:pointer;">⬡ Toggle MR/VR</button>
+        <button onclick="vrMenuAction('clearpins')" style="font-family:'DM Mono',monospace;font-size:11px;padding:8px;border-radius:8px;border:1px solid rgba(245,66,66,0.3);background:rgba(245,66,66,0.07);color:#f54242;cursor:pointer;">🗑 Clear pins</button>
+        <button id="pm-pins-btn" onclick="vrMenuAction('togpins')" style="font-family:'DM Mono',monospace;font-size:11px;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.05);color:#e8e8e6;cursor:pointer;">👁 Toggle pins</button>
+        <button id="pm-snap-btn" onclick="vrMenuAction('snap')" style="font-family:'DM Mono',monospace;font-size:11px;padding:8px;border-radius:8px;border:1px solid rgba(200,245,66,0.3);background:rgba(200,245,66,0.08);color:#c8f542;cursor:pointer;">⊥ Snap: ON</button>
+        <button onclick="vrMenuAction('help')" id="pm-help-btn" style="font-family:'DM Mono',monospace;font-size:11px;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.05);color:#e8e8e6;cursor:pointer;">? Controls</button>
+      </div>
+      <div id="pm-help-text" style="display:none;font-family:'DM Mono',monospace;font-size:9px;color:#9090a0;line-height:1.6;border-top:1px solid rgba(255,255,255,0.07);padding-top:8px;">
+        R trigger → Laser · A button → Pin<br>
+        L trigger → Slice · release → freeze outline<br>
+        R grip → Move XZ · L grip → Move Y<br>
+        R stick X → Rotate · L stick Y → Scale<br>
+        L B → Measure pt A · R B → Measure pt B
+      </div>
+    </div>
   </div>
-  <div id="hud-measure" style="display:none;text-align:center;font-family:'DM Mono',monospace;font-size:18px;color:#c8f542;margin-top:8px;text-shadow:0 0 12px rgba(200,245,66,0.5);"></div>
-  <!-- MR/VR toggle — needs pointer-events -->
-  <div style="display:flex;justify-content:center;margin-top:10px;pointer-events:auto;">
-    <button id="mr-toggle-btn" onclick="toggleMRMode()" style="font-family:'DM Mono',monospace;font-size:11px;padding:5px 14px;border-radius:7px;border:1px solid rgba(255,255,255,0.2);background:rgba(0,0,0,0.7);color:#e8e8e6;cursor:pointer;">⬡ Switch to Mixed Reality</button>
+
+  <!-- AR mobile controls (shown only in AR mode) -->
+  <div id="ar-mobile-controls" style="display:none;position:absolute;bottom:16px;left:0;right:0;pointer-events:auto;">
+    <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;padding:0 16px;">
+      <button onclick="arAction('rot-l')" style="font-family:'DM Mono',monospace;font-size:13px;padding:12px 18px;border-radius:10px;border:1px solid rgba(255,255,255,0.2);background:rgba(0,0,0,0.7);color:#fff;cursor:pointer;">↺ ←</button>
+      <button onclick="arAction('rot-r')" style="font-family:'DM Mono',monospace;font-size:13px;padding:12px 18px;border-radius:10px;border:1px solid rgba(255,255,255,0.2);background:rgba(0,0,0,0.7);color:#fff;cursor:pointer;">→ ↻</button>
+      <button onclick="arAction('up')" style="font-family:'DM Mono',monospace;font-size:13px;padding:12px 18px;border-radius:10px;border:1px solid rgba(200,245,66,0.3);background:rgba(0,0,0,0.7);color:#c8f542;cursor:pointer;">↑ Up</button>
+      <button onclick="arAction('down')" style="font-family:'DM Mono',monospace;font-size:13px;padding:12px 18px;border-radius:10px;border:1px solid rgba(200,245,66,0.3);background:rgba(0,0,0,0.7);color:#c8f542;cursor:pointer;">↓ Down</button>
+      <button onclick="arAction('center')" style="font-family:'DM Mono',monospace;font-size:13px;padding:12px 18px;border-radius:10px;border:1px solid rgba(66,144,245,0.3);background:rgba(0,0,0,0.7);color:#4290f5;cursor:pointer;">⊙ Center</button>
+    </div>
+    <div id="hud-measure" style="display:none;text-align:center;font-family:'DM Mono',monospace;font-size:18px;color:#c8f542;margin-top:8px;text-shadow:0 0 12px rgba(200,245,66,0.5);"></div>
   </div>
 </div>
 
@@ -404,18 +434,21 @@ let zebraGridMesh = null;
 let zebraTexture = null; // DataTexture for stripe pattern
 
 // ── VR modes ─────────────────────────────────────────────────
-// No longer cycling modes — each input has a dedicated binding
-let vrMode = 'default'; // kept for HUD compatibility
+let vrMode = 'default';
 let _lastThumbL = false, _lastThumbR = false;
 let _prevFaceA = false, _prevFaceB = false;
-// Right-trigger laser state
 let vrLaserActive = false;
-// Scale via left thumbstick
 let _prevScaleY = 0;
-// Model rotation via right thumbstick
 let _prevRotX = 0;
-// MR/VR toggle
-let vrImmersiveMode = 'vr'; // 'vr' | 'ar'
+let vrImmersiveMode = 'vr';
+// Ground snap: when ON, right grip only moves XZ; when OFF, moves freely + allows roll
+let vrGroundSnap = true;
+// Palm menu: shown when left hand is palm-up
+let vrPalmMenuVisible = false;
+// Frozen slice contour (VR6: persists after releasing trigger)
+let frozenContourLine = null;
+// Scale display
+let _scaleHudTimeout = null;
 
 // ── Laser ────────────────────────────────────────────────────
 let laserLine = null, laserDot = null;
@@ -705,6 +738,9 @@ function cleanupViewer() {
   closePinPopup(); closeMeasPopup(); closeConfirm();
   measLabelDivs.forEach(div=>div.remove()); measLabelDivs.clear();
   // Clean up zebra analysis objects
+  vrGroundSnap=true; vrPalmMenuVisible=false; frozenContourLine=null;
+  const pm=document.getElementById('vr-palm-menu'); if(pm) pm.style.display='none';
+  const arc=document.getElementById('ar-mobile-controls'); if(arc) arc.style.display='none';
   zebraObjects.forEach(o=>viewerScene?.remove(o)); zebraObjects=[];
   if(zebraGridMesh){viewerScene?.remove(zebraGridMesh);zebraGridMesh=null;}
   if(zebraTexture){zebraTexture.dispose();zebraTexture=null;}
@@ -743,25 +779,27 @@ function cleanupViewer() {
 //  SLICER — VR: tiny invisible blade, bright dot at tip
 // ════════════════════════════════════════════════════════════
 function buildSlicer(scene) {
-  slicerPlane=new THREE.Plane(new THREE.Vector3(0,1,0),0);
+  slicerPlane=new THREE.Plane(new THREE.Vector3(1,0,0),0);
   slicerGroup=new THREE.Group(); scene.add(slicerGroup);
-  const sz=0.5, geo=new THREE.PlaneGeometry(sz,sz);
+  // Vertical blade: tall rectangle, normal = local X (points left = cuts right side)
+  const sz=0.4, szH=0.6;
+  const geo=new THREE.PlaneGeometry(sz,szH);
   slicerMesh=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({transparent:true,opacity:0,side:THREE.DoubleSide,depthWrite:false}));
-  slicerMesh.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo),new THREE.LineBasicMaterial({color:0x42f5c8,linewidth:2})));
-  slicerMesh.add(new THREE.Mesh(new THREE.CircleGeometry(0.006,12),new THREE.MeshBasicMaterial({color:0xffffff,side:THREE.DoubleSide})));
+  // Rotate so the plane stands vertical (around X by 90° to make it stand up)
+  const edge=new THREE.LineSegments(new THREE.EdgesGeometry(geo),new THREE.LineBasicMaterial({color:0x42f5c8,linewidth:2}));
+  slicerMesh.add(edge);
   slicerGroup.add(slicerMesh); slicerMesh.visible=false;
 }
 function setClipping(active){ slicerActive=active; applyAllClipping(); }
 function updateSlicer(ctrl) {
-  if(!slicerActive||!ctrl||!slicerPlane) return;
+  if(!ctrl||!slicerPlane) return;
   slicerGroup.position.setFromMatrixPosition(ctrl.matrixWorld);
   slicerGroup.quaternion.setFromRotationMatrix(ctrl.matrixWorld);
-  // Plane normal = hand's UP vector so the blade lies in line with pointing direction
-  const n=new THREE.Vector3(0,1,0).applyQuaternion(slicerGroup.quaternion).normalize();
+  // Normal = local RIGHT (X) of controller → vertical cut
+  const n=new THREE.Vector3(1,0,0).applyQuaternion(slicerGroup.quaternion).normalize();
   slicerPlane.normal.copy(n);
   slicerPlane.constant=-n.dot(slicerGroup.position);
-  // Update the edge contour highlight (reuse hContourLine for VR slicer)
-  if(hContourLine) computeContour(slicerPlane, hContourLine);
+  if(slicerActive && hContourLine) computeContour(slicerPlane, hContourLine);
 }
 
 // ════════════════════════════════════════════════════════════
@@ -923,11 +961,15 @@ function setZebraMode(mode) {
   // Clean up previous zebra state
   zebraObjects.forEach(o=>viewerScene&&viewerScene.remove(o)); zebraObjects=[];
   if(zebraTexture){zebraTexture.dispose();zebraTexture=null;}
-  // Restore materials
+  // Restore materials — fully clear emissive
   if(loadedModel) loadedModel.traverse(c=>{
-    if(!c.isMesh) return;
-    const s=savedMaterials.get(c.uuid);
-    if(s){ c.material.emissive&&c.material.emissive.set(0,0,0); c.material.emissiveMap=null; c.material.needsUpdate=true; }
+    if(!c.isMesh||!c.material) return;
+    if(c.material._zebraCloned){
+      c.material.emissiveMap=null;
+      c.material.emissive&&c.material.emissive.set(0,0,0);
+      c.material.emissiveIntensity=0;
+      c.material.needsUpdate=true;
+    }
   });
   viewerScene&&viewerScene.traverse(o=>{if(o.isAmbientLight) o.intensity=0.6;});
 
@@ -1568,9 +1610,11 @@ function onExplodeSlider(val){applyExplode(parseFloat(val));}
 // ════════════════════════════════════════════════════════════
 function setDesktopMode(mode, silent) {
   desktopMode=mode;
+  // Button IDs are dm-orbit, dm-meas, dm-pin; modes are 'orbit','measure','pin'
+  const modeMap={orbit:'orbit', meas:'measure', pin:'pin'};
   ['orbit','meas','pin'].forEach(m=>{
     const btn=document.getElementById('dm-'+m);
-    if(btn) btn.classList.toggle('active', m===mode||(m==='orbit'&&mode==='orbit'));
+    if(btn) btn.classList.toggle('active', modeMap[m]===mode);
   });
   if(viewerControls) viewerControls.enabled=(mode==='orbit');
   const cw=document.getElementById('viewer-canvas-wrap');
@@ -1666,22 +1710,28 @@ function cycleVRMode(){}
 //  VR LASER
 // ════════════════════════════════════════════════════════════
 function buildLaser(scene) {
-  const g=new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,0,0),new THREE.Vector3(0,0,-8)]);
+  const g=new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,0,0),new THREE.Vector3(0,0,-0.001)]);
   laserLine=new THREE.Line(g,new THREE.LineBasicMaterial({color:0x4290f5,linewidth:2}));
   laserLine.visible=false; scene.add(laserLine);
-  laserDot=new THREE.Mesh(new THREE.SphereGeometry(0.012,10,10),new THREE.MeshBasicMaterial({color:0x4290f5}));
-  laserDot.visible=false; scene.add(laserDot);
+  // Small dot at hit point — world-space sphere, tiny radius
+  laserDot=new THREE.Mesh(new THREE.SphereGeometry(0.004,8,8),new THREE.MeshBasicMaterial({color:0xffffff,depthTest:false}));
+  laserDot.visible=false; laserDot.renderOrder=999; scene.add(laserDot);
 }
 function updateLaser(ctrl) {
   if(!ctrl||!loadedModel) return;
-  laserLine.position.setFromMatrixPosition(ctrl.matrixWorld);
-  laserLine.quaternion.setFromRotationMatrix(ctrl.matrixWorld);
-  laserLine.visible=true;
   const origin=new THREE.Vector3().setFromMatrixPosition(ctrl.matrixWorld);
-  const dir=new THREE.Vector3(0,0,-1).applyQuaternion(new THREE.Quaternion().setFromRotationMatrix(ctrl.matrixWorld)).normalize();
+  const ctrlQuat=new THREE.Quaternion().setFromRotationMatrix(ctrl.matrixWorld);
+  const dir=new THREE.Vector3(0,0,-1).applyQuaternion(ctrlQuat).normalize();
   raycaster.set(origin,dir);
   const ms=[]; loadedModel.traverse(c=>{if(c.isMesh)ms.push(c);});
   const hits=raycaster.intersectObjects(ms,false);
+  // Line: rooted at controller, endpoint stops at hit or 4m fallback
+  laserLine.position.copy(origin);
+  laserLine.quaternion.copy(ctrlQuat);
+  const dist=hits.length ? hits[0].distance : 4;
+  laserLine.geometry.setFromPoints([new THREE.Vector3(0,0,0),new THREE.Vector3(0,0,-dist)]);
+  laserLine.geometry.computeBoundingSphere();
+  laserLine.visible=true;
   if(hits.length){laserDot.position.copy(hits[0].point);laserDot.visible=true;ctrl.userData.laserHit=hits[0].point.clone();}
   else{laserDot.visible=false;ctrl.userData.laserHit=null;}
 }
@@ -1749,9 +1799,9 @@ function setupControllers(renderer,scene) {
   });
   cL.addEventListener('squeezeend',()=>{ grabState.left=null; });
 
-  // ── RIGHT GRIP → horizontal movement (XZ only) ──────────────
+  // ── RIGHT GRIP → horizontal movement (XZ only, or full 6DOF) ─
   cR.addEventListener('squeezestart',()=>{
-    grabState.right={prevPos:ctrlWorldPos(cR)};
+    grabState.right={prevPos:ctrlWorldPos(cR), prevQuat:ctrlWorldQuat(cR)};
   });
   cR.addEventListener('squeezeend',()=>{ grabState.right=null; });
 
@@ -1767,24 +1817,105 @@ function setupControllers(renderer,scene) {
   scene.userData.ctrlL=cL; scene.userData.ctrlR=cR;
 }
 
+// ════════════════════════════════════════════════════════════
+//  VR PALM MENU
+// ════════════════════════════════════════════════════════════
+let _palmMenuLastState=false;
+function checkPalmMenu(cL) {
+  if(!cL) return;
+  // Detect palm-up: local Y (up) of left controller pointing toward world Y
+  const up=new THREE.Vector3(0,1,0).applyQuaternion(new THREE.Quaternion().setFromRotationMatrix(cL.matrixWorld));
+  const isPalmUp = up.y > 0.7; // controller Y axis mostly points up = palm facing up
+  if(isPalmUp!==_palmMenuLastState){
+    _palmMenuLastState=isPalmUp;
+    vrPalmMenuVisible=isPalmUp;
+    const pm=document.getElementById('vr-palm-menu');
+    if(pm) pm.style.display=isPalmUp?'block':'none';
+  }
+}
+function vrMenuAction(action) {
+  if(action==='reset'){ onResetTransform(); }
+  else if(action==='mr'){ toggleMRMode(); }
+  else if(action==='clearpins'){ confirmClearPins(); }
+  else if(action==='togpins'){
+    allAnnotationsVisible=!allAnnotationsVisible;
+    annotations.forEach(a=>{a.mesh.visible=allAnnotationsVisible;a.stem.visible=allAnnotationsVisible;a.labelDiv.style.display=allAnnotationsVisible?'':'none';});
+    const b=document.getElementById('pm-pins-btn');
+    if(b) b.textContent=allAnnotationsVisible?'👁 Toggle pins':'🙈 Toggle pins';
+  }
+  else if(action==='snap'){
+    vrGroundSnap=!vrGroundSnap;
+    const b=document.getElementById('pm-snap-btn');
+    if(b){ b.textContent=`⊥ Snap: ${vrGroundSnap?'ON':'OFF'}`; b.style.color=vrGroundSnap?'#c8f542':'#f5a142'; }
+  }
+  else if(action==='help'){
+    const h=document.getElementById('pm-help-text');
+    if(h) h.style.display=h.style.display==='none'?'block':'none';
+  }
+}
+
+// ════════════════════════════════════════════════════════════
+//  FROZEN SLICE CONTOUR (VR6)
+//  When trigger released, freeze the current contour as a child of modelRoot
+// ════════════════════════════════════════════════════════════
+function freezeSliceContour() {
+  if(!hContourLine||!hContourLine.visible||!modelRoot) return;
+  // Clone the geometry
+  const frozen=new THREE.LineSegments(
+    hContourLine.geometry.clone(),
+    new THREE.LineBasicMaterial({color:0x42f5c8,linewidth:2}));
+  frozen.frustumCulled=false;
+  // Transform from world space to modelRoot local space
+  const invMat=new THREE.Matrix4().copy(modelRoot.matrixWorld).invert();
+  frozen.geometry.applyMatrix4(invMat);
+  modelRoot.add(frozen);
+  frozenContourLine=frozen;
+  hContourLine.visible=false;
+}
+function clearFrozenContour() {
+  if(frozenContourLine&&modelRoot){ modelRoot.remove(frozenContourLine); frozenContourLine=null; }
+}
+
+// ════════════════════════════════════════════════════════════
+//  AR MOBILE ACTIONS
+// ════════════════════════════════════════════════════════════
+let _arRotInterval=null;
+function arAction(action){
+  if(!modelRoot) return;
+  if(action==='rot-l'){ modelRoot.rotateY(-0.12); }
+  else if(action==='rot-r'){ modelRoot.rotateY(0.12); }
+  else if(action==='up'){ modelRoot.position.y+=0.05; }
+  else if(action==='down'){ modelRoot.position.y-=0.05; }
+  else if(action==='center'){ modelRoot.position.set(0,modelRoot.position.y,0); }
+}
+
+function showScaleHUD(pct) {
+  const el=document.getElementById('hud-scale'); if(!el) return;
+  el.textContent=Math.round(pct*100)+'%';
+  el.style.display='block';
+  if(_scaleHudTimeout) clearTimeout(_scaleHudTimeout);
+  _scaleHudTimeout=setTimeout(()=>{if(el) el.style.display='none';},1200);
+}
+
 function pollGamepadButtons() {
   const cL=viewerScene?.userData.ctrlL, cR=viewerScene?.userData.ctrlR;
   if(!cL||!cR) return;
   const gpL=cL.userData.gamepad, gpR=cR.userData.gamepad;
   if(!gpL||!gpR) return;
 
+  // ── Palm menu detection ──────────────────────────────────────
+  checkPalmMenu(cL);
+
   // ── RIGHT TRIGGER (index 0) → laser pointer ─────────────────
-  const rTrig=gpR.buttons[0]?.pressed||false;
-  if(rTrig) {
-    updateLaser(cR);
-    vrLaserActive=true;
-  } else if(vrLaserActive) {
+  const rTrig=gpR.buttons[0]?.value>0.1;
+  if(rTrig){ updateLaser(cR); vrLaserActive=true; }
+  else if(vrLaserActive){
     vrLaserActive=false;
     if(laserLine) laserLine.visible=false;
     if(laserDot)  laserDot.visible=false;
   }
 
-  // ── RIGHT A BUTTON (index 4) → drop pin while laser is active
+  // ── RIGHT A (index 4) → drop pin while laser active ─────────
   const rFaceA=gpR.buttons[4]?.pressed||false;
   if(rFaceA&&!_prevFaceA&&vrLaserActive&&cR.userData.laserHit){
     dropAnnotation(cR.userData.laserHit.clone());
@@ -1792,55 +1923,63 @@ function pollGamepadButtons() {
   _prevFaceA=rFaceA;
 
   // ── LEFT TRIGGER (index 0) → slicer (held) ──────────────────
-  const lTrig=gpL.buttons[0]?.pressed||false;
-  if(lTrig && !slicerActive) {
-    slicerActive=true;
-    if(slicerMesh) slicerMesh.visible=true;
-    setClipping(true);
-  } else if(!lTrig && slicerActive) {
+  const lTrig=gpL.buttons[0]?.value>0.1;
+  if(lTrig){
+    if(!slicerActive){ slicerActive=true; if(slicerMesh) slicerMesh.visible=true; setClipping(true); }
+    updateSlicer(cL);
+  } else if(slicerActive){
     slicerActive=false;
     if(slicerMesh) slicerMesh.visible=false;
     setClipping(false);
+    // Freeze the contour so it stays on the model (VR6)
+    freezeSliceContour();
   }
-  if(slicerActive) updateSlicer(cL); // slicer follows LEFT hand
 
-  // ── LEFT THUMBSTICK Y (axis 3) → scale model ────────────────
-  const lStickY=gpL.axes[3]||0; // -1=up(bigger), +1=down(smaller)
-  if(Math.abs(lStickY)>0.12&&modelRoot){
-    const SPEED=0.008;
-    let s=modelRoot.scale.x * (1 - lStickY*SPEED);
-    // Clamp 5% – 200%
+  // ── LEFT THUMBSTICK Y (axis 3) → scale ──────────────────────
+  const lStickY=gpL.axes[3]||0;
+  if(Math.abs(lStickY)>0.15&&modelRoot){
+    let s=modelRoot.scale.x*(1-lStickY*0.007);
     s=Math.max(0.05,Math.min(2.0,s));
-    // Snap to 100% ±2%
-    if(Math.abs(s-1.0)<0.02) s=1.0;
+    if(Math.abs(s-1.0)<0.025) s=1.0;
     modelRoot.scale.setScalar(s);
+    showScaleHUD(s);
   }
 
-  // ── RIGHT THUMBSTICK X (axis 2) → rotate model around Y ─────
+  // ── RIGHT THUMBSTICK X (axis 2) → rotate Y ──────────────────
   const rStickX=gpR.axes[2]||0;
-  if(Math.abs(rStickX)>0.12&&modelRoot){
-    const RSPEED=0.03;
-    modelRoot.rotateY(rStickX*RSPEED);
-  }
+  if(Math.abs(rStickX)>0.12&&modelRoot) modelRoot.rotateY(rStickX*0.03);
 
-  // ── LEFT GRIP → vertical move ───────────────────────────────
+  // ── LEFT GRIP → vertical move (Y) ───────────────────────────
   if(grabState.left&&modelRoot){
     const cur=ctrlWorldPos(cL);
     const delta=cur.clone().sub(grabState.left.prevPos);
-    modelRoot.position.y+=delta.y; // only Y
+    modelRoot.position.y+=delta.y;
     grabState.left.prevPos.copy(cur);
   }
 
-  // ── RIGHT GRIP → horizontal move ────────────────────────────
+  // ── RIGHT GRIP → move (XZ when snap ON, full 6DOF+roll when OFF) ──
   if(grabState.right&&modelRoot){
     const cur=ctrlWorldPos(cR);
     const delta=cur.clone().sub(grabState.right.prevPos);
-    modelRoot.position.x+=delta.x; // only XZ
-    modelRoot.position.z+=delta.z;
+    if(vrGroundSnap){
+      modelRoot.position.x+=delta.x;
+      modelRoot.position.z+=delta.z;
+    } else {
+      // Full 6DOF: translate in all axes
+      modelRoot.position.add(delta);
+      // Also apply controller rotation delta for roll
+      const prevQuat=grabState.right.prevQuat||ctrlWorldQuat(cR);
+      const curQuat=ctrlWorldQuat(cR);
+      const dq=curQuat.clone().multiply(prevQuat.clone().invert());
+      // Only apply roll component (X axis rotation)
+      const dqE=new THREE.Euler().setFromQuaternion(dq,'XYZ');
+      modelRoot.rotateX(dqE.x*0.5);
+      grabState.right.prevQuat=curQuat;
+    }
     grabState.right.prevPos.copy(cur);
   }
 
-  // ── LEFT B (index 5) → measure point A ──────────────────────
+  // ── LEFT B (index 5) → measure pt A ─────────────────────────
   const lFaceB=gpL.buttons[5]?.pressed||false;
   if(lFaceB&&!_prevFaceB){
     measureState.ptA=ctrlWorldPos(cL); measurePhase=1;
@@ -1848,7 +1987,7 @@ function pollGamepadButtons() {
   }
   _prevFaceB=lFaceB;
 
-  // ── RIGHT B (index 5) → measure point B ─────────────────────
+  // ── RIGHT B (index 5) → measure pt B ────────────────────────
   const rFaceB=gpR.buttons[5]?.pressed||false;
   if(rFaceB&&!_lastThumbR&&measurePhase===1){
     measureState.ptB=ctrlWorldPos(cR); updateMeasureLine(); measurePhase=0; finaliseMeasure();
@@ -1979,10 +2118,11 @@ function initViewer(fileId) {
 
   viewerRenderer.setAnimationLoop(()=>{
     if(viewerControls?.enabled) viewerControls.update();
-    // Sync grid Y rotation to model so it always aligns under the model
+    // Sync grid Y rotation to model — use YXZ Euler decomposition to avoid 180° wrap flip
     if(gridGroup && modelRoot) {
       gridGroup.position.set(modelRoot.position.x, 0, modelRoot.position.z);
-      gridGroup.rotation.y = modelRoot.rotation.y;
+      const _gridEuler = new THREE.Euler().setFromQuaternion(modelRoot.quaternion, 'YXZ');
+      gridGroup.rotation.y = _gridEuler.y;
     }
     // Recompute slice contours every frame so they stay correct after model rotation
     if(hSliceActive && hSlicePlane && hContourLine) computeContour(hSlicePlane, hContourLine);
@@ -2036,11 +2176,11 @@ async function enterAR() {
     if(viewerScene) viewerScene.background=null;
     viewerRenderer.xr.setSession(session);
     document.getElementById('vr-hud').style.display='block';
-    const mrBtn=document.getElementById('mr-toggle-btn');
-    if(mrBtn) mrBtn.textContent='⬡ Switch to VR';
+    setARControls(true); // show mobile touch buttons
     session.addEventListener('end',()=>{
       document.getElementById('ar-btn').textContent='⬡ AR';
       document.getElementById('vr-hud').style.display='none';
+      setARControls(false);
       if(viewerScene) viewerScene.background=new THREE.Color(0x1a1a1e);
       if(slicerActive){slicerActive=false;slicerMesh&&(slicerMesh.visible=false);setClipping(false);}
       saveSession();
@@ -2054,8 +2194,16 @@ async function enterAR() {
 function toggleMRMode() {
   vrImmersiveMode = vrImmersiveMode==='vr' ? 'ar' : 'vr';
   const btn=document.getElementById('mr-toggle-btn');
-  if(btn) btn.textContent = vrImmersiveMode==='ar' ? '⬡ Switch to VR' : '⬡ Switch to Mixed Reality';
+  if(btn) btn.textContent = vrImmersiveMode==='ar' ? '⬡ Switch to VR' : '⬡ Switch to MR';
   if(viewerScene) viewerScene.background = vrImmersiveMode==='ar' ? null : new THREE.Color(0x1a1a1e);
+}
+
+function setARControls(isAR) {
+  const arCtrl=document.getElementById('ar-mobile-controls');
+  const palmMenu=document.getElementById('vr-palm-menu');
+  const scaleHud=document.getElementById('hud-scale');
+  if(arCtrl) arCtrl.style.display=isAR?'block':'none';
+  // In AR: palm menu still works via controller; hide scale HUD in AR
 }
 
 async function enterVR() {
