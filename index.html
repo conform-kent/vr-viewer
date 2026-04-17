@@ -89,8 +89,8 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 /* ── RIGHT PANEL — Annotations & Pins ── */
 #right-panel{width:var(--right-w);background:var(--surface);border-left:1px solid var(--border);display:none;flex-direction:column;flex-shrink:0;margin-bottom:var(--bottom-h);}
 /* Icon toolbar buttons */
-.tb-btn{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 14px;border-radius:10px;border:1px solid transparent;background:transparent;color:var(--muted);cursor:pointer;transition:all 0.15s;font-family:'DM Mono',monospace;min-width:64px;}
-.tb-btn svg,.tb-btn .tb-icon{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+.tb-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:8px 14px;border-radius:10px;border:1px solid transparent;background:transparent;color:var(--muted);cursor:pointer;transition:all 0.15s;font-family:'DM Mono',monospace;min-width:64px;}
+.tb-btn svg,.tb-btn .tb-icon{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;display:block;}
 .tb-btn .tb-label{font-size:9px;letter-spacing:.04em;text-transform:uppercase;}
 .tb-btn .tb-sub{font-size:8px;color:var(--accent);opacity:0;}
 .tb-btn:hover{background:var(--surface2);border-color:var(--border-hi);color:var(--text);}
@@ -234,6 +234,13 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
     <!-- Grid -->
     <div class="lp-section">
       <div class="lp-row"><span class="lp-label">Grid overlay</span><label class="tog"><input type="checkbox" id="grid-overlay-tog" onchange="toggleGridOverlay()"><span class="tog-s"></span></label></div>
+      <div class="lp-row" id="grid-brightness-row" style="display:none;">
+        <span class="lp-label">Brightness</span>
+        <span class="lp-val" id="grid-bright-val">15%</span>
+      </div>
+      <input type="range" class="lp-slider" id="grid-bright-sl" min="1" max="60" step="1" value="15"
+        oninput="onGridBrightnessSlider(this.value)"
+        style="display:none;">
     </div>
     <!-- Texture -->
     <div class="lp-section">
@@ -264,6 +271,10 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
     <div class="loading-overlay" id="loading-overlay">
       <div class="spinner"></div>
       <span class="loading-label" id="loading-label">Loading model…</span>
+    </div>
+    <!-- Measure readout — floats over canvas while measuring -->
+    <div id="measure-readout-overlay" style="display:none;position:absolute;top:12px;left:50%;transform:translateX(-50%);font-family:'DM Mono',monospace;font-size:13px;font-weight:500;color:#f5a142;background:rgba(13,13,16,0.88);border:1px solid rgba(245,161,66,0.3);border-radius:6px;padding:5px 14px;pointer-events:none;z-index:30;white-space:nowrap;">
+      <span id="measure-readout">—</span>
     </div>
   </div>
 
@@ -303,7 +314,6 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
       <span class="tb-label">Measure</span>
       <span class="tb-sub" id="floor-snap-lbl">Floor Snap</span>
     </button>
-    <button class="tb-btn" id="dm-pin" onclick="setDesktopMode('pin')" title="P">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><line x1="12" y1="12" x2="12" y2="21"/></svg>
       <span class="tb-label">Pin</span>
     </button>
@@ -1099,54 +1109,86 @@ function setZebraMode(mode) {
 // ════════════════════════════════════════════════════════════
 //  WIREFRAME GRID OVERLAY (separate toggle)
 // ════════════════════════════════════════════════════════════
+let gridOverlayOpacity = 0.15;
+
 function toggleGridOverlay() {
-  gridOverlayActive = !gridOverlayActive;
-  const btn=document.getElementById('grid-tog-btn');
-  if(btn){
-    btn.style.background=gridOverlayActive?'rgba(200,245,66,0.15)':'transparent';
-    btn.style.borderColor=gridOverlayActive?'rgba(200,245,66,0.4)':'rgba(255,255,255,0.12)';
-    btn.style.color=gridOverlayActive?'#c8f542':'#6b6b72';
-  }
-  // Clean up existing
-  gridOverlayObjects.forEach(o=>viewerScene&&viewerScene.remove(o));
-  gridOverlayObjects=[];
-  if(!gridOverlayActive) return;
-  // Add wireframe overlay for each mesh
-  if(loadedModel) loadedModel.traverse(c=>{
+  gridOverlayActive=!gridOverlayActive;
+  const tog=document.getElementById('grid-overlay-tog'); if(tog) tog.checked=gridOverlayActive;
+  const row=document.getElementById('grid-brightness-row');
+  const sl=document.getElementById('grid-bright-sl');
+  if(row) row.style.display=gridOverlayActive?'flex':'none';
+  if(sl)  sl.style.display=gridOverlayActive?'block':'none';
+  _buildGridOverlay();
+}
+
+function _buildGridOverlay() {
+  gridOverlayObjects.forEach(o=>viewerScene&&viewerScene.remove(o)); gridOverlayObjects=[];
+  if(!loadedModel||!gridOverlayActive) return;
+  loadedModel.traverse(c=>{
     if(!c.isMesh) return;
     const wf=new THREE.LineSegments(
       new THREE.WireframeGeometry(c.geometry),
-      new THREE.LineBasicMaterial({color:0xc8f542,transparent:true,opacity:0.15}));
-    // Match the mesh world transform
-    c.updateWorldMatrix(true,false);
-    wf.matrix.copy(c.matrixWorld);
-    wf.matrixAutoUpdate=false;
+      new THREE.LineBasicMaterial({color:0xc8f542,transparent:true,opacity:gridOverlayOpacity}));
+    c.updateWorldMatrix(true,false); wf.matrix.copy(c.matrixWorld); wf.matrixAutoUpdate=false;
     viewerScene.add(wf); gridOverlayObjects.push(wf);
   });
 }
 
-// setTexMode replaces the old toggleTexture cycle
+function onGridBrightnessSlider(val) {
+  gridOverlayOpacity=parseFloat(val)/100;
+  const lbl=document.getElementById('grid-bright-val'); if(lbl) lbl.textContent=val+'%';
+  gridOverlayObjects.forEach(o=>{ if(o.material) o.material.opacity=gridOverlayOpacity; });
+}
+
 function setTexMode(next) {
   texMode=next;
   ['tex','clay','alpha'].forEach(m=>{
     const b=document.getElementById('tex-btn-'+m); if(!b) return;
     b.classList.toggle('active', m===next);
   });
-  // Legacy button compat
-  const old=document.getElementById('tex-tog-btn');
-  if(old) old.textContent={tex:'Tex',clay:'Clay',alpha:'Alpha'}[next]||'Tex';
   if(!loadedModel) return;
   loadedModel.traverse(c=>{
     if(!c.isMesh||!c.material) return;
     if(next==='tex'){
+      // Restore all saved material properties
       const s=savedMaterials.get(c.uuid);
-      if(s){ c.material.map=s.map; c.material.color.copy(s.color); c.material.opacity=1; c.material.transparent=false; }
+      if(s){
+        c.material.map=s.map; c.material.normalMap=s.normalMap; c.material.bumpMap=s.bumpMap;
+        c.material.roughnessMap=s.roughnessMap; c.material.metalnessMap=s.metalnessMap;
+        c.material.aoMap=s.aoMap; c.material.emissiveMap=s.emissiveMap;
+        c.material.color.copy(s.color); c.material.roughness=s.roughness;
+        c.material.metalness=s.metalness; c.material.opacity=1; c.material.transparent=false;
+      }
     } else if(next==='clay'){
-      if(!savedMaterials.has(c.uuid)) savedMaterials.set(c.uuid,{map:c.material.map,color:c.material.color.clone(),opacity:c.material.opacity,transparent:c.material.transparent});
-      c.material.map=null; c.material.color.set(0x888890); c.material.opacity=1; c.material.transparent=false;
+      // Save full material state before first clay switch
+      if(!savedMaterials.has(c.uuid)) savedMaterials.set(c.uuid,{
+        map:c.material.map, normalMap:c.material.normalMap, bumpMap:c.material.bumpMap,
+        roughnessMap:c.material.roughnessMap, metalnessMap:c.material.metalnessMap,
+        aoMap:c.material.aoMap, emissiveMap:c.material.emissiveMap,
+        color:c.material.color.clone(), roughness:c.material.roughness??0.8,
+        metalness:c.material.metalness??0, opacity:c.material.opacity, transparent:c.material.transparent
+      });
+      // Clear ALL texture maps for truly flat clay look
+      c.material.map=null; c.material.normalMap=null; c.material.bumpMap=null;
+      c.material.roughnessMap=null; c.material.metalnessMap=null;
+      c.material.aoMap=null; c.material.emissiveMap=null;
+      c.material.color.set(0x8a8a92);
+      c.material.roughness=0.85; c.material.metalness=0;
+      c.material.opacity=1; c.material.transparent=false;
     } else {
-      if(!savedMaterials.has(c.uuid)) savedMaterials.set(c.uuid,{map:c.material.map,color:c.material.color.clone(),opacity:c.material.opacity,transparent:c.material.transparent});
-      c.material.map=null; c.material.color.set(0xaaaacc); c.material.opacity=0.35; c.material.transparent=true;
+      // Alpha mode
+      if(!savedMaterials.has(c.uuid)) savedMaterials.set(c.uuid,{
+        map:c.material.map, normalMap:c.material.normalMap, bumpMap:c.material.bumpMap,
+        roughnessMap:c.material.roughnessMap, metalnessMap:c.material.metalnessMap,
+        aoMap:c.material.aoMap, emissiveMap:c.material.emissiveMap,
+        color:c.material.color.clone(), roughness:c.material.roughness??0.8,
+        metalness:c.material.metalness??0, opacity:c.material.opacity, transparent:c.material.transparent
+      });
+      c.material.map=null; c.material.normalMap=null; c.material.bumpMap=null;
+      c.material.roughnessMap=null; c.material.metalnessMap=null;
+      c.material.color.set(0xaaaacc);
+      c.material.roughness=0.3; c.material.metalness=0;
+      c.material.opacity=0.35; c.material.transparent=true;
     }
     c.material.needsUpdate=true;
   });
@@ -1165,23 +1207,6 @@ function toggleMeasFloorSnap() {
   if(b) b.classList.toggle('active',measFloorSnap);
   const lb=document.getElementById('floor-snap-lbl');
   if(b) b.classList.toggle('floor-snap-on',measFloorSnap);
-}
-
-function toggleGridOverlay() {
-  gridOverlayActive=!gridOverlayActive;
-  const tog=document.getElementById('grid-overlay-tog');
-  if(tog) tog.checked=gridOverlayActive;
-  const b=document.getElementById('grid-tog-btn');
-  if(b) b.classList.toggle('active',gridOverlayActive);
-  gridOverlayObjects.forEach(o=>viewerScene&&viewerScene.remove(o)); gridOverlayObjects=[];
-  if(!gridOverlayActive) return;
-  if(loadedModel) loadedModel.traverse(c=>{
-    if(!c.isMesh) return;
-    const wf=new THREE.LineSegments(new THREE.WireframeGeometry(c.geometry),
-      new THREE.LineBasicMaterial({color:0xc8f542,transparent:true,opacity:0.15}));
-    c.updateWorldMatrix(true,false); wf.matrix.copy(c.matrixWorld); wf.matrixAutoUpdate=false;
-    viewerScene.add(wf); gridOverlayObjects.push(wf);
-  });
 }
 
 // ════════════════════════════════════════════════════════════
@@ -1501,20 +1526,22 @@ function updateMeasureLine() {
   measureState.sphereB.position.copy(measureState.ptB); measureState.sphereB.visible=true;
   const d=measureState.ptA.distanceTo(measureState.ptB);
   const lbl=d>=1?d.toFixed(3)+' m':(d*100).toFixed(1)+' cm';
-  document.getElementById('hud-measure').textContent='↔ '+lbl;
-  document.getElementById('hud-measure').style.display='block';
-  document.getElementById('measure-readout').textContent=lbl;
+  // Desktop canvas overlay
+  const dr=document.getElementById('measure-readout'); if(dr) dr.textContent='↔ '+lbl;
+  const ov=document.getElementById('measure-readout-overlay'); if(ov) ov.style.display='block';
+  // VR HUD
+  const hm=document.getElementById('hud-measure'); if(hm){hm.textContent='↔ '+lbl;hm.style.display='block';}
 }
 
-// Clear IN-PROGRESS cursor only — does NOT touch saved lines
 function clearMeasure() {
   measureState.ptA=measureState.ptB=null; measurePhase=0;
   measMovingId=null; measMovingEndpoint=null;
   measureState.lineObj&&(measureState.lineObj.visible=false);
   measureState.sphereA&&(measureState.sphereA.visible=false);
   measureState.sphereB&&(measureState.sphereB.visible=false);
-  document.getElementById('hud-measure').style.display='none';
-  document.getElementById('measure-readout').textContent='—';
+  const ov=document.getElementById('measure-readout-overlay'); if(ov) ov.style.display='none';
+  const dr=document.getElementById('measure-readout'); if(dr) dr.textContent='—';
+  const hm=document.getElementById('hud-measure'); if(hm) hm.style.display='none';
 }
 
 function finaliseMeasure() {
@@ -1526,6 +1553,9 @@ function finaliseMeasure() {
   measureState.lineObj&&(measureState.lineObj.visible=false);
   measureState.sphereA&&(measureState.sphereA.visible=false);
   measureState.sphereB&&(measureState.sphereB.visible=false);
+  const ov=document.getElementById('measure-readout-overlay'); if(ov) ov.style.display='none';
+  const dr=document.getElementById('measure-readout'); if(dr) dr.textContent='—';
+  rebuildMeasTable();
   saveSession();
 }
 
@@ -1709,17 +1739,32 @@ async function exportPinReport() {
 // ════════════════════════════════════════════════════════════
 function cacheExplodeOrigins() {
   explodeOrigins.clear(); if(!loadedModel) return;
-  loadedModel.traverse(c=>{if(c.isMesh) explodeOrigins.set(c.uuid,c.position.clone());});
+  // Store each mesh's world-space center so explosion is from model centroid
+  loadedModel.traverse(c=>{
+    if(!c.isMesh) return;
+    c.updateWorldMatrix(true,false);
+    // Store local position (relative to parent) as origin
+    explodeOrigins.set(c.uuid, c.position.clone());
+  });
 }
+
 function applyExplode(t) {
   if(!loadedModel) return;
-  const box=new THREE.Box3().setFromObject(loadedModel);
-  const ctr=new THREE.Vector3(); box.getCenter(ctr); loadedModel.worldToLocal(ctr);
+  // Compute world-space bounding box centre of whole model
+  const worldBox=new THREE.Box3().setFromObject(loadedModel);
+  const worldCtr=new THREE.Vector3(); worldBox.getCenter(worldCtr);
+  // Convert centre into loadedModel's local space
+  const localCtr=loadedModel.worldToLocal(worldCtr.clone());
+
   loadedModel.traverse(c=>{
     if(!c.isMesh) return;
     const orig=explodeOrigins.get(c.uuid); if(!orig) return;
-    const dir=orig.clone().sub(ctr); const dist=dir.length(); dir.normalize();
-    c.position.copy(orig).addScaledVector(dir,t*(0.4+dist*1.2));
+    // Direction = mesh local origin → model local centre
+    const dir=orig.clone().sub(localCtr);
+    const dist=dir.length();
+    dir.normalize();
+    // Scale by distance so inner parts move less than outer parts
+    c.position.copy(orig).addScaledVector(dir, t*(0.3+dist*0.8));
   });
   explodeAmount=t;
   const lbl=document.getElementById('explode-val'); if(lbl) lbl.textContent=Math.round(t*100)+'%';
@@ -1836,6 +1881,7 @@ function onCanvasClick(e) {
       measureState.sphereB&&(measureState.sphereB.visible=false);
       measureState.lineObj&&(measureState.lineObj.visible=false);
       const dr=document.getElementById('measure-readout'); if(dr) dr.textContent='Click pt B…';
+      const ov=document.getElementById('measure-readout-overlay'); if(ov) ov.style.display='block';
     } else {
       measureState.ptB=finalPt.clone(); updateMeasureLine(); measurePhase=0; finaliseMeasure();
       rebuildMeasTable();
@@ -2183,9 +2229,11 @@ function pollGamepadButtons() {
 // ════════════════════════════════════════════════════════════
 function initViewer(fileId) {
   const wrap=document.getElementById('viewer-canvas-wrap');
+  const wRect=wrap.getBoundingClientRect();
+  const initW=Math.max(wRect.width,100), initH=Math.max(wRect.height,100);
   viewerRenderer=new THREE.WebGLRenderer({antialias:true,stencil:true,preserveDrawingBuffer:true});
   viewerRenderer.setPixelRatio(window.devicePixelRatio);
-  viewerRenderer.setSize(wrap.clientWidth,wrap.clientHeight);
+  viewerRenderer.setSize(initW,initH);
   viewerRenderer.outputEncoding=THREE.sRGBEncoding;
   viewerRenderer.physicallyCorrectLights=true;
   viewerRenderer.toneMapping=THREE.ACESFilmicToneMapping;
@@ -2196,17 +2244,17 @@ function initViewer(fileId) {
   viewerRenderer.domElement.addEventListener('contextmenu',onCanvasRightClick);
 
   viewerScene=new THREE.Scene(); viewerScene.background=new THREE.Color(0x1a1a1e);
-  viewerCamera=new THREE.PerspectiveCamera(60,wrap.clientWidth/wrap.clientHeight,0.01,500);
+  viewerCamera=new THREE.PerspectiveCamera(60,initW/initH,0.01,500);
   viewerCamera.position.set(0,1.6,2.5);
-  viewerScene.add(new THREE.AmbientLight(0xffffff,0.6));
-  sunLight=new THREE.DirectionalLight(0xffffff,1.5);
+  viewerScene.add(new THREE.AmbientLight(0xffffff,0.5));
+  sunLight=new THREE.DirectionalLight(0xffffff,1.2);
   const az0=lightAz*Math.PI/180, el0=lightEl*Math.PI/180;
   sunLight.position.set(Math.cos(el0)*Math.sin(az0)*8,Math.sin(el0)*8,Math.cos(el0)*Math.cos(az0)*8);
   viewerScene.add(sunLight);
-  const fill=new THREE.DirectionalLight(0x8888ff,0.18); fill.position.set(-4,2,-3); viewerScene.add(fill);
-  // Soft floor cone — SpotLight aimed straight down, soft penumbra
-  const floorSpot=new THREE.SpotLight(0xffffff,0.35,8,Math.PI/5,0.85,2);
-  floorSpot.position.set(0,4,0); floorSpot.target.position.set(0,0,0);
+  const fill=new THREE.DirectionalLight(0x8888ff,0.15); fill.position.set(-4,2,-3); viewerScene.add(fill);
+  // Floor spotlight — boosted intensity for physicallyCorrectLights mode
+  const floorSpot=new THREE.SpotLight(0xffffff,8,6,Math.PI/5,0.9,1);
+  floorSpot.position.set(0,5,0); floorSpot.target.position.set(0,0,0);
   viewerScene.add(floorSpot); viewerScene.add(floorSpot.target);
   // ── 1×1 m metric grid in a group so it can follow model rotation ──
   gridGroup = new THREE.Group();
@@ -2336,7 +2384,9 @@ function initViewer(fileId) {
 
   window.addEventListener('resize',()=>{
     if(!viewerRenderer) return;
-    const w=wrap.clientWidth,h=wrap.clientHeight;
+    const rect=wrap.getBoundingClientRect();
+    const w=rect.width, h=rect.height;
+    if(w<1||h<1) return; // skip zero-size frames
     viewerRenderer.setSize(w,h);
     if(viewerCamera){viewerCamera.aspect=w/h;viewerCamera.updateProjectionMatrix();}
   });
