@@ -261,6 +261,7 @@ body.browser-open{overflow:auto;}
       <span class="lp-head-icon open" id="lp-chevron" onclick="toggleLeftPanel()" style="cursor:pointer;">▾</span>
     </div>
     <div class="lp-body" id="lp-body">
+      <!-- Slicing -->
       <div class="lp-section">
         <div class="lp-sec-head" onclick="toggleLpSection('lps-0')">
           <span class="lp-title" style="margin:0;flex:1;">Slicing</span>
@@ -269,14 +270,15 @@ body.browser-open{overflow:auto;}
         <div class="lp-sec-body" id="lps-0">
           <div class="lp-row"><span class="lp-label">H-Cut ↕</span><label class="tog teal"><input type="checkbox" id="hslice-tog" onchange="onHSliceToggle(this.checked)"><span class="tog-s"></span></label></div>
           <input type="range" class="lp-slider teal" id="hslice-sl" min="0" max="1" step="0.005" value="0.5" oninput="onHSliceSlider(this.value)">
-          <div class="lp-row" style="margin-top:-4px;"><span class="lp-label" style="font-size:9px;color:var(--muted)">H-Rotate</span><span class="lp-val" id="hslice-ang-val">0°</span></div>
+          <div class="lp-row"><span class="lp-label" style="font-size:9px;color:var(--muted)">H-Rotate</span><span class="lp-val" id="hslice-ang-val">0°</span></div>
           <input type="range" class="lp-slider teal" id="hslice-ang" min="-45" max="45" step="1" value="0" oninput="onHSliceAngle(this.value)">
           <div class="lp-row"><span class="lp-label">V-Cut ↔</span><label class="tog"><input type="checkbox" id="vslice-tog" onchange="onVSliceToggle(this.checked)"><span class="tog-s"></span></label></div>
           <input type="range" class="lp-slider" id="vslice-sl" min="0" max="1" step="0.005" value="0.5" oninput="onVSliceSlider(this.value)">
-          <div class="lp-row" style="margin-top:-4px;"><span class="lp-label" style="font-size:9px;color:var(--muted)">V-Rotate</span><span class="lp-val" id="vslice-ang-val">0°</span></div>
+          <div class="lp-row"><span class="lp-label" style="font-size:9px;color:var(--muted)">V-Rotate</span><span class="lp-val" id="vslice-ang-val">0°</span></div>
           <input type="range" class="lp-slider" id="vslice-ang" min="-45" max="45" step="1" value="0" oninput="onVSliceAngle(this.value)">
         </div>
       </div>
+      <!-- Surface Analysis -->
       <div class="lp-section">
         <div class="lp-sec-head" onclick="toggleLpSection('lps-1')">
           <span class="lp-title" style="margin:0;flex:1;">Surface Analysis</span>
@@ -290,6 +292,7 @@ body.browser-open{overflow:auto;}
           </div>
         </div>
       </div>
+      <!-- Grid Overlay -->
       <div class="lp-section">
         <div class="lp-sec-head" onclick="toggleLpSection('lps-2')">
           <span class="lp-title" style="margin:0;flex:1;">Grid Overlay</span>
@@ -303,6 +306,7 @@ body.browser-open{overflow:auto;}
           </div>
         </div>
       </div>
+      <!-- Display -->
       <div class="lp-section">
         <div class="lp-sec-head" onclick="toggleLpSection('lps-3')">
           <span class="lp-title" style="margin:0;flex:1;">Display</span>
@@ -316,6 +320,7 @@ body.browser-open{overflow:auto;}
           </div>
         </div>
       </div>
+      <!-- Light -->
       <div class="lp-section">
         <div class="lp-sec-head" onclick="toggleLpSection('lps-4')">
           <span class="lp-title" style="margin:0;flex:1;">Light</span>
@@ -328,6 +333,7 @@ body.browser-open{overflow:auto;}
           <input type="range" class="lp-slider warn" id="light-el" min="5" max="85" step="1" value="40" oninput="onLightSlider()">
         </div>
       </div>
+      <!-- Bounding Box -->
       <div class="lp-section">
         <div class="lp-sec-head" onclick="toggleLpSection('lps-5')">
           <span class="lp-title" style="margin:0;flex:1;">Bounding Box</span>
@@ -336,316 +342,6 @@ body.browser-open{overflow:auto;}
         <div class="lp-sec-body" id="lps-5">
           <div id="size-readout" style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text);">—</div>
         </div>
-      </div>
-    </div> html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VR Model Browser</title>
-<style>
-@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap');
-:root{
-  --bg:#0d0d10;--surface:rgba(14,14,18,0.92);--surface2:rgba(22,22,28,0.97);
-  --border:rgba(255,255,255,0.09);--border-hi:rgba(255,255,255,0.18);
-  --text:#e4e4e0;--muted:#5a5a66;--accent:#c8f542;--accent2:#42f5c8;
-  --danger:#f54242;--warn:#f5a142;--blue:#4290f5;
-  --blur:blur(20px);--radius:12px;
-}
-*{margin:0;padding:0;box-sizing:border-box;}
-body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;min-height:100vh;overflow:hidden;}
-body.browser-open{overflow:auto;}
-
-/* ── BROWSER ── */
-#browser-screen{display:none;min-height:100vh;overflow-y:auto;}
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(13,13,16,0.95);backdrop-filter:var(--blur);z-index:10;}
-.topbar-left{display:flex;align-items:center;gap:14px;}
-.wordmark{font-family:'DM Mono',monospace;font-size:14px;font-weight:400;letter-spacing:-0.3px;}
-.wordmark span{color:var(--accent);}
-.btn-icon{background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:8px;padding:7px 14px;color:var(--muted);font-family:'DM Mono',monospace;font-size:12px;cursor:pointer;transition:all 0.18s;}
-.btn-icon:hover{border-color:var(--border-hi);color:var(--text);}
-.content{padding:24px;}
-.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
-.section-title{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;}
-.count-badge{font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);background:rgba(200,245,66,0.1);border-radius:5px;padding:2px 7px;}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px;}
-.model-card{background:rgba(18,18,22,1);border:1px solid var(--border);border-radius:14px;overflow:hidden;cursor:pointer;transition:border-color 0.18s,transform 0.14s,box-shadow 0.18s;position:relative;}
-.model-card:hover{border-color:var(--border-hi);transform:translateY(-2px);box-shadow:0 10px 28px rgba(0,0,0,0.45);}
-.thumb-wrap{width:100%;aspect-ratio:1;background:rgba(18,18,22,1);position:relative;overflow:hidden;}
-.thumb-wrap canvas{width:100%!important;height:100%!important;display:block;}
-.thumb-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;color:var(--muted);font-family:'DM Mono',monospace;font-size:11px;}
-.thumb-placeholder .icon{font-size:26px;opacity:0.35;}
-.card-body{padding:10px 12px 12px;}
-.model-name{font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px;}
-.model-meta{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);}
-.launch-btn{position:absolute;bottom:8px;right:8px;background:var(--accent);color:#0a0a0b;border:none;border-radius:7px;padding:4px 9px;font-family:'DM Mono',monospace;font-size:10px;font-weight:500;cursor:pointer;opacity:0;transition:opacity 0.15s;pointer-events:none;}
-.model-card:hover .launch-btn{opacity:1;pointer-events:auto;}
-.status-msg{text-align:center;padding:60px 24px;color:var(--muted);font-family:'DM Mono',monospace;font-size:12px;line-height:1.7;}
-.status-msg .big{font-size:30px;display:block;margin-bottom:12px;}
-.status-msg.error{color:var(--danger);}
-
-/* ── VIEWER SHELL ── */
-#viewer-overlay{display:none;position:fixed;inset:0;background:var(--bg);z-index:100;}
-#viewer-overlay.active{display:block;}
-#viewer-canvas-wrap{position:absolute;inset:0;}
-#viewer-canvas-wrap canvas{width:100%!important;height:100%!important;display:block;}
-.loading-overlay{position:absolute;inset:0;background:#0d0d10;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;z-index:5;transition:opacity 0.4s;}
-.loading-overlay.hidden{opacity:0;pointer-events:none;}
-.spinner{width:34px;height:34px;border:2px solid rgba(255,255,255,0.1);border-top-color:var(--accent);border-radius:50%;animation:spin 0.75s linear infinite;}
-@keyframes spin{to{transform:rotate(360deg);}}
-.loading-label{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);}
-
-/* ── LEFT floating control panel ── */
-#left-panel{
-  position:fixed;top:14px;left:14px;z-index:120;
-  width:210px;display:none;
-  background:var(--surface);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);
-  border:1px solid var(--border);border-radius:var(--radius);
-  box-shadow:0 8px 32px rgba(0,0,0,0.5);
-  overflow:hidden;
-}
-/* Collapse header */
-.lp-head{display:flex;align-items:center;gap:8px;padding:9px 12px;cursor:pointer;user-select:none;border-bottom:1px solid var(--border);}
-.lp-head-title{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);flex:1;}
-.lp-head-icon{color:var(--muted);font-size:11px;transition:transform 0.18s;}
-.lp-head-icon.closed{transform:rotate(-90deg);}
-.lp-body{overflow-y:auto;max-height:calc(100vh - 100px);transition:max-height 0.22s;}
-.lp-body.collapsed{max-height:0;overflow:hidden;}
-/* Sections */
-.lp-section{padding:10px 12px 6px;border-bottom:1px solid rgba(255,255,255,0.05);}
-.lp-section:last-child{border-bottom:none;}
-.lp-title{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:7px;}
-.lp-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;}
-.lp-label{font-family:'DM Mono',monospace;font-size:10px;color:var(--text);}
-.lp-val{font-family:'DM Mono',monospace;font-size:9px;color:var(--accent);min-width:28px;text-align:right;}
-.lp-slider{width:100%;accent-color:var(--accent);height:3px;margin:2px 0 8px;cursor:pointer;display:block;}
-.lp-slider.teal{accent-color:var(--accent2);}
-.lp-slider.warn{accent-color:var(--warn);}
-
-/* Toggle switch */
-.tog{position:relative;display:inline-block;width:30px;height:16px;flex-shrink:0;}
-.tog input{opacity:0;width:0;height:0;}
-.tog-s{position:absolute;cursor:pointer;inset:0;background:rgba(255,255,255,0.1);border-radius:16px;transition:background 0.18s;}
-.tog-s:before{content:'';position:absolute;height:12px;width:12px;left:2px;bottom:2px;background:#fff;border-radius:50%;transition:transform 0.18s;}
-.tog input:checked+.tog-s{background:var(--accent);}
-.tog.teal input:checked+.tog-s{background:var(--accent2);}
-.tog input:checked+.tog-s:before{transform:translateX(14px);}
-
-/* Button groups */
-.btn-group{display:flex;gap:3px;}
-.bg-btn{flex:1;font-family:'DM Mono',monospace;font-size:9px;padding:4px 0;border-radius:4px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:var(--muted);cursor:pointer;transition:all 0.14s;text-align:center;}
-.bg-btn:hover{border-color:rgba(255,255,255,0.2);color:var(--text);}
-.bg-btn.active{background:var(--accent);color:#0a0a0b;border-color:transparent;font-weight:500;}
-/* Texture buttons */
-.tex-btn{flex:1;font-family:'DM Mono',monospace;font-size:9px;padding:6px 0;border-radius:5px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.03);color:var(--muted);cursor:pointer;transition:all 0.14s;text-align:center;display:flex;flex-direction:column;align-items:center;gap:2px;}
-.tex-btn .ti{font-size:13px;line-height:1.2;}
-.tex-btn:hover{border-color:rgba(255,255,255,0.2);color:var(--text);}
-.tex-btn.active{background:rgba(200,245,66,0.1);color:var(--accent);border-color:rgba(200,245,66,0.3);}
-
-/* ── RIGHT floating annotation panel ── */
-#right-panel{
-  position:fixed;top:14px;right:14px;z-index:120;
-  width:256px;display:none;
-  background:var(--surface);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);
-  border:1px solid var(--border);border-radius:var(--radius);
-  box-shadow:0 8px 32px rgba(0,0,0,0.5);
-  overflow:hidden;max-height:calc(100vh - 100px);
-}
-/* Right panel header */
-.rp-head{display:flex;align-items:center;gap:8px;padding:9px 12px;border-bottom:1px solid var(--border);cursor:pointer;user-select:none;}
-.rp-title{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);flex:1;}
-.rp-meta{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);}
-#pin-table-body{overflow-y:auto;max-height:calc(100vh - 200px);}
-#meas-table-body{overflow-y:auto;}
-.pt-header{display:none;}
-
-/* Pin & measure cards (generated by rebuildPinTable) */
-.ann-card{padding:9px 12px;border-bottom:1px solid rgba(255,255,255,0.04);transition:background 0.12s;cursor:default;}
-.ann-card:last-child{border-bottom:none;}
-.ann-card:hover{background:rgba(255,255,255,0.02);}
-.ann-card.highlighted{background:rgba(200,245,66,0.04);border-left:2px solid var(--accent);}
-.ann-card-top{display:flex;align-items:center;gap:6px;margin-bottom:4px;}
-.ann-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
-.ann-id{font-family:'DM Mono',monospace;font-size:10px;font-weight:500;}
-.ann-actions{margin-left:auto;display:flex;gap:0;}
-.ann-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:12px;padding:2px 4px;border-radius:3px;transition:color 0.12s;}
-.ann-btn:hover{color:var(--text);}
-.ann-btn.del{color:rgba(245,66,66,0.4);}
-.ann-btn.del:hover{color:var(--danger);}
-.ann-comment{font-size:11px;color:#7a7a8a;line-height:1.4;cursor:text;padding-left:13px;}
-.ann-comment.empty{font-style:italic;color:var(--muted);font-size:10px;}
-.ann-ta{width:calc(100% - 13px);margin-left:13px;background:rgba(255,255,255,0.04);border:1px solid rgba(200,245,66,0.25);border-radius:4px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:11px;padding:3px 6px;resize:none;outline:none;min-height:44px;display:block;}
-.meas-card{padding:6px 12px;display:flex;align-items:center;gap:6px;border-bottom:1px solid rgba(255,255,255,0.04);}
-.meas-card-id{font-family:'DM Mono',monospace;font-size:9px;color:var(--warn);min-width:24px;}
-.meas-card-lbl{font-family:'DM Mono',monospace;font-size:10px;color:var(--warn);flex:1;}
-/* Hide old table headers */
-.pt-header{display:none!important;}
-
-/* ── BOTTOM floating toolbar pill ── */
-#bottom-bar{
-  position:fixed;bottom:16px;left:50%;transform:translateX(-50%);
-  z-index:120;display:none;align-items:center;gap:1px;
-  padding:6px 8px;
-  background:var(--surface);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);
-  border:1px solid var(--border);border-radius:100px;
-  box-shadow:0 8px 32px rgba(0,0,0,0.6);
-  white-space:nowrap;
-}
-/* Toolbar buttons */
-.tb-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:7px 9px;border-radius:8px;border:none;background:transparent;color:var(--muted);cursor:pointer;transition:all 0.15s;font-family:'DM Mono',monospace;min-width:44px;}
-.tb-btn svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;display:block;}
-.tb-btn .tb-label{font-size:7px;letter-spacing:.04em;text-transform:uppercase;line-height:1;margin-top:1px;}
-.tb-btn:hover{background:rgba(255,255,255,0.07);color:var(--text);}
-.tb-btn.active{background:rgba(200,245,66,0.12);color:var(--accent);}
-.tb-btn.active-measure{background:rgba(245,161,66,0.12);color:var(--warn);}
-.tb-btn.active-pin{background:rgba(245,66,66,0.12);color:var(--danger);}
-.tb-sep{width:1px;height:20px;background:rgba(255,255,255,0.07);margin:0 2px;flex-shrink:0;}
-.vr-btn{background:var(--accent);color:#0a0a0b;border:none;border-radius:20px;padding:6px 12px;font-family:'DM Mono',monospace;font-size:10px;font-weight:500;cursor:pointer;transition:opacity 0.15s;white-space:nowrap;height:34px;}
-.vr-btn:hover{opacity:0.82;}
-.vr-btn.secondary{background:rgba(255,255,255,0.07);color:var(--text);border:1px solid var(--border);}
-
-/* Measure readout pill */
-#measure-readout-overlay{display:none;position:fixed;top:16px;left:50%;transform:translateX(-50%);font-family:'DM Mono',monospace;font-size:12px;font-weight:500;color:var(--warn);background:var(--surface);backdrop-filter:var(--blur);border:1px solid rgba(245,161,66,0.3);border-radius:20px;padding:5px 14px;pointer-events:none;z-index:130;white-space:nowrap;}
-
-/* Popups */
-.pin-popup{position:fixed;z-index:210;background:rgba(16,16,20,0.97);backdrop-filter:var(--blur);border:1px solid var(--border-hi);border-radius:10px;padding:10px 12px;width:210px;box-shadow:0 8px 28px rgba(0,0,0,0.75);font-family:'DM Mono',monospace;}
-.pin-popup-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;}
-.pin-popup-title{font-size:11px;font-weight:500;color:var(--text);}
-.pin-popup-close{background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;line-height:1;}
-.pin-popup textarea{width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:5px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:11px;line-height:1.45;padding:5px 7px;resize:vertical;outline:none;min-height:55px;}
-.pin-popup textarea:focus{border-color:rgba(200,245,66,0.4);}
-.pin-popup-actions{display:flex;gap:5px;margin-top:7px;justify-content:flex-end;}
-.pin-popup-actions button{font-family:'DM Mono',monospace;font-size:10px;padding:3px 8px;border-radius:4px;cursor:pointer;border:none;}
-.pin-save{background:var(--accent);color:#0a0a0b;font-weight:500;}
-.pin-del{background:rgba(245,66,66,0.13);color:var(--danger);border:1px solid rgba(245,66,66,0.28)!important;}
-.meas-popup{position:fixed;z-index:210;background:rgba(16,16,20,0.97);backdrop-filter:var(--blur);border:1px solid var(--border-hi);border-radius:8px;padding:8px 11px;min-width:170px;box-shadow:0 8px 28px rgba(0,0,0,0.75);font-family:'DM Mono',monospace;}
-.meas-popup-title{font-size:10px;color:var(--warn);font-weight:500;margin-bottom:7px;}
-.meas-popup-actions{display:flex;flex-direction:column;gap:4px;}
-.meas-popup-actions button{font-family:'DM Mono',monospace;font-size:10px;padding:4px 8px;border-radius:4px;cursor:pointer;border:1px solid rgba(255,255,255,0.09);background:rgba(255,255,255,0.04);color:var(--text);text-align:left;}
-.meas-popup-actions button:hover{background:rgba(255,255,255,0.09);}
-.meas-del-btn{color:var(--danger)!important;border-color:rgba(245,66,66,0.22)!important;}
-.meas-label{position:fixed;pointer-events:none;z-index:140;font-family:'DM Mono',monospace;font-size:11px;font-weight:500;color:var(--warn);background:rgba(13,13,16,0.85);border:1px solid rgba(245,161,66,0.3);border-radius:4px;padding:2px 6px;white-space:nowrap;transform:translate(-50%,-50%);}
-.confirm-popup{position:fixed;z-index:300;background:rgba(14,14,18,0.98);backdrop-filter:var(--blur);border:1px solid var(--border-hi);border-radius:10px;padding:16px 20px;width:270px;box-shadow:0 12px 40px rgba(0,0,0,0.85);font-family:'DM Mono',monospace;top:50%;left:50%;transform:translate(-50%,-50%);}
-.confirm-popup p{font-size:12px;color:#c0c0cc;line-height:1.55;margin-bottom:14px;}
-.confirm-popup .confirm-btns{display:flex;gap:8px;justify-content:flex-end;}
-.confirm-popup .confirm-btns button{font-family:'DM Mono',monospace;font-size:11px;padding:5px 14px;border-radius:5px;cursor:pointer;border:none;}
-.confirm-ok{background:var(--danger);color:#fff;font-weight:500;}
-.confirm-ok.orange{background:var(--warn);}
-.confirm-cancel{background:rgba(255,255,255,0.07);color:#b0b0bb;}
-#sidebar{display:none;}
-.c-orbit{cursor:grab;} .c-pin{cursor:crosshair;} .c-meas{cursor:cell;}
-#vr-hud{display:none;position:fixed;inset:0;pointer-events:none;z-index:200;}
-/* Mobile: stack panels compactly */
-@media(max-width:600px){
-  #left-panel{width:calc(100vw - 28px);max-height:40vh;overflow-y:auto;}
-  #right-panel{width:calc(100vw - 28px);top:auto;bottom:80px;right:14px;max-height:35vh;}
-  #bottom-bar{width:calc(100vw - 28px);overflow-x:auto;border-radius:14px;}
-  .tb-btn{min-width:36px;padding:6px 7px;}
-  .tb-btn .tb-label{display:none;}
-}
-</style>
-</head>
-<body>
-
-<!-- BROWSER -->
-<div id="browser-screen">
-  <div class="topbar">
-    <div class="topbar-left">
-      <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;">
-        <rect width="32" height="32" rx="8" fill="#0e0e12"/>
-        <rect x="1" y="1" width="30" height="30" rx="7" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
-        <polygon points="16,4 26,9.5 26,22.5 16,28 6,22.5 6,9.5" fill="none" stroke="#c8f542" stroke-width="1.5" stroke-linejoin="round"/>
-        <line x1="11" y1="13" x2="16" y2="20" stroke="#c8f542" stroke-width="1.5" stroke-linecap="round"/>
-        <line x1="21" y1="13" x2="16" y2="20" stroke="#c8f542" stroke-width="1.5" stroke-linecap="round"/>
-        <line x1="13" y1="13" x2="19" y2="13" stroke="rgba(200,245,66,0.4)" stroke-width="1" stroke-linecap="round"/>
-      </svg>
-      <div style="display:flex;flex-direction:column;gap:1px;">
-        <span class="wordmark">VR<span>.</span>browser</span>
-        <span style="font-family:'DM Mono',monospace;font-size:9px;color:#5a5a6a;letter-spacing:.06em;">v0.2 · Design Review</span>
-      </div>
-    </div>
-    <button class="btn-icon" onclick="loadModels()">↺ Refresh</button>
-  </div>
-  <div class="content">
-    <div class="section-header">
-      <span class="section-title">Models in folder</span>
-      <span class="count-badge" id="count-badge">0 files</span>
-    </div>
-    <div class="grid" id="model-grid"></div>
-  </div>
-</div>
-
-<!-- VIEWER — canvas fills screen, panels float above it -->
-<div id="viewer-overlay">
-
-  <!-- Full-screen canvas -->
-  <div id="viewer-canvas-wrap">
-    <div class="loading-overlay" id="loading-overlay">
-      <div class="spinner"></div>
-      <span class="loading-label" id="loading-label">Loading model…</span>
-    </div>
-    <!-- Fake floor cone glow -->
-    <canvas id="floor-cone-canvas" style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);pointer-events:none;z-index:1;opacity:0.22;width:500px;height:180px;max-width:80vw;"></canvas>
-  </div>
-  <!-- Measure readout pill — outside canvas-wrap so it sits above everything -->
-  <div id="measure-readout-overlay">
-    <span id="measure-readout">—</span>
-  </div>
-
-  <!-- Left floating panel -->
-  <div id="left-panel">
-    <div class="lp-head" id="lp-drag-handle">
-      <span class="lp-head-title" onclick="toggleLeftPanel()" style="flex:1;cursor:pointer;">Controls</span>
-      <button class="lp-head-btn" id="lp-pin-btn" onclick="togglePanelPin('left-panel','lp-pin-btn')" title="Pin to side">📌</button>
-      <span class="lp-head-icon open" id="lp-chevron" onclick="toggleLeftPanel()" style="cursor:pointer;">▾</span>
-    </div>
-    <div class="lp-body" id="lp-body">
-      <!-- Slicing -->
-      <div class="lp-section">
-        <div class="lp-title">Slicing</div>
-        <div class="lp-row"><span class="lp-label">H-Cut ↕</span><label class="tog teal"><input type="checkbox" id="hslice-tog" onchange="onHSliceToggle(this.checked)"><span class="tog-s"></span></label></div>
-        <input type="range" class="lp-slider teal" id="hslice-sl" min="0" max="1" step="0.005" value="0.5" oninput="onHSliceSlider(this.value)">
-        <div class="lp-row"><span class="lp-label">V-Cut ↔</span><label class="tog"><input type="checkbox" id="vslice-tog" onchange="onVSliceToggle(this.checked)"><span class="tog-s"></span></label></div>
-        <input type="range" class="lp-slider" id="vslice-sl" min="0" max="1" step="0.005" value="0.5" oninput="onVSliceSlider(this.value)">
-      </div>
-      <!-- Zebra -->
-      <div class="lp-section">
-        <div class="lp-title">Zebra Analysis</div>
-        <div class="btn-group">
-          <button class="bg-btn active" id="zebra-off" onclick="setZebraMode('off')">Off</button>
-          <button class="bg-btn" id="zebra-h" onclick="setZebraMode('h')">≡ H</button>
-          <button class="bg-btn" id="zebra-v" onclick="setZebraMode('v')">⫶ V</button>
-        </div>
-      </div>
-      <!-- Grid overlay -->
-      <div class="lp-section">
-        <div class="lp-row"><span class="lp-label">Grid overlay</span><label class="tog"><input type="checkbox" id="grid-overlay-tog" onchange="toggleGridOverlay()"><span class="tog-s"></span></label></div>
-        <div id="grid-brightness-row" style="display:none;">
-          <div class="lp-row"><span class="lp-label" style="font-size:10px;">Brightness</span><span class="lp-val" id="grid-bright-val">15%</span></div>
-          <input type="range" class="lp-slider" id="grid-bright-sl" min="0" max="100" step="1" value="15" oninput="onGridBrightnessSlider(this.value)">
-        </div>
-      </div>
-      <!-- Texture -->
-      <div class="lp-section">
-        <div class="lp-title">Display</div>
-        <div class="btn-group">
-          <button class="tex-btn active" id="tex-btn-tex" onclick="setTexMode('tex')"><span class="ti">🖼</span>Tex</button>
-          <button class="tex-btn" id="tex-btn-clay" onclick="setTexMode('clay')"><span class="ti">⬟</span>Clay</button>
-          <button class="tex-btn" id="tex-btn-alpha" onclick="setTexMode('alpha')"><span class="ti">◻</span>Alpha</button>
-        </div>
-      </div>
-      <!-- Light -->
-      <div class="lp-section">
-        <div class="lp-title">Light</div>
-        <div class="lp-row"><span class="lp-label">Azimuth</span><span class="lp-val" id="light-az-val">45°</span></div>
-        <input type="range" class="lp-slider warn" id="light-az" min="0" max="360" step="1" value="45" oninput="onLightSlider()">
-        <div class="lp-row"><span class="lp-label">Elevation</span><span class="lp-val" id="light-el-val">40°</span></div>
-        <input type="range" class="lp-slider warn" id="light-el" min="5" max="85" step="1" value="40" oninput="onLightSlider()">
-      </div>
-      <!-- Info -->
-      <div class="lp-section">
-        <div class="lp-title">Bounding Box</div>
-        <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text);" id="size-readout">—</div>
       </div>
     </div>
   </div>
@@ -2781,28 +2477,20 @@ function initViewer(fileId) {
     disc.renderOrder=-1;
     scene.add(disc);
   })(viewerScene);
-  // ── Floor grid with radial vertex-colour fade ──
+  // ── Floor grid with radial vertex fade ──
   gridGroup = new THREE.Group();
-  (function buildMetricGrid(grp) {
-    // Build lines with per-vertex alpha fading out from centre
-    const STEPS=5, HALF=STEPS*0.1;
-    const allPts=[], allCols=[];
-    const addLine=(ax,ay,az,bx,by,bz)=>{
-      const dA=Math.sqrt(ax*ax+az*az)/HALF, dB=Math.sqrt(bx*bx+bz*bz)/HALF;
-      const aA=Math.max(0,1-dA*dA), aB=Math.max(0,1-dB*dB);
-      allPts.push(new THREE.Vector3(ax,ay,az),new THREE.Vector3(bx,by,bz));
-      allCols.push(aA,aA,aA, aB,aB,aB);
-    };
-    for(let i=-STEPS;i<=STEPS;i++){
-      const v=i*0.1;
-      addLine(-HALF,0,v, HALF,0,v);
-      addLine(v,0,-HALF, v,0,HALF);
+  (function(grp){
+    const S=5, H=S*0.1, pts=[], cols=[];
+    function ln(ax,ay,az,bx,by,bz){
+      const a=Math.max(0,1-(ax*ax+az*az)/(H*H)), b=Math.max(0,1-(bx*bx+bz*bz)/(H*H));
+      pts.push(new THREE.Vector3(ax,ay,az),new THREE.Vector3(bx,by,bz));
+      cols.push(a,a,a, b,b,b);
     }
-    const geo=new THREE.BufferGeometry().setFromPoints(allPts);
-    const colArr=new Float32Array(allCols);
-    geo.setAttribute('color',new THREE.BufferAttribute(colArr,3));
-    const mat=new THREE.LineBasicMaterial({vertexColors:true,transparent:true,opacity:0.55});
-    grp.add(new THREE.LineSegments(geo,mat));
+    for(let i=-S;i<=S;i++){const v=i*H/S; ln(-H,0,v,H,0,v); ln(v,0,-H,v,0,H);}
+    const geo=new THREE.BufferGeometry().setFromPoints(pts);
+    geo.setAttribute('color',new THREE.BufferAttribute(new Float32Array(cols),3));
+    grp.add(new THREE.LineSegments(geo,
+      new THREE.LineBasicMaterial({vertexColors:true,transparent:true,opacity:0.65})));
   })(gridGroup);
   viewerScene.add(gridGroup);
 
