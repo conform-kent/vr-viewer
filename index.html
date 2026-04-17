@@ -7,30 +7,32 @@
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap');
 :root{
-  --bg:#0d0d10;--surface:#141418;--surface2:#1c1c22;--surface3:#242428;
-  --border:rgba(255,255,255,0.07);--border-hi:rgba(255,255,255,0.14);
-  --text:#e4e4e0;--muted:#60606a;--accent:#c8f542;--accent2:#42f5c8;
+  --bg:#0d0d10;--surface:rgba(14,14,18,0.92);--surface2:rgba(22,22,28,0.97);
+  --border:rgba(255,255,255,0.09);--border-hi:rgba(255,255,255,0.18);
+  --text:#e4e4e0;--muted:#5a5a66;--accent:#c8f542;--accent2:#42f5c8;
   --danger:#f54242;--warn:#f5a142;--blue:#4290f5;
-  --panel-w:220px;--right-w:300px;--bottom-h:72px;
+  --blur:blur(20px);--radius:12px;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
-body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;min-height:100vh;overflow-x:hidden;}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;min-height:100vh;overflow:hidden;}
+body.browser-open{overflow:auto;}
+
 /* ── BROWSER ── */
-#browser-screen{display:none;min-height:100vh;}
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(13,13,16,0.94);backdrop-filter:blur(12px);z-index:10;}
+#browser-screen{display:none;min-height:100vh;overflow-y:auto;}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(13,13,16,0.95);backdrop-filter:var(--blur);z-index:10;}
 .topbar-left{display:flex;align-items:center;gap:14px;}
 .wordmark{font-family:'DM Mono',monospace;font-size:14px;font-weight:400;letter-spacing:-0.3px;}
 .wordmark span{color:var(--accent);}
-.btn-icon{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:7px 14px;color:var(--muted);font-family:'DM Mono',monospace;font-size:12px;cursor:pointer;transition:all 0.18s;}
+.btn-icon{background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:8px;padding:7px 14px;color:var(--muted);font-family:'DM Mono',monospace;font-size:12px;cursor:pointer;transition:all 0.18s;}
 .btn-icon:hover{border-color:var(--border-hi);color:var(--text);}
 .content{padding:24px;}
 .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
 .section-title{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;}
 .count-badge{font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);background:rgba(200,245,66,0.1);border-radius:5px;padding:2px 7px;}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px;}
-.model-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;cursor:pointer;transition:border-color 0.18s,transform 0.14s,box-shadow 0.18s;position:relative;}
+.model-card{background:rgba(18,18,22,1);border:1px solid var(--border);border-radius:14px;overflow:hidden;cursor:pointer;transition:border-color 0.18s,transform 0.14s,box-shadow 0.18s;position:relative;}
 .model-card:hover{border-color:var(--border-hi);transform:translateY(-2px);box-shadow:0 10px 28px rgba(0,0,0,0.45);}
-.thumb-wrap{width:100%;aspect-ratio:1;background:var(--surface2);position:relative;overflow:hidden;}
+.thumb-wrap{width:100%;aspect-ratio:1;background:rgba(18,18,22,1);position:relative;overflow:hidden;}
 .thumb-wrap canvas{width:100%!important;height:100%!important;display:block;}
 .thumb-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;color:var(--muted);font-family:'DM Mono',monospace;font-size:11px;}
 .thumb-placeholder .icon{font-size:26px;opacity:0.35;}
@@ -42,132 +44,169 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .status-msg{text-align:center;padding:60px 24px;color:var(--muted);font-family:'DM Mono',monospace;font-size:12px;line-height:1.7;}
 .status-msg .big{font-size:30px;display:block;margin-bottom:12px;}
 .status-msg.error{color:var(--danger);}
+
 /* ── VIEWER SHELL ── */
-#viewer-overlay{display:none;position:fixed;inset:0;background:var(--bg);z-index:100;flex-direction:row;}
-#viewer-overlay.active{display:flex;}
-/* Canvas takes the middle */
-#viewer-canvas-wrap{flex:1;position:relative;overflow:hidden;margin-bottom:var(--bottom-h);}
-#viewer-canvas-wrap canvas{width:100%!important;height:100%!important;}
+#viewer-overlay{display:none;position:fixed;inset:0;background:var(--bg);z-index:100;}
+#viewer-overlay.active{display:block;}
+#viewer-canvas-wrap{position:absolute;inset:0;}
+#viewer-canvas-wrap canvas{width:100%!important;height:100%!important;display:block;}
 .loading-overlay{position:absolute;inset:0;background:#0d0d10;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;z-index:5;transition:opacity 0.4s;}
 .loading-overlay.hidden{opacity:0;pointer-events:none;}
-.spinner{width:34px;height:34px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.75s linear infinite;}
+.spinner{width:34px;height:34px;border:2px solid rgba(255,255,255,0.1);border-top-color:var(--accent);border-radius:50%;animation:spin 0.75s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
 .loading-label{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);}
 
-/* ── LEFT PANEL ── */
-#left-panel{width:var(--panel-w);background:var(--surface);border-right:1px solid var(--border);display:none;flex-direction:column;overflow-y:auto;flex-shrink:0;margin-bottom:var(--bottom-h);}
-.lp-section{padding:14px 14px 10px;border-bottom:1px solid var(--border);}
-.lp-title{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:10px;}
-.lp-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
-.lp-label{font-family:'DM Mono',monospace;font-size:11px;color:var(--text);}
-.lp-val{font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);min-width:32px;text-align:right;}
-.lp-slider{width:100%;accent-color:var(--accent);margin:4px 0 10px;}
+/* ── LEFT floating control panel ── */
+#left-panel{
+  position:fixed;top:14px;left:14px;z-index:120;
+  width:210px;display:none;
+  background:var(--surface);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);
+  border:1px solid var(--border);border-radius:var(--radius);
+  box-shadow:0 8px 32px rgba(0,0,0,0.5);
+  overflow:hidden;
+}
+/* Collapse header */
+.lp-head{display:flex;align-items:center;gap:8px;padding:9px 12px;cursor:pointer;user-select:none;border-bottom:1px solid var(--border);}
+.lp-head-title{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);flex:1;}
+.lp-head-icon{color:var(--muted);font-size:11px;transition:transform 0.18s;}
+.lp-head-icon.closed{transform:rotate(-90deg);}
+.lp-body{overflow-y:auto;max-height:calc(100vh - 100px);}
+/* Sections */
+.lp-section{padding:10px 12px 6px;border-bottom:1px solid rgba(255,255,255,0.05);}
+.lp-section:last-child{border-bottom:none;}
+.lp-title{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:7px;}
+.lp-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;}
+.lp-label{font-family:'DM Mono',monospace;font-size:10px;color:var(--text);}
+.lp-val{font-family:'DM Mono',monospace;font-size:9px;color:var(--accent);min-width:28px;text-align:right;}
+.lp-slider{width:100%;accent-color:var(--accent);height:3px;margin:2px 0 8px;cursor:pointer;display:block;}
 .lp-slider.teal{accent-color:var(--accent2);}
 .lp-slider.warn{accent-color:var(--warn);}
+
 /* Toggle switch */
-.tog{position:relative;display:inline-block;width:32px;height:18px;flex-shrink:0;}
+.tog{position:relative;display:inline-block;width:30px;height:16px;flex-shrink:0;}
 .tog input{opacity:0;width:0;height:0;}
-.tog-s{position:absolute;cursor:pointer;inset:0;background:rgba(255,255,255,0.1);border-radius:18px;transition:background 0.18s;}
-.tog-s:before{content:'';position:absolute;height:14px;width:14px;left:2px;bottom:2px;background:#fff;border-radius:50%;transition:transform 0.18s;}
+.tog-s{position:absolute;cursor:pointer;inset:0;background:rgba(255,255,255,0.1);border-radius:16px;transition:background 0.18s;}
+.tog-s:before{content:'';position:absolute;height:12px;width:12px;left:2px;bottom:2px;background:#fff;border-radius:50%;transition:transform 0.18s;}
 .tog input:checked+.tog-s{background:var(--accent);}
 .tog.teal input:checked+.tog-s{background:var(--accent2);}
 .tog input:checked+.tog-s:before{transform:translateX(14px);}
-/* Zebra / tex button groups */
-.btn-group{display:flex;gap:4px;width:100%;}
-.bg-btn{flex:1;font-family:'DM Mono',monospace;font-size:10px;padding:5px 0;border-radius:5px;border:1px solid var(--border-hi);background:transparent;color:var(--muted);cursor:pointer;transition:all 0.14s;text-align:center;}
-.bg-btn:hover{border-color:rgba(255,255,255,0.25);color:var(--text);}
+
+/* Button groups */
+.btn-group{display:flex;gap:3px;}
+.bg-btn{flex:1;font-family:'DM Mono',monospace;font-size:9px;padding:4px 0;border-radius:4px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:var(--muted);cursor:pointer;transition:all 0.14s;text-align:center;}
+.bg-btn:hover{border-color:rgba(255,255,255,0.2);color:var(--text);}
 .bg-btn.active{background:var(--accent);color:#0a0a0b;border-color:transparent;font-weight:500;}
-/* Tex buttons with icons */
-.tex-btn{flex:1;font-family:'DM Mono',monospace;font-size:9px;padding:7px 0;border-radius:6px;border:1px solid var(--border-hi);background:var(--surface2);color:var(--muted);cursor:pointer;transition:all 0.14s;text-align:center;display:flex;flex-direction:column;align-items:center;gap:2px;}
-.tex-btn .ti{font-size:16px;}
-.tex-btn:hover{border-color:rgba(255,255,255,0.25);color:var(--text);}
-.tex-btn.active{background:rgba(200,245,66,0.12);color:var(--accent);border-color:rgba(200,245,66,0.35);}
+/* Texture buttons */
+.tex-btn{flex:1;font-family:'DM Mono',monospace;font-size:9px;padding:6px 0;border-radius:5px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.03);color:var(--muted);cursor:pointer;transition:all 0.14s;text-align:center;display:flex;flex-direction:column;align-items:center;gap:2px;}
+.tex-btn .ti{font-size:13px;line-height:1.2;}
+.tex-btn:hover{border-color:rgba(255,255,255,0.2);color:var(--text);}
+.tex-btn.active{background:rgba(200,245,66,0.1);color:var(--accent);border-color:rgba(200,245,66,0.3);}
 
-/* ── BOTTOM TOOLBAR ── */
-#bottom-bar{position:fixed;bottom:0;left:var(--panel-w);right:var(--right-w);height:var(--bottom-h);background:rgba(13,13,16,0.97);border-top:1px solid var(--border);display:none;align-items:center;justify-content:center;gap:4px;padding:0 12px;z-index:50;backdrop-filter:blur(8px);}
-
-/* ── RIGHT PANEL — Annotations & Pins ── */
-#right-panel{width:var(--right-w);background:var(--surface);border-left:1px solid var(--border);display:none;flex-direction:column;flex-shrink:0;margin-bottom:var(--bottom-h);}
-/* Icon toolbar buttons */
-.tb-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:8px 14px;border-radius:10px;border:1px solid transparent;background:transparent;color:var(--muted);cursor:pointer;transition:all 0.15s;font-family:'DM Mono',monospace;min-width:64px;}
-.tb-btn svg,.tb-btn .tb-icon{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;display:block;}
-.tb-btn .tb-label{font-size:9px;letter-spacing:.04em;text-transform:uppercase;}
-.tb-btn .tb-sub{font-size:8px;color:var(--accent);opacity:0;}
-.tb-btn:hover{background:var(--surface2);border-color:var(--border-hi);color:var(--text);}
-.tb-btn.active{background:rgba(200,245,66,0.12);border-color:rgba(200,245,66,0.35);color:var(--accent);}
-.tb-btn.active-measure{background:rgba(245,161,66,0.12);border-color:rgba(245,161,66,0.35);color:var(--warn);}
-.tb-btn.active-pin{background:rgba(245,66,66,0.12);border-color:rgba(245,66,66,0.35);color:var(--danger);}
-.tb-btn.floor-snap-on .tb-sub{opacity:1;}
-.tb-sep{width:1px;height:32px;background:var(--border);margin:0 4px;}
-/* VR/AR buttons */
-#bottom-vr-strip{position:absolute;bottom:0;left:0;right:0;height:var(--bottom-h);background:rgba(13,13,16,0.95);border-top:1px solid var(--border);display:none;align-items:center;justify-content:space-between;padding:0 20px;z-index:20;}
-
-/* ── RIGHT PANEL — Annotations & Pins ── */
-#right-panel{width:var(--right-w);background:var(--surface);border-left:1px solid var(--border);display:none;flex-direction:column;flex-shrink:0;}
-.rp-head{padding:14px 16px 10px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
-.rp-title{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.08em;color:var(--text);text-transform:uppercase;font-weight:500;}
+/* ── RIGHT floating annotation panel ── */
+#right-panel{
+  position:fixed;top:14px;right:14px;z-index:120;
+  width:256px;display:none;
+  background:var(--surface);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);
+  border:1px solid var(--border);border-radius:var(--radius);
+  box-shadow:0 8px 32px rgba(0,0,0,0.5);
+  overflow:hidden;max-height:calc(100vh - 100px);
+}
+/* Right panel header */
+.rp-head{display:flex;align-items:center;gap:8px;padding:9px 12px;border-bottom:1px solid var(--border);cursor:pointer;user-select:none;}
+.rp-title{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);flex:1;}
 .rp-meta{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);}
-/* Pin table */
-#pin-table{flex:1;overflow-y:auto;}
-.pt-header{display:grid;grid-template-columns:40px 56px 1fr 28px;gap:0;padding:6px 12px;border-bottom:1px solid var(--border);background:var(--surface2);}
-.pt-header span{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;}
-.pt-row{display:grid;grid-template-columns:40px 56px 1fr 28px;gap:0;padding:6px 12px;border-bottom:1px solid rgba(255,255,255,0.03);align-items:center;cursor:default;transition:background 0.12s;}
-.pt-row:hover{background:rgba(255,255,255,0.025);}
-.pt-row.highlighted{background:rgba(200,245,66,0.05);border-left:2px solid var(--accent);}
-.pt-id{font-family:'DM Mono',monospace;font-size:11px;font-weight:500;display:flex;align-items:center;gap:5px;}
-.pt-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
-.pt-locate{background:transparent;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:2px;border-radius:3px;transition:color 0.12s;}
-.pt-locate:hover{color:var(--text);}
-.pt-del{background:transparent;border:none;color:rgba(245,66,66,0.5);cursor:pointer;font-size:12px;padding:2px;transition:color 0.12s;}
-.pt-del:hover{color:var(--danger);}
-.pt-comment-wrap{min-width:0;}
-.pt-comment{font-size:11px;color:#9090a0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:text;}
-.pt-comment.empty{font-style:italic;color:var(--muted);font-size:10px;}
-.pt-ta{width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--border-hi);border-radius:4px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:11px;padding:3px 6px;resize:none;outline:none;height:52px;}
-.pt-ta:focus{border-color:var(--accent);}
-/* Measure table rows */
-.pm-row{display:grid;grid-template-columns:40px 80px 1fr 28px;gap:0;padding:6px 12px;border-bottom:1px solid rgba(255,255,255,0.03);align-items:center;transition:background 0.12s;}
-.pm-row:hover{background:rgba(255,255,255,0.025);}
-.pm-id{font-family:'DM Mono',monospace;font-size:11px;color:var(--warn);}
-.pm-label{font-family:'DM Mono',monospace;font-size:11px;color:var(--warn);}
-/* Meas popup */
-.meas-popup{position:fixed;z-index:210;background:#16161c;border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:8px 11px;min-width:170px;box-shadow:0 8px 28px rgba(0,0,0,0.75);font-family:'DM Mono',monospace;}
+#pin-table-body{overflow-y:auto;max-height:calc(100vh - 200px);}
+#meas-table-body{overflow-y:auto;}
+.pt-header{display:none;}
+
+/* Pin cards */
+.pc{padding:9px 12px;border-bottom:1px solid rgba(255,255,255,0.04);transition:background 0.12s;}
+.pc:last-child{border-bottom:none;}
+.pc:hover{background:rgba(255,255,255,0.02);}
+.pc.highlighted{background:rgba(200,245,66,0.04);border-left:2px solid var(--accent);}
+.pc-head{display:flex;align-items:center;gap:6px;margin-bottom:4px;}
+.pc-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.pc-id{font-family:'DM Mono',monospace;font-size:10px;font-weight:500;}
+.pc-actions{margin-left:auto;display:flex;gap:0;}
+.pc-loc{background:none;border:none;color:var(--muted);cursor:pointer;font-size:12px;padding:2px 4px;border-radius:3px;transition:color 0.12s;}
+.pc-loc:hover{color:var(--text);}
+.pc-del{background:none;border:none;color:rgba(245,66,66,0.4);cursor:pointer;font-size:12px;padding:2px 4px;border-radius:3px;transition:color 0.12s;}
+.pc-del:hover{color:var(--danger);}
+.pc-comment{font-size:11px;color:#7a7a8a;line-height:1.4;cursor:text;padding-left:13px;}
+.pc-comment.empty{font-style:italic;color:var(--muted);font-size:10px;}
+.pc-ta{width:calc(100% - 13px);margin-left:13px;background:rgba(255,255,255,0.04);border:1px solid rgba(200,245,66,0.25);border-radius:4px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:11px;padding:3px 6px;resize:none;outline:none;min-height:44px;display:block;}
+/* Measure rows */
+.mr{padding:6px 12px;display:flex;align-items:center;gap:6px;border-bottom:1px solid rgba(255,255,255,0.04);}
+.mr-id{font-family:'DM Mono',monospace;font-size:9px;color:var(--warn);min-width:24px;}
+.mr-label{font-family:'DM Mono',monospace;font-size:10px;color:var(--warn);flex:1;}
+.mr-del{background:none;border:none;color:rgba(245,66,66,0.4);cursor:pointer;font-size:12px;padding:2px 4px;}
+.mr-del:hover{color:var(--danger);}
+/* Meas section header */
+#meas-section{border-top:1px solid rgba(255,255,255,0.05);}
+.meas-sec-title{padding:5px 12px 2px;font-family:'DM Mono',monospace;font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);}
+
+/* ── BOTTOM floating toolbar pill ── */
+#bottom-bar{
+  position:fixed;bottom:16px;left:50%;transform:translateX(-50%);
+  z-index:120;display:none;align-items:center;gap:1px;
+  padding:6px 8px;
+  background:var(--surface);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);
+  border:1px solid var(--border);border-radius:100px;
+  box-shadow:0 8px 32px rgba(0,0,0,0.6);
+  white-space:nowrap;
+}
+/* Toolbar buttons */
+.tb-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:7px 9px;border-radius:8px;border:none;background:transparent;color:var(--muted);cursor:pointer;transition:all 0.15s;font-family:'DM Mono',monospace;min-width:44px;}
+.tb-btn svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;display:block;}
+.tb-btn .tb-label{font-size:7px;letter-spacing:.04em;text-transform:uppercase;line-height:1;margin-top:1px;}
+.tb-btn:hover{background:rgba(255,255,255,0.07);color:var(--text);}
+.tb-btn.active{background:rgba(200,245,66,0.12);color:var(--accent);}
+.tb-btn.active-measure{background:rgba(245,161,66,0.12);color:var(--warn);}
+.tb-btn.active-pin{background:rgba(245,66,66,0.12);color:var(--danger);}
+.tb-sep{width:1px;height:20px;background:rgba(255,255,255,0.07);margin:0 2px;flex-shrink:0;}
+.vr-btn{background:var(--accent);color:#0a0a0b;border:none;border-radius:20px;padding:6px 12px;font-family:'DM Mono',monospace;font-size:10px;font-weight:500;cursor:pointer;transition:opacity 0.15s;white-space:nowrap;height:34px;}
+.vr-btn:hover{opacity:0.82;}
+.vr-btn.secondary{background:rgba(255,255,255,0.07);color:var(--text);border:1px solid var(--border);}
+
+/* Measure readout pill */
+#measure-readout-overlay{display:none;position:fixed;top:16px;left:50%;transform:translateX(-50%);font-family:'DM Mono',monospace;font-size:12px;font-weight:500;color:var(--warn);background:var(--surface);backdrop-filter:var(--blur);border:1px solid rgba(245,161,66,0.3);border-radius:20px;padding:5px 14px;pointer-events:none;z-index:130;white-space:nowrap;}
+
+/* Popups */
+.pin-popup{position:fixed;z-index:210;background:rgba(16,16,20,0.97);backdrop-filter:var(--blur);border:1px solid var(--border-hi);border-radius:10px;padding:10px 12px;width:210px;box-shadow:0 8px 28px rgba(0,0,0,0.75);font-family:'DM Mono',monospace;}
+.pin-popup-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;}
+.pin-popup-title{font-size:11px;font-weight:500;color:var(--text);}
+.pin-popup-close{background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;line-height:1;}
+.pin-popup textarea{width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:5px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:11px;line-height:1.45;padding:5px 7px;resize:vertical;outline:none;min-height:55px;}
+.pin-popup textarea:focus{border-color:rgba(200,245,66,0.4);}
+.pin-popup-actions{display:flex;gap:5px;margin-top:7px;justify-content:flex-end;}
+.pin-popup-actions button{font-family:'DM Mono',monospace;font-size:10px;padding:3px 8px;border-radius:4px;cursor:pointer;border:none;}
+.pin-save{background:var(--accent);color:#0a0a0b;font-weight:500;}
+.pin-del{background:rgba(245,66,66,0.13);color:var(--danger);border:1px solid rgba(245,66,66,0.28)!important;}
+.meas-popup{position:fixed;z-index:210;background:rgba(16,16,20,0.97);backdrop-filter:var(--blur);border:1px solid var(--border-hi);border-radius:8px;padding:8px 11px;min-width:170px;box-shadow:0 8px 28px rgba(0,0,0,0.75);font-family:'DM Mono',monospace;}
 .meas-popup-title{font-size:10px;color:var(--warn);font-weight:500;margin-bottom:7px;}
 .meas-popup-actions{display:flex;flex-direction:column;gap:4px;}
 .meas-popup-actions button{font-family:'DM Mono',monospace;font-size:10px;padding:4px 8px;border-radius:4px;cursor:pointer;border:1px solid rgba(255,255,255,0.09);background:rgba(255,255,255,0.04);color:var(--text);text-align:left;}
 .meas-popup-actions button:hover{background:rgba(255,255,255,0.09);}
 .meas-del-btn{color:var(--danger)!important;border-color:rgba(245,66,66,0.22)!important;}
-/* Pin comment popup */
-.pin-popup{position:fixed;z-index:210;background:#16161c;border:1px solid rgba(255,255,255,0.14);border-radius:9px;padding:10px 12px;width:210px;box-shadow:0 8px 28px rgba(0,0,0,0.75);font-family:'DM Mono',monospace;}
-.pin-popup-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;}
-.pin-popup-title{font-size:11px;font-weight:500;color:var(--text);}
-.pin-popup-close{background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;line-height:1;}
-.pin-popup textarea{width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--border-hi);border-radius:5px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:11px;line-height:1.45;padding:5px 7px;resize:vertical;outline:none;min-height:55px;}
-.pin-popup textarea:focus{border-color:rgba(255,255,255,0.24);}
-.pin-popup-actions{display:flex;gap:5px;margin-top:7px;justify-content:flex-end;}
-.pin-popup-actions button{font-family:'DM Mono',monospace;font-size:10px;padding:3px 8px;border-radius:4px;cursor:pointer;border:none;}
-.pin-save{background:var(--accent);color:#0a0a0b;font-weight:500;}
-.pin-del{background:rgba(245,66,66,0.13);color:var(--danger);border:1px solid rgba(245,66,66,0.28)!important;}
-/* Measurement labels */
 .meas-label{position:fixed;pointer-events:none;z-index:140;font-family:'DM Mono',monospace;font-size:11px;font-weight:500;color:var(--warn);background:rgba(13,13,16,0.85);border:1px solid rgba(245,161,66,0.3);border-radius:4px;padding:2px 6px;white-space:nowrap;transform:translate(-50%,-50%);}
-/* Confirm popup */
-.confirm-popup{position:fixed;z-index:300;background:#16161c;border:1px solid rgba(255,255,255,0.14);border-radius:10px;padding:16px 20px;width:270px;box-shadow:0 12px 40px rgba(0,0,0,0.85);font-family:'DM Mono',monospace;top:50%;left:50%;transform:translate(-50%,-50%);}
+.confirm-popup{position:fixed;z-index:300;background:rgba(14,14,18,0.98);backdrop-filter:var(--blur);border:1px solid var(--border-hi);border-radius:10px;padding:16px 20px;width:270px;box-shadow:0 12px 40px rgba(0,0,0,0.85);font-family:'DM Mono',monospace;top:50%;left:50%;transform:translate(-50%,-50%);}
 .confirm-popup p{font-size:12px;color:#c0c0cc;line-height:1.55;margin-bottom:14px;}
 .confirm-popup .confirm-btns{display:flex;gap:8px;justify-content:flex-end;}
 .confirm-popup .confirm-btns button{font-family:'DM Mono',monospace;font-size:11px;padding:5px 14px;border-radius:5px;cursor:pointer;border:none;}
 .confirm-ok{background:var(--danger);color:#fff;font-weight:500;}
 .confirm-ok.orange{background:var(--warn);}
 .confirm-cancel{background:rgba(255,255,255,0.07);color:#b0b0bb;}
-/* Sidebar (collapsed right comments) */
 #sidebar{display:none;}
-/* Canvas cursor */
 .c-orbit{cursor:grab;} .c-pin{cursor:crosshair;} .c-meas{cursor:cell;}
-/* Viewer bar (VR/AR strip) */
-.vr-btn{background:var(--accent);color:#0a0a0b;border:none;border-radius:7px;padding:7px 14px;font-family:'DM Mono',monospace;font-size:11px;font-weight:500;cursor:pointer;transition:opacity 0.15s;}
-.vr-btn:hover{opacity:0.82;}
-.vr-btn.secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
-/* VR HUD */
 #vr-hud{display:none;position:fixed;inset:0;pointer-events:none;z-index:200;}
+/* Mobile: stack panels compactly */
+@media(max-width:600px){
+  #left-panel{width:calc(100vw - 28px);max-height:40vh;overflow-y:auto;}
+  #right-panel{width:calc(100vw - 28px);top:auto;bottom:80px;right:14px;max-height:35vh;}
+  #bottom-bar{width:calc(100vw - 28px);overflow-x:auto;border-radius:14px;}
+  .tb-btn{min-width:36px;padding:6px 7px;}
+  .tb-btn .tb-label{display:none;}
+}
 </style>
 </head>
 <body>
@@ -176,13 +215,10 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 <div id="browser-screen">
   <div class="topbar">
     <div class="topbar-left">
-      <!-- Logo mark -->
       <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;">
         <rect width="32" height="32" rx="8" fill="#0e0e12"/>
         <rect x="1" y="1" width="30" height="30" rx="7" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
-        <!-- Hexagon -->
         <polygon points="16,4 26,9.5 26,22.5 16,28 6,22.5 6,9.5" fill="none" stroke="#c8f542" stroke-width="1.5" stroke-linejoin="round"/>
-        <!-- VR lines inside -->
         <line x1="11" y1="13" x2="16" y2="20" stroke="#c8f542" stroke-width="1.5" stroke-linecap="round"/>
         <line x1="21" y1="13" x2="16" y2="20" stroke="#c8f542" stroke-width="1.5" stroke-linecap="round"/>
         <line x1="13" y1="13" x2="19" y2="13" stroke="rgba(200,245,66,0.4)" stroke-width="1" stroke-linecap="round"/>
@@ -203,108 +239,102 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
   </div>
 </div>
 
-<!-- VIEWER — 3 column layout: Left panel | Canvas | Right panel -->
+<!-- VIEWER — canvas fills screen, panels float above it -->
 <div id="viewer-overlay">
 
-  <!-- Left control panel -->
-  <div id="left-panel">
-    <!-- Slicing section -->
-    <div class="lp-section">
-      <div class="lp-title">Slicing</div>
-      <div class="lp-row"><span class="lp-label">H-Cut ↕</span><label class="tog teal"><input type="checkbox" id="hslice-tog" onchange="onHSliceToggle(this.checked)"><span class="tog-s"></span></label></div>
-      <input type="range" class="lp-slider teal" id="hslice-sl" min="0" max="1" step="0.005" value="0.5" oninput="onHSliceSlider(this.value)">
-      <div class="lp-row"><span class="lp-label">V-Cut ↔</span><label class="tog"><input type="checkbox" id="vslice-tog" onchange="onVSliceToggle(this.checked)"><span class="tog-s"></span></label></div>
-      <input type="range" class="lp-slider" id="vslice-sl" min="0" max="1" step="0.005" value="0.5" oninput="onVSliceSlider(this.value)">
-    </div>
-    <!-- Explode -->
-    <div class="lp-section">
-      <div class="lp-title">Explode</div>
-      <div class="lp-row"><span class="lp-label" id="explode-val">0%</span></div>
-      <input type="range" class="lp-slider" min="0" max="1" step="0.01" value="0" oninput="onExplodeSlider(this.value)">
-    </div>
-    <!-- Zebra -->
-    <div class="lp-section">
-      <div class="lp-title">Zebra</div>
-      <div class="btn-group">
-        <button class="bg-btn active" id="zebra-off" onclick="setZebraMode('off')">Off</button>
-        <button class="bg-btn" id="zebra-h" onclick="setZebraMode('h')">H</button>
-        <button class="bg-btn" id="zebra-v" onclick="setZebraMode('v')">V</button>
-      </div>
-    </div>
-    <!-- Grid -->
-    <div class="lp-section">
-      <div class="lp-row"><span class="lp-label">Grid overlay</span><label class="tog"><input type="checkbox" id="grid-overlay-tog" onchange="toggleGridOverlay()"><span class="tog-s"></span></label></div>
-      <div class="lp-row" id="grid-brightness-row" style="display:none;">
-        <span class="lp-label">Brightness</span>
-        <span class="lp-val" id="grid-bright-val">15%</span>
-      </div>
-      <input type="range" class="lp-slider" id="grid-bright-sl" min="1" max="60" step="1" value="15"
-        oninput="onGridBrightnessSlider(this.value)"
-        style="display:none;">
-    </div>
-    <!-- Texture -->
-    <div class="lp-section">
-      <div class="lp-title">Texture</div>
-      <div class="btn-group">
-        <button class="tex-btn active" id="tex-btn-tex" onclick="setTexMode('tex')"><span class="ti">🖼</span>Tex</button>
-        <button class="tex-btn" id="tex-btn-clay" onclick="setTexMode('clay')"><span class="ti">⬟</span>Clay</button>
-        <button class="tex-btn" id="tex-btn-alpha" onclick="setTexMode('alpha')"><span class="ti">◻</span>Alpha</button>
-      </div>
-    </div>
-    <!-- Light -->
-    <div class="lp-section">
-      <div class="lp-title">Light</div>
-      <div class="lp-row"><span class="lp-label">Azimuth</span><span class="lp-val" id="light-az-val">45°</span></div>
-      <input type="range" class="lp-slider warn" id="light-az" min="0" max="360" step="1" value="45" oninput="onLightSlider()">
-      <div class="lp-row"><span class="lp-label">Elevation</span><span class="lp-val" id="light-el-val">40°</span></div>
-      <input type="range" class="lp-slider warn" id="light-el" min="5" max="85" step="1" value="40" oninput="onLightSlider()">
-    </div>
-    <!-- Model info -->
-    <div class="lp-section" style="margin-top:auto;">
-      <div class="lp-title">Bounding Box</div>
-      <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text);" id="size-readout">—</div>
-    </div>
-  </div>
-
-  <!-- Centre canvas — no padding-bottom needed, bottom-bar is position:absolute -->
-  <div id="viewer-canvas-wrap" style="position:relative;flex:1;overflow:hidden;">
+  <!-- Full-screen canvas -->
+  <div id="viewer-canvas-wrap">
     <div class="loading-overlay" id="loading-overlay">
       <div class="spinner"></div>
       <span class="loading-label" id="loading-label">Loading model…</span>
     </div>
-    <!-- Measure readout — floats over canvas while measuring -->
-    <div id="measure-readout-overlay" style="display:none;position:absolute;top:12px;left:50%;transform:translateX(-50%);font-family:'DM Mono',monospace;font-size:13px;font-weight:500;color:#f5a142;background:rgba(13,13,16,0.88);border:1px solid rgba(245,161,66,0.3);border-radius:6px;padding:5px 14px;pointer-events:none;z-index:30;white-space:nowrap;">
-      <span id="measure-readout">—</span>
+    <!-- Fake floor cone glow -->
+    <canvas id="floor-cone-canvas" style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);pointer-events:none;z-index:2;opacity:0.22;width:500px;height:180px;max-width:80vw;"></canvas>
+  </div>
+  <!-- Measure readout pill — outside canvas-wrap so it sits above everything -->
+  <div id="measure-readout-overlay">
+    <span id="measure-readout">—</span>
+  </div>
+
+  <!-- Left floating panel -->
+  <div id="left-panel">
+    <div class="lp-head" onclick="toggleLeftPanel()">
+      <span class="lp-head-title">Controls</span>
+      <span class="lp-head-icon open" id="lp-chevron">▾</span>
+    </div>
+    <div class="lp-body" id="lp-body">
+      <!-- Slicing -->
+      <div class="lp-section">
+        <div class="lp-title">Slicing</div>
+        <div class="lp-row"><span class="lp-label">H-Cut ↕</span><label class="tog teal"><input type="checkbox" id="hslice-tog" onchange="onHSliceToggle(this.checked)"><span class="tog-s"></span></label></div>
+        <input type="range" class="lp-slider teal" id="hslice-sl" min="0" max="1" step="0.005" value="0.5" oninput="onHSliceSlider(this.value)">
+        <div class="lp-row"><span class="lp-label">V-Cut ↔</span><label class="tog"><input type="checkbox" id="vslice-tog" onchange="onVSliceToggle(this.checked)"><span class="tog-s"></span></label></div>
+        <input type="range" class="lp-slider" id="vslice-sl" min="0" max="1" step="0.005" value="0.5" oninput="onVSliceSlider(this.value)">
+      </div>
+      <!-- Zebra -->
+      <div class="lp-section">
+        <div class="lp-title">Zebra Analysis</div>
+        <div class="btn-group">
+          <button class="bg-btn active" id="zebra-off" onclick="setZebraMode('off')">Off</button>
+          <button class="bg-btn" id="zebra-h" onclick="setZebraMode('h')">≡ H</button>
+          <button class="bg-btn" id="zebra-v" onclick="setZebraMode('v')">⫶ V</button>
+        </div>
+      </div>
+      <!-- Grid overlay -->
+      <div class="lp-section">
+        <div class="lp-row"><span class="lp-label">Grid overlay</span><label class="tog"><input type="checkbox" id="grid-overlay-tog" onchange="toggleGridOverlay()"><span class="tog-s"></span></label></div>
+        <div id="grid-brightness-row" style="display:none;">
+          <div class="lp-row"><span class="lp-label" style="font-size:10px;">Brightness</span><span class="lp-val" id="grid-bright-val">15%</span></div>
+          <input type="range" class="lp-slider" id="grid-bright-sl" min="0" max="100" step="1" value="15" oninput="onGridBrightnessSlider(this.value)">
+        </div>
+      </div>
+      <!-- Texture -->
+      <div class="lp-section">
+        <div class="lp-title">Display</div>
+        <div class="btn-group">
+          <button class="tex-btn active" id="tex-btn-tex" onclick="setTexMode('tex')"><span class="ti">🖼</span>Tex</button>
+          <button class="tex-btn" id="tex-btn-clay" onclick="setTexMode('clay')"><span class="ti">⬟</span>Clay</button>
+          <button class="tex-btn" id="tex-btn-alpha" onclick="setTexMode('alpha')"><span class="ti">◻</span>Alpha</button>
+        </div>
+      </div>
+      <!-- Light -->
+      <div class="lp-section">
+        <div class="lp-title">Light</div>
+        <div class="lp-row"><span class="lp-label">Azimuth</span><span class="lp-val" id="light-az-val">45°</span></div>
+        <input type="range" class="lp-slider warn" id="light-az" min="0" max="360" step="1" value="45" oninput="onLightSlider()">
+        <div class="lp-row"><span class="lp-label">Elevation</span><span class="lp-val" id="light-el-val">40°</span></div>
+        <input type="range" class="lp-slider warn" id="light-el" min="5" max="85" step="1" value="40" oninput="onLightSlider()">
+      </div>
+      <!-- Info -->
+      <div class="lp-section">
+        <div class="lp-title">Bounding Box</div>
+        <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text);" id="size-readout">—</div>
+      </div>
     </div>
   </div>
 
-  <!-- Right panel — Annotations & Pins -->
+  <!-- Right floating annotation cards -->
   <div id="right-panel">
-    <div class="rp-head">
+    <div class="rp-head" onclick="toggleRightPanel()">
       <span class="rp-title">Annotations &amp; Pins</span>
-      <span class="rp-meta" id="annot-count">0 pins</span>
+      <span id="annot-count" style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-right:4px;">0</span>
     </div>
-    <!-- Pin table -->
-    <div class="pt-header">
-      <span>ID</span><span>LOCATE</span><span>COMMENT</span><span></span>
+    <div id="pin-table-body"></div>
+    <div id="meas-section" style="display:none;">
+      <div class="meas-sec-title">Measurements</div>
+      <div id="meas-table-body"></div>
     </div>
-    <div id="pin-table-body" style="flex:1;overflow-y:auto;min-height:0;"></div>
-    <!-- Measurements header -->
-    <div class="pt-header" style="border-top:1px solid var(--border);margin-top:4px;">
-      <span>M-ID</span><span style="grid-column:span 2;">DIMENSION</span><span></span>
-    </div>
-    <div id="meas-table-body" style="overflow-y:auto;max-height:160px;"></div>
   </div>
 
-  <!-- Bottom toolbar (icon bar) — position:fixed so it doesn't affect canvas layout -->
-  <div id="bottom-bar" style="position:fixed;bottom:0;left:var(--panel-w);right:var(--right-w);">
-    <!-- Model title (left side) -->
-    <div style="display:flex;flex-direction:column;margin-right:8px;min-width:0;max-width:160px;">
-      <span id="viewer-title" style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">—</span>
-      <span style="font-family:'DM Mono',monospace;font-size:8px;color:var(--muted);">v0.2</span>
+  <!-- Floating bottom toolbar -->
+  <div id="bottom-bar">
+    <!-- Title -->
+    <div style="display:flex;flex-direction:column;align-items:center;padding:0 6px;min-width:60px;">
+      <span id="viewer-title" style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:90px;">—</span>
+      <span style="font-family:'DM Mono',monospace;font-size:7px;color:var(--muted);">v0.2</span>
     </div>
     <div class="tb-sep"></div>
-    <!-- Mode group -->
+    <!-- Mode -->
     <button class="tb-btn active" id="dm-orbit" onclick="setDesktopMode('orbit')" title="O">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="9" ry="4"/><line x1="12" y1="3" x2="12" y2="21"/></svg>
       <span class="tb-label">Orbit</span>
@@ -312,29 +342,29 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
     <button class="tb-btn" id="dm-meas" onclick="setDesktopMode('measure')" title="M">
       <svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="8" x2="3" y2="16"/><line x1="21" y1="8" x2="21" y2="16"/></svg>
       <span class="tb-label">Measure</span>
-      <span class="tb-sub" id="floor-snap-lbl">Floor Snap</span>
     </button>
+    <button class="tb-btn" id="dm-pin" onclick="setDesktopMode('pin')" title="P">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><line x1="12" y1="12" x2="12" y2="21"/></svg>
       <span class="tb-label">Pin</span>
     </button>
     <div class="tb-sep"></div>
     <!-- Floor snap -->
-    <button class="tb-btn" id="meas-floor-btn" onclick="toggleMeasFloorSnap()" title="Snap to floor">
+    <button class="tb-btn" id="meas-floor-btn" onclick="toggleMeasFloorSnap()">
       <svg viewBox="0 0 24 24"><line x1="4" y1="20" x2="20" y2="20"/><line x1="12" y1="4" x2="12" y2="18"/><polyline points="8,14 12,18 16,14"/></svg>
       <span class="tb-label">Floor</span>
     </button>
     <div class="tb-sep"></div>
-    <!-- Auto-rotate -->
+    <!-- Auto-rot -->
     <button class="tb-btn" id="autorot-btn" onclick="toggleAutoRotate()">
       <svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 11-9-9"/><polyline points="21 3 21 9 15 9"/></svg>
       <span class="tb-label">Auto-rot</span>
     </button>
-    <!-- Reset rot -->
+    <!-- Reset Rot -->
     <button class="tb-btn" onclick="onResetRotation()">
       <svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 109-9"/><polyline points="3 3 3 9 9 9"/></svg>
       <span class="tb-label">Reset Rot</span>
     </button>
-    <!-- Full reset -->
+    <!-- Full Reset -->
     <button class="tb-btn" onclick="onResetTransform()">
       <svg viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
       <span class="tb-label">Full Reset</span>
@@ -346,24 +376,24 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
       <span class="tb-label">👁 All</span>
     </button>
     <div class="tb-sep"></div>
-    <!-- Export PDF -->
+    <!-- PDF -->
     <button class="tb-btn" onclick="exportPinReport()">
-      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-      <span class="tb-label">Export PDF</span>
+      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      <span class="tb-label">PDF</span>
     </button>
     <!-- Snapshot -->
     <button class="tb-btn" onclick="onSnapshot()">
       <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
-      <span class="tb-label">Snapshot</span>
+      <span class="tb-label">Snap</span>
     </button>
     <div class="tb-sep"></div>
-    <!-- Back / VR / AR -->
+    <!-- Back -->
     <button class="tb-btn" onclick="closeViewer()">
       <svg viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
       <span class="tb-label">Back</span>
     </button>
-    <button class="vr-btn" id="vr-btn" onclick="enterVR()" style="margin-left:4px;height:42px;">⬡ Enter VR</button>
-    <button id="ar-btn" class="vr-btn secondary" onclick="enterAR()" style="display:none;height:42px;">⬡ AR</button>
+    <button class="vr-btn" id="vr-btn" onclick="enterVR()" style="height:40px;margin-left:4px;font-size:10px;">⬡ VR</button>
+    <button id="ar-btn" class="vr-btn secondary" onclick="enterAR()" style="display:none;height:40px;font-size:10px;">⬡ AR</button>
   </div>
 </div>
 
@@ -437,6 +467,39 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 
 <script>
 'use strict';
+
+// ── Panel collapse helpers ────────────────────────────────────
+function toggleLeftPanel() {
+  const body=document.getElementById('lp-body');
+  const icon=document.getElementById('lp-chevron');
+  if(!body) return;
+  const hidden=body.style.display==='none';
+  body.style.display=hidden?'block':'none';
+  if(icon) icon.classList.toggle('closed',!hidden);
+}
+function toggleRightPanel() {
+  const ptb=document.getElementById('pin-table-body');
+  const ms=document.getElementById('meas-section');
+  // toggle visibility of bodies
+  const hidden=ptb&&ptb.style.display==='none';
+  if(ptb) ptb.style.display=hidden?'':'none';
+  if(ms&&ms.style.display!=='none') ms.style.display=hidden?'block':'none';
+}
+
+// ── Draw fake floor cone on canvas overlay ────────────────────
+function drawFloorCone() {
+  const cv=document.getElementById('floor-cone-canvas'); if(!cv) return;
+  const W=500,H=180; cv.width=W; cv.height=H;
+  const ctx=cv.getContext('2d');
+  const grd=ctx.createRadialGradient(W/2,H,20, W/2,H,W/2);
+  grd.addColorStop(0,'rgba(200,200,200,0.35)');
+  grd.addColorStop(0.4,'rgba(160,160,160,0.12)');
+  grd.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle=grd;
+  ctx.ellipse(W/2,H,W/2,H/2.2,0,0,Math.PI*2);
+  ctx.fill();
+}
 
 // ── Config ───────────────────────────────────────────────────
 const THUMB_KEY = 'vr_thumb_cache';
@@ -728,6 +791,7 @@ function updateMeasLabels() {
 //  BROWSER
 // ════════════════════════════════════════════════════════════
 function showBrowser() {
+  document.body.classList.add('browser-open');
   document.getElementById('browser-screen').style.display='block';
   const fb=document.getElementById('folder-badge'); if(fb) fb.textContent=config.folderId.slice(0,20)+'…';
   loadModels();
@@ -834,6 +898,7 @@ function closeViewer() {
   closePinPopup();
   saveSession();
   document.getElementById('viewer-overlay').classList.remove('active');
+  document.body.classList.add('browser-open');
   cleanupViewer();
 }
 function cleanupViewer() {
@@ -870,7 +935,9 @@ function cleanupViewer() {
   vrMode='grab'; desktopMode='orbit'; currentFileId=null;
   _lastThumbL=_lastThumbR=_prevFaceA=false;
   document.getElementById('vr-hud').style.display='none';
-  const ts=document.getElementById('tool-strip'); if(ts) ts.style.display='none';
+  const lp2=document.getElementById('left-panel'); if(lp2) lp2.style.display='none';
+  const bb2=document.getElementById('bottom-bar'); if(bb2) bb2.style.display='none';
+  const rp2=document.getElementById('right-panel'); if(rp2) rp2.style.display='none';
   const sb=document.getElementById('sidebar'); if(sb) sb.style.display='none';
   ['hslice-tog','vslice-tog'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=false;});
   setDesktopMode('orbit',true);
@@ -1115,9 +1182,7 @@ function toggleGridOverlay() {
   gridOverlayActive=!gridOverlayActive;
   const tog=document.getElementById('grid-overlay-tog'); if(tog) tog.checked=gridOverlayActive;
   const row=document.getElementById('grid-brightness-row');
-  const sl=document.getElementById('grid-bright-sl');
-  if(row) row.style.display=gridOverlayActive?'flex':'none';
-  if(sl)  sl.style.display=gridOverlayActive?'block':'none';
+  if(row) row.style.display=gridOverlayActive?'block':'none';
   _buildGridOverlay();
 }
 
@@ -1135,9 +1200,16 @@ function _buildGridOverlay() {
 }
 
 function onGridBrightnessSlider(val) {
-  gridOverlayOpacity=parseFloat(val)/100;
-  const lbl=document.getElementById('grid-bright-val'); if(lbl) lbl.textContent=val+'%';
-  gridOverlayObjects.forEach(o=>{ if(o.material) o.material.opacity=gridOverlayOpacity; });
+  const v=parseInt(val);
+  // Map 0-100 to a color ramp: 0=black, 40=grey, 70=white, 100=lime
+  let r,g,b,a;
+  if(v<=40){const t=v/40; r=Math.round(80*t);g=Math.round(80*t);b=Math.round(80*t);a=0.25+t*0.4;}
+  else if(v<=70){const t=(v-40)/30; r=Math.round(80+t*175);g=Math.round(80+t*175);b=Math.round(80+t*175);a=0.65+t*0.2;}
+  else{const t=(v-70)/30; r=Math.round(255-t*55);g=255;b=Math.round(255-t*175);a=0.85+t*0.15;}
+  const col=new THREE.Color(r/255,g/255,b/255);
+  const lbl=document.getElementById('grid-bright-val');
+  if(lbl) lbl.textContent=v<=40?'grey':v<=70?'white':'lime';
+  gridOverlayObjects.forEach(o=>{ if(o.material){o.material.color=col;o.material.opacity=a;o.material.needsUpdate=true;} });
 }
 
 function setTexMode(next) {
@@ -1397,49 +1469,37 @@ function updateAnnotationLabels() {
 function rebuildPinTable() {
   const body=document.getElementById('pin-table-body'); if(!body) return;
   body.innerHTML='';
-  const ac=document.getElementById('annot-count');
-  if(ac) ac.textContent=annotations.length+(annotations.length===1?' pin':' pins');
   annotations.forEach(pin=>{
     const hx=getPinHex(pin.colorIdx);
-    const row=document.createElement('div'); row.className='pt-row';
-    if(pin.id===highlightedPinId) row.classList.add('highlighted');
-    // ID cell
-    const idCell=document.createElement('div'); idCell.className='pt-id';
-    idCell.innerHTML=`<span class="pt-dot" style="background:${hx}"></span><span style="color:${hx}">P${String(pin.id).padStart(2,'0')}</span>`;
-    // Locate cell
-    const locCell=document.createElement('div');
-    const locBtn=document.createElement('button'); locBtn.className='pt-locate';
-    locBtn.textContent=pin.id===highlightedPinId?'✦':'⊕';
-    locBtn.title='Locate';
-    locBtn.onclick=(e)=>{e.stopPropagation();highlightPin(pin.id);};
-    locCell.appendChild(locBtn);
-    // Comment cell — inline editable
-    const comCell=document.createElement('div'); comCell.className='pt-comment-wrap';
+    const card=document.createElement('div');
+    card.className='ann-card'+(pin.id===highlightedPinId?' highlighted':'');
+    // Header row
+    const top=document.createElement('div'); top.className='ann-card-top';
+    top.innerHTML=`<span class="ann-dot" style="background:${hx}"></span><span class="ann-id" style="color:${hx}">P${String(pin.id).padStart(2,'0')}</span>`;
+    const acts=document.createElement('div'); acts.className='ann-actions';
+    const locBtn=document.createElement('button'); locBtn.className='ann-btn'; locBtn.textContent='⊕'; locBtn.title='Locate';
+    locBtn.onclick=e=>{e.stopPropagation();highlightPin(pin.id);};
+    const delBtn=document.createElement('button'); delBtn.className='ann-btn del'; delBtn.textContent='✕'; delBtn.title='Delete';
+    delBtn.onclick=e=>{e.stopPropagation();removeAnnotation(pin.id);};
+    acts.appendChild(locBtn); acts.appendChild(delBtn); top.appendChild(acts);
+    card.appendChild(top);
+    // Comment
     if(pin._editing){
-      const ta=document.createElement('textarea'); ta.className='pt-ta'; ta.value=pin.comment||''; ta.placeholder='Add comment…';
-      ta.onblur=()=>{ pin.comment=ta.value; pin._editing=false; saveSession(); rebuildPinTable(); };
-      ta.onkeydown=(e)=>{ if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();ta.blur();} };
-      comCell.appendChild(ta);
-      requestAnimationFrame(()=>ta.focus());
+      const ta=document.createElement('textarea'); ta.className='ann-ta'; ta.value=pin.comment||''; ta.placeholder='Add comment…';
+      ta.onblur=()=>{pin.comment=ta.value;pin._editing=false;saveSession();rebuildPinTable();};
+      ta.onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();ta.blur();}};
+      card.appendChild(ta); requestAnimationFrame(()=>ta.focus());
     } else {
-      const span=document.createElement('div'); span.className='pt-comment'+(pin.comment?'':' empty');
-      span.textContent=pin.comment||'Click to add comment';
-      span.onclick=()=>{ pin._editing=true; rebuildPinTable(); };
-      comCell.appendChild(span);
+      const cm=document.createElement('div');
+      cm.className='ann-comment'+(pin.comment?'':' empty');
+      cm.textContent=pin.comment||'Click to add comment';
+      cm.onclick=()=>{pin._editing=true;rebuildPinTable();};
+      card.appendChild(cm);
     }
-    // Delete cell
-    const delCell=document.createElement('div');
-    const delBtn=document.createElement('button'); delBtn.className='pt-del'; delBtn.textContent='✕';
-    delBtn.onclick=(e)=>{e.stopPropagation();removeAnnotation(pin.id);};
-    delCell.appendChild(delBtn);
-    row.appendChild(idCell); row.appendChild(locCell); row.appendChild(comCell); row.appendChild(delCell);
-    row.addEventListener('click',()=>highlightPin(pin.id));
-    body.appendChild(row);
+    card.addEventListener('click',()=>highlightPin(pin.id));
+    body.appendChild(card);
   });
-  if(!annotations.length){
-    body.innerHTML='<div style="padding:16px;font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted);text-align:center;">No pins yet</div>';
-  }
-  // Measurements table
+  const ac=document.getElementById('annot-count'); if(ac) ac.textContent=annotations.length+(annotations.length===1?' pin':' pins');
   rebuildMeasTable();
 }
 
@@ -1447,16 +1507,14 @@ function rebuildMeasTable() {
   const body=document.getElementById('meas-table-body'); if(!body) return;
   body.innerHTML='';
   savedMeasurements.forEach((m,i)=>{
-    const row=document.createElement('div'); row.className='pm-row';
-    row.innerHTML=`<span class="pm-id">M${String(i+1).padStart(2,'0')}</span><span class="pm-label" style="grid-column:span 2">${m.label}</span>`;
-    const delBtn=document.createElement('button'); delBtn.className='pt-del'; delBtn.textContent='✕';
-    delBtn.onclick=()=>{deleteMeasurement(m.id);};
-    row.appendChild(delBtn);
-    body.appendChild(row);
+    const card=document.createElement('div'); card.className='meas-card';
+    const idSpan=document.createElement('span'); idSpan.className='meas-card-id'; idSpan.textContent=`M${String(i+1).padStart(2,'0')}`;
+    const lbl=document.createElement('span'); lbl.className='meas-card-lbl'; lbl.textContent=m.label;
+    const del=document.createElement('button'); del.className='ann-btn del'; del.textContent='✕';
+    del.onclick=()=>deleteMeasurement(m.id);
+    card.appendChild(idSpan); card.appendChild(lbl); card.appendChild(del);
+    body.appendChild(card);
   });
-  if(!savedMeasurements.length){
-    body.innerHTML='<div style="padding:10px 12px;font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted);">No measurements</div>';
-  }
 }
 
 // Keep rebuildSidebar as alias so old call sites still work
@@ -1737,43 +1795,22 @@ async function exportPinReport() {
 // ════════════════════════════════════════════════════════════
 //  EXPLODE
 // ════════════════════════════════════════════════════════════
-function cacheExplodeOrigins() {
-  explodeOrigins.clear(); if(!loadedModel) return;
-  // Store each mesh's world-space center so explosion is from model centroid
-  loadedModel.traverse(c=>{
-    if(!c.isMesh) return;
-    c.updateWorldMatrix(true,false);
-    // Store local position (relative to parent) as origin
-    explodeOrigins.set(c.uuid, c.position.clone());
-  });
-}
-
-function applyExplode(t) {
-  if(!loadedModel) return;
-  // Compute world-space bounding box centre of whole model
-  const worldBox=new THREE.Box3().setFromObject(loadedModel);
-  const worldCtr=new THREE.Vector3(); worldBox.getCenter(worldCtr);
-  // Convert centre into loadedModel's local space
-  const localCtr=loadedModel.worldToLocal(worldCtr.clone());
-
-  loadedModel.traverse(c=>{
-    if(!c.isMesh) return;
-    const orig=explodeOrigins.get(c.uuid); if(!orig) return;
-    // Direction = mesh local origin → model local centre
-    const dir=orig.clone().sub(localCtr);
-    const dist=dir.length();
-    dir.normalize();
-    // Scale by distance so inner parts move less than outer parts
-    c.position.copy(orig).addScaledVector(dir, t*(0.3+dist*0.8));
-  });
-  explodeAmount=t;
-  const lbl=document.getElementById('explode-val'); if(lbl) lbl.textContent=Math.round(t*100)+'%';
-}
-function onExplodeSlider(val){applyExplode(parseFloat(val));}
+function cacheExplodeOrigins() {} // removed — explode disabled
+function applyExplode(t) {}
+function onExplodeSlider(val){}
 
 // ════════════════════════════════════════════════════════════
 //  DESKTOP INTERACTION
 // ════════════════════════════════════════════════════════════
+function toggleLeftPanel() {
+  const body=document.getElementById('lp-body');
+  const icon=document.getElementById('lp-chevron');
+  if(!body) return;
+  body.classList.toggle('collapsed');
+  const isOpen=!body.classList.contains('collapsed');
+  if(icon){ icon.textContent=isOpen?'▾':'▸'; icon.classList.toggle('open',isOpen); }
+}
+
 function setDesktopMode(mode, silent) {
   desktopMode=mode;
   ['dm-orbit','dm-meas','dm-pin'].forEach(id=>{
@@ -1786,9 +1823,10 @@ function setDesktopMode(mode, silent) {
   if(viewerControls){
     viewerControls.enabled=true;
     viewerControls.enableRotate=(mode==='orbit');
+    // Middle mouse = PAN always; scroll = zoom; left = rotate only in orbit
     viewerControls.mouseButtons=mode==='orbit'
-      ?{LEFT:THREE.MOUSE.ROTATE,MIDDLE:THREE.MOUSE.DOLLY,RIGHT:THREE.MOUSE.PAN}
-      :{LEFT:null,MIDDLE:THREE.MOUSE.DOLLY,RIGHT:THREE.MOUSE.PAN};
+      ?{LEFT:THREE.MOUSE.ROTATE, MIDDLE:THREE.MOUSE.PAN, RIGHT:THREE.MOUSE.PAN}
+      :{LEFT:null,              MIDDLE:THREE.MOUSE.PAN, RIGHT:THREE.MOUSE.PAN};
   }
   const cw=document.getElementById('viewer-canvas-wrap');
   if(cw) cw.style.cursor=mode==='pin'?'crosshair':mode==='measure'?'cell':'grab';
@@ -2252,10 +2290,23 @@ function initViewer(fileId) {
   sunLight.position.set(Math.cos(el0)*Math.sin(az0)*8,Math.sin(el0)*8,Math.cos(el0)*Math.cos(az0)*8);
   viewerScene.add(sunLight);
   const fill=new THREE.DirectionalLight(0x8888ff,0.15); fill.position.set(-4,2,-3); viewerScene.add(fill);
-  // Floor spotlight — boosted intensity for physicallyCorrectLights mode
-  const floorSpot=new THREE.SpotLight(0xffffff,8,6,Math.PI/5,0.9,1);
-  floorSpot.position.set(0,5,0); floorSpot.target.position.set(0,0,0);
-  viewerScene.add(floorSpot); viewerScene.add(floorSpot.target);
+  // Faded floor disc — soft radial grey circle on the floor plane
+  (function buildFloorDisc(scene){
+    const geo=new THREE.CircleGeometry(1.2,64);
+    const canvas=document.createElement('canvas'); canvas.width=canvas.height=256;
+    const ctx=canvas.getContext('2d');
+    const grad=ctx.createRadialGradient(128,128,0,128,128,128);
+    grad.addColorStop(0,'rgba(180,180,190,0.32)');
+    grad.addColorStop(0.5,'rgba(120,120,130,0.14)');
+    grad.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=grad; ctx.fillRect(0,0,256,256);
+    const tex=new THREE.CanvasTexture(canvas);
+    const mat=new THREE.MeshBasicMaterial({map:tex,transparent:true,depthWrite:false,side:THREE.DoubleSide});
+    const disc=new THREE.Mesh(geo,mat);
+    disc.rotation.x=-Math.PI/2; disc.position.y=0.001;
+    disc.renderOrder=-1;
+    scene.add(disc);
+  })(viewerScene);
   // ── 1×1 m metric grid in a group so it can follow model rotation ──
   gridGroup = new THREE.Group();
   (function buildMetricGrid(grp) {
@@ -2278,6 +2329,9 @@ function initViewer(fileId) {
 
   viewerControls=new THREE.OrbitControls(viewerCamera,viewerRenderer.domElement);
   viewerControls.enableDamping=true; viewerControls.dampingFactor=0.07; viewerControls.target.set(0,0.8,0);
+  // Scroll = zoom, middle mouse = pan, right = pan
+  viewerControls.mouseButtons={LEFT:THREE.MOUSE.ROTATE,MIDDLE:THREE.MOUSE.PAN,RIGHT:THREE.MOUSE.PAN};
+  viewerControls.enableZoom=true; viewerControls.zoomSpeed=1.0;
 
   buildSlicer(viewerScene);
   buildMeasureObjects(viewerScene);
@@ -2321,13 +2375,9 @@ function initViewer(fileId) {
         modelRoot.add(model); loadedModel=model; modelSize.copy(size);
         cacheExplodeOrigins();
         const ov=document.getElementById('loading-overlay'); if(ov) ov.classList.add('hidden');
-        // Show new 3-panel layout
-        const lp=document.getElementById('left-panel'); if(lp) lp.style.display='flex';
-        const rp=document.getElementById('right-panel'); if(rp) rp.style.display='flex';
-        const bb=document.getElementById('bottom-bar'); if(bb) bb.style.display='flex';
-        // Legacy tool-strip hidden in new design
-        const ts=document.getElementById('tool-strip'); if(ts) ts.style.display='none';
-        const sb=document.getElementById('sidebar'); if(sb){sb.style.display='flex';sb.classList.add('collapsed');}
+        document.getElementById('left-panel').style.display='block';
+        document.getElementById('bottom-bar').style.display='flex';
+        drawFloorCone();
         rebuildSidebar();
         ['hslice-tog','vslice-tog'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=false;});
         hSliceActive=vSliceActive=false;
