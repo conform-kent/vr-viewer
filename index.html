@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CAD INSPECTOR</title>
+<title>CAD INSPECTOR v0.4.4</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230d0d10'/%3E%3Cpolygon points='16,3 28,10 28,22 16,29 4,22 4,10' fill='none' stroke='%23c8f542' stroke-width='2.2' stroke-linejoin='round'/%3E%3Cline x1='10' y1='13' x2='16' y2='21' stroke='%23c8f542' stroke-width='2.2' stroke-linecap='round'/%3E%3Cline x1='22' y1='13' x2='16' y2='21' stroke='%23c8f542' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap');
@@ -124,6 +124,8 @@ body.browser-open{overflow:auto;}
 .rp-head{display:flex;align-items:center;gap:8px;padding:9px 12px;border-bottom:1px solid var(--border);cursor:pointer;user-select:none;}
 .rp-title{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);flex:1;}
 .rp-sub-head{display:flex;align-items:center;gap:8px;padding:7px 12px 5px;}
+.folder-btn{font-family:'DM Mono',monospace;font-size:9px;padding:4px 12px;border-radius:20px;border:1px solid rgba(255,255,255,0.12);background:transparent;color:var(--muted);cursor:pointer;white-space:nowrap;transition:all 0.14s;}
+.folder-btn.active{background:rgba(200,245,66,0.1);color:var(--accent);border-color:rgba(200,245,66,0.35);}
 .meas-sec-title{display:none;}
 .rp-meta{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);}
 #pin-table-body{overflow-y:auto;max-height:calc(100vh - 200px);}
@@ -167,6 +169,8 @@ body.browser-open{overflow:auto;}
 .tb-btn svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;display:block;}
 .tb-btn .tb-label{font-size:7px;letter-spacing:.04em;text-transform:uppercase;line-height:1;margin-top:1px;}
 .tb-btn:hover{background:rgba(255,255,255,0.09);color:var(--text);border-radius:50%!important;}
+#top-bar.showcase-dim{opacity:0.18;pointer-events:none;transition:opacity 0.3s;}
+#top-bar.showcase-dim:hover{opacity:1!important;pointer-events:auto!important;}
 .tb-btn.active{background:rgba(200,245,66,0.15);color:var(--accent);border-radius:50%!important;}
 .tb-btn.active-measure{background:rgba(245,161,66,0.15);color:var(--warn);border-radius:50%!important;}
 .tb-btn.active-height{background:rgba(33,150,243,0.2)!important;border:1px solid rgba(33,150,243,0.5)!important;}
@@ -247,7 +251,7 @@ body.browser-open{overflow:auto;}
     <div style="display:flex;align-items:center;gap:10px;padding:12px 20px;border-right:1px solid var(--border);flex-shrink:0;">
       <svg width="20" height="20" viewBox="0 0 32 32" fill="none"><polygon points="16,3 28,10 28,22 16,29 4,22 4,10" fill="none" stroke="#c8f542" stroke-width="2.2" stroke-linejoin="round"/><line x1="10" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="22" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="12" y1="13" x2="20" y2="13" stroke="rgba(200,245,66,0.5)" stroke-width="1.2" stroke-linecap="round"/></svg>
       <div>
-        <div style="font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;letter-spacing:.07em;color:#e4e4e0;text-transform:uppercase;">CAD Inspector <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--accent);font-weight:400;letter-spacing:.06em;text-transform:none;">v0.4.3</span></div>
+        <div style="font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;letter-spacing:.07em;color:#e4e4e0;text-transform:uppercase;">CAD Inspector <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--accent);font-weight:400;letter-spacing:.06em;text-transform:none;">v0.4.4</span></div>
         <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-top:1px;">3D CAD Model Review</div>
       </div>
     </div>
@@ -267,6 +271,12 @@ body.browser-open{overflow:auto;}
   <!-- Thumbnail grid -->
   <div style="flex:1;overflow-y:auto;padding:24px 28px;">
     <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:16px;">Select a model to inspect</div>
+    <!-- Folder filter bar -->
+    <div id="folder-bar" style="display:flex;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
+      <button id="folder-all-btn" class="folder-btn active" onclick="setActiveFolder(null)">All</button>
+      <div id="folder-pills"></div>
+      <button onclick="addFolder()" style="font-family:'DM Mono',monospace;font-size:9px;padding:4px 10px;border-radius:20px;border:1px dashed rgba(200,245,66,0.3);background:transparent;color:var(--accent);cursor:pointer;">+ New folder</button>
+    </div>
     <div id="thumb-drawer-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px;"></div>
   </div>
 </div>
@@ -278,7 +288,7 @@ body.browser-open{overflow:auto;}
   <div id="viewer-logo" style="position:fixed;top:0;left:0;z-index:125;display:none;align-items:center;gap:10px;padding:10px 18px 10px 14px;background:rgba(13,13,16,0.7);backdrop-filter:blur(12px);border-bottom-right-radius:12px;border-bottom:1px solid var(--border);border-right:1px solid var(--border);">
     <svg width="18" height="18" viewBox="0 0 32 32" fill="none" style="flex-shrink:0;"><polygon points="16,3 28,10 28,22 16,29 4,22 4,10" fill="none" stroke="#c8f542" stroke-width="2.2" stroke-linejoin="round"/><line x1="10" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="22" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="12" y1="13" x2="20" y2="13" stroke="rgba(200,245,66,0.5)" stroke-width="1.2" stroke-linecap="round"/></svg>
     <div style="display:flex;flex-direction:column;gap:1px;">
-      <span style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;color:#e8e8e4;text-transform:uppercase;">CAD Inspector <span style="font-family:'DM Mono',monospace;font-size:8px;color:var(--accent);font-weight:400;letter-spacing:.06em;">v0.4.3</span></span>
+      <span style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;color:#e8e8e4;text-transform:uppercase;">CAD Inspector <span style="font-family:'DM Mono',monospace;font-size:8px;color:var(--accent);font-weight:400;letter-spacing:.06em;">v0.4.4</span></span>
       <span id="viewer-filename" style="font-family:'DM Mono',monospace;font-size:10px;color:#7a7a8a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px;"></span>
       <span id="size-readout-logo" style="font-family:'DM Mono',monospace;font-size:9px;color:#5a5a66;white-space:nowrap;display:none;"></span>
     </div>
@@ -333,6 +343,8 @@ body.browser-open{overflow:auto;}
           <span class="lp-sec-chevron" id="lps-0-ch" onclick="toggleLpSection('lps-0')" style="cursor:pointer;">▾</span>
         </div>
         <div class="lp-sec-body" id="lps-0">
+          <!-- Ghost toggle -->
+          <div class="lp-row"><span class="lp-label">Ghost</span><label class="tog"><input type="checkbox" id="slice-ghost-tog" onchange="toggleSliceGhost(this.checked)"><span class="tog-s"></span></label></div>
           <div class="lp-row"><span class="lp-label">H-Cut ↕</span><label class="tog teal"><input type="checkbox" id="hslice-tog" onchange="onHSliceToggle(this.checked);toggleSliceControls('h',this.checked)"><span class="tog-s"></span></label></div>
           <div id="hslice-controls" style="display:none;">
             <input type="range" class="lp-slider teal" id="hslice-sl" min="0" max="1" step="0.005" value="0.5" oninput="onHSliceSlider(this.value)">
@@ -359,12 +371,14 @@ body.browser-open{overflow:auto;}
         </div>
         <div class="lp-sec-body" id="lps-1">
           <div class="btn-group">
-            <button class="bg-btn active" id="zebra-off" onclick="setZebraMode('off')">Off</button>
-            <button class="bg-btn" id="zebra-h" onclick="setZebraMode('h')">≡ H</button>
-            <button class="bg-btn" id="zebra-v" onclick="setZebraMode('v')">⫶ V</button>
+            <button class="tex-btn" id="zebra-h" onclick="toggleZebra('h')">≡ Horizontal</button>
+            <button class="tex-btn" id="zebra-v" onclick="toggleZebra('v')">⫶ Vertical</button>
           </div>
+          <div id="zebra-off" style="display:none;"></div><!-- compat -->
           <div class="lp-row" style="margin-top:6px;"><span class="lp-label" style="font-size:9px;color:var(--muted)">Stripe density</span><span class="lp-val" id="zebra-size-val">12</span></div>
           <input type="range" class="lp-slider" id="zebra-size-sl" min="3" max="40" step="1" value="12" oninput="onZebraSize(this.value)">
+          <div class="lp-row" style="margin-top:4px;"><span class="lp-label" style="font-size:9px;color:var(--muted)">Rotation</span><span class="lp-val" id="zebra-rot-val">0°</span></div>
+          <input type="range" class="lp-slider" id="zebra-rot-sl" min="-90" max="90" step="1" value="0" oninput="onZebraRotation(this.value)">
         </div>
       </div>
       <!-- Grid Overlay -->
@@ -388,10 +402,11 @@ body.browser-open{overflow:auto;}
           <span class="lp-sec-chevron" id="lps-3-ch">▾</span>
         </div>
         <div class="lp-sec-body" id="lps-3">
-          <div class="btn-group">
-            <button class="tex-btn active" id="tex-btn-tex" onclick="setTexMode('tex')"><span class="ti">🖼</span>Tex</button>
-            <button class="tex-btn" id="tex-btn-clay" onclick="setTexMode('clay')"><span class="ti">⬟</span>Clay</button>
-            <button class="tex-btn" id="tex-btn-alpha" onclick="setTexMode('alpha')"><span class="ti">◻</span>Alpha</button>
+          <div class="btn-group" style="gap:4px;">
+            <button class="tex-btn active" id="tex-btn-tex" onclick="setTexMode('tex')" style="flex:1;min-height:52px;"><span class="ti">🖼</span>Tex</button>
+            <button class="tex-btn" id="tex-btn-clay" onclick="setTexMode('clay')" style="flex:1;min-height:52px;"><span class="ti">⬟</span>Clay</button>
+            <button class="tex-btn" id="tex-btn-alpha" onclick="setTexMode('alpha')" style="flex:1;min-height:52px;"><span class="ti">◻</span>Alpha</button>
+            <button class="tex-btn" id="tex-btn-grid" onclick="toggleGridOverlayDisplay()" style="flex:1;min-height:52px;"><span class="ti" id="grid-overlay-icon">⊞</span>Grid</button>
           </div>
         </div>
       </div>
@@ -405,9 +420,8 @@ body.browser-open{overflow:auto;}
         </div>
         <div class="lp-sec-body" id="lps-7">
           <div class="btn-group">
-            <button class="bg-btn" onclick="missSymmetry('x')">Mirror X</button>
-            <button class="bg-btn" onclick="missSymmetry('z')">Mirror Z</button>
-            <button class="bg-btn" style="color:var(--danger);" onclick="missClearSymmetry()">Clear</button>
+            <button class="tex-btn" id="sym-btn-x" onclick="toggleSymmetry('x')">Mirror X</button>
+            <button class="tex-btn" id="sym-btn-z" onclick="toggleSymmetry('z')">Mirror Z</button>
           </div>
         </div>
       </div>
@@ -428,21 +442,21 @@ body.browser-open{overflow:auto;}
   <!-- Right floating annotation cards -->
   <div id="right-panel">
     <div class="rp-head" id="rp-drag-handle">
-      <span class="rp-title" style="cursor:pointer;" onclick="toggleRightPanel()" id="rp-main-title">PINS &amp; DIMENSIONS</span>
+      <span class="rp-title" style="cursor:pointer;" onclick="toggleRightPanel()" id="rp-main-title">ANNOTATIONS</span>
       <span id="annot-count" style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-right:4px;">0</span>
       <button class="lp-head-btn" id="rp-pin-btn" onclick="togglePanelPin('right-panel','rp-pin-btn')" title="Snap to side">◨</button>
     </div>
     <!-- Pins sub-section -->
     <div id="pins-section-head" class="rp-sub-head">
       <span class="rp-title">PINS</span>
-      <button class="lp-head-btn" id="pins-eye-btn" onclick="toggleSectionVisibility('pins')" title="Toggle pin visibility">●</button>
+      <button class="lp-head-btn" id="pins-eye-btn" onclick="toggleSectionVisibility('pins')" title="Toggle pin visibility"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
     </div>
     <div id="pin-table-body"></div>
     <!-- Dimensions sub-section -->
     <div id="meas-section" style="display:none;">
       <div id="dims-section-head" class="rp-sub-head">
         <span class="rp-title">DIMENSIONS</span>
-        <button class="lp-head-btn" id="dims-eye-btn" onclick="toggleSectionVisibility('dims')" title="Toggle dimension visibility">●</button>
+        <button class="lp-head-btn" id="dims-eye-btn" onclick="toggleSectionVisibility('dims')" title="Toggle dimension visibility"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
       </div>
       <div id="meas-table-body"></div>
     </div>
@@ -688,17 +702,18 @@ function toggleLeftPanel() {
 function toggleRightPanel() {
   const ptb=document.getElementById('pin-table-body');
   const ms=document.getElementById('meas-section');
-  // Use a data attribute so we know the intended state
+  const psh=document.getElementById('pins-section-head');
   const rp=document.getElementById('right-panel');
   const collapsed=rp?.dataset.collapsed==='1';
   if(collapsed){
     if(rp) rp.dataset.collapsed='0';
     if(ptb) ptb.style.display='';
-    // Restore meas-section if it has content
+    if(psh) psh.style.display='';
     if(ms&&savedMeasurements.length) ms.style.display='block';
   } else {
     if(rp) rp.dataset.collapsed='1';
     if(ptb) ptb.style.display='none';
+    if(psh) psh.style.display='none';
     if(ms) ms.style.display='none';
   }
 }
@@ -1053,6 +1068,76 @@ async function loadModels() {
 
 let _activeModelPill=null;
 
+
+// ── FOLDER SYSTEM ─────────────────────────────────────────────
+// Folders stored in localStorage as {name: [fileId, ...]}
+let _folders = {};
+let _activeFolder = null; // null = All
+
+function _loadFolders(){ try{ _folders=JSON.parse(localStorage.getItem('cad_folders')||'{}'); }catch(e){ _folders={}; } }
+function _saveFolders(){ try{ localStorage.setItem('cad_folders',JSON.stringify(_folders)); }catch(e){} }
+
+function setActiveFolder(name){
+  _activeFolder=name;
+  document.getElementById('folder-all-btn')?.classList.toggle('active',!name);
+  document.querySelectorAll('.folder-pill-btn').forEach(b=>{
+    b.classList.toggle('active',b.dataset.folder===name);
+  });
+  renderGrid(currentModels);
+}
+
+function addFolder(){
+  const name=prompt('Folder name (e.g. Final, Parts, Prototypes):');
+  if(!name||!name.trim()) return;
+  const key=name.trim();
+  if(_folders[key]) return;
+  _folders[key]=[]; _saveFolders();
+  renderFolderPills();
+}
+
+function deleteFolder(name){
+  if(!confirm('Delete folder "'+name+'"?')) return;
+  delete _folders[name]; _saveFolders();
+  if(_activeFolder===name) _activeFolder=null;
+  renderFolderPills();
+  renderGrid(currentModels);
+}
+
+function toggleModelFolder(fileId, folderName){
+  if(!_folders[folderName]) _folders[folderName]=[];
+  const idx=_folders[folderName].indexOf(fileId);
+  if(idx===-1) _folders[folderName].push(fileId);
+  else _folders[folderName].splice(idx,1);
+  _saveFolders();
+  renderGrid(currentModels);
+}
+
+function getModelFolders(fileId){
+  return Object.keys(_folders).filter(f=>_folders[f].includes(fileId));
+}
+
+function renderFolderPills(){
+  const container=document.getElementById('folder-pills'); if(!container) return;
+  container.innerHTML='';
+  Object.keys(_folders).forEach(name=>{
+    const pill=document.createElement('div');
+    pill.style.cssText='display:inline-flex;align-items:center;gap:4px;';
+    const btn=document.createElement('button');
+    btn.className='folder-btn folder-pill-btn'+((_activeFolder===name)?' active':'');
+    btn.dataset.folder=name;
+    btn.textContent=name+' ('+(_folders[name]?.length||0)+')';
+    btn.onclick=()=>setActiveFolder(name);
+    const delBtn=document.createElement('button');
+    delBtn.style.cssText='background:none;border:none;color:var(--muted);cursor:pointer;font-size:10px;padding:0 2px;';
+    delBtn.textContent='×'; delBtn.title='Delete folder';
+    delBtn.onclick=(e)=>{ e.stopPropagation(); deleteFolder(name); };
+    pill.appendChild(btn); pill.appendChild(delBtn);
+    container.appendChild(pill);
+  });
+}
+
+_loadFolders();
+
 function renderGrid(models) {
   const bar=document.getElementById('model-list-bar');
   const drawerGrid=document.getElementById('thumb-drawer-grid');
@@ -1083,9 +1168,34 @@ function renderGrid(models) {
       const name=model.name.replace(/\.glb$/i,'');
       const sizeMB=model.size?(model.size/1024/1024).toFixed(1)+' MB':'—';
       const card=document.createElement('div');
-      card.style.cssText='border-radius:8px;overflow:hidden;background:#111114;border:1px solid var(--border);cursor:pointer;transition:all 0.15s;';
-      card.innerHTML=`<div id="tw-${model.id}" style="height:200px;display:flex;align-items:center;justify-content:center;background:transparent;border-radius:8px 8px 0 0;overflow:hidden;"><span style="font-size:30px;opacity:0.15">⬡</span></div><div style="padding:8px 10px 10px;font-family:DM Mono,monospace;font-size:11px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${name}<span style="display:block;color:var(--muted);font-size:9px;margin-top:2px;">${sizeMB}</span></div>`;
+      card.style.cssText='border-radius:8px;overflow:hidden;background:#000;border:1px solid rgba(255,255,255,0.08);cursor:pointer;transition:all 0.15s;';
+      card.innerHTML=`<div id="tw-${model.id}" style="height:200px;display:flex;align-items:center;justify-content:center;background:#000;border-radius:8px 8px 0 0;overflow:hidden;"><span style="font-size:30px;opacity:0.15">⬡</span></div><div style="padding:8px 10px 10px;font-family:DM Mono,monospace;font-size:11px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${name}<span style="display:block;color:var(--muted);font-size:9px;margin-top:2px;">${sizeMB}</span></div>`;
       card.onmouseenter=()=>{ card.style.borderColor='rgba(200,245,66,0.4)'; card.style.transform='translateY(-2px)'; };
+      card.onmouseleave=()=>{ card.style.borderColor='rgba(255,255,255,0.08)'; card.style.transform=''; };
+      // Folder tags
+      const folders=getModelFolders(model.id);
+      if(folders.length||Object.keys(_folders).length){
+        const tagRow=document.createElement('div');
+        tagRow.style.cssText='display:flex;flex-wrap:wrap;gap:4px;padding:0 8px 8px;';
+        folders.forEach(f=>{
+          const tag=document.createElement('span');
+          tag.style.cssText='font-family:DM Mono,monospace;font-size:8px;padding:1px 6px;border-radius:10px;background:rgba(200,245,66,0.12);color:var(--accent);border:1px solid rgba(200,245,66,0.25);';
+          tag.textContent=f; tagRow.appendChild(tag);
+        });
+        if(Object.keys(_folders).length){
+          const btn=document.createElement('button');
+          btn.style.cssText='font-family:DM Mono,monospace;font-size:8px;padding:1px 6px;border-radius:10px;background:transparent;color:var(--muted);border:1px dashed rgba(255,255,255,0.15);cursor:pointer;';
+          btn.textContent='+ folder'; btn.title='Assign to folder';
+          btn.onclick=(e)=>{
+            e.stopPropagation();
+            const names=Object.keys(_folders);
+            const chosen=prompt('Assign to folder:\n'+names.map((n,i)=>(i+1)+'. '+n+((_folders[n]||[]).includes(model.id)?' ✓':'')).join('\n')+'\n\nType folder name:');
+            if(chosen&&_folders[chosen]!==undefined){ toggleModelFolder(model.id,chosen); }
+          };
+          tagRow.appendChild(btn);
+        }
+        card.appendChild(tagRow);
+      }
       card.onmouseleave=()=>{ card.style.borderColor='var(--border)'; card.style.transform=''; };
       card.onclick=()=>{ document.getElementById('browser-screen').style.display='none'; openViewer(model.id,name); };
       drawerGrid.appendChild(card);
@@ -1222,6 +1332,8 @@ function _destroyViewer() {
   vrMode='grab'; desktopMode='orbit'; currentFileId=null;
   _missExplodeOrigins.clear();
   missClearSymmetry?.();
+  if(_sliceGhostMesh){viewerScene?.remove(_sliceGhostMesh);_sliceGhostMesh=null;}
+  const sgt=document.getElementById('slice-ghost-tog'); if(sgt) sgt.checked=false;
   if(_bboxHelper){viewerScene?.remove(_bboxHelper);_bboxHelper=null;} _bboxVisible=false;
   if(typeof _removeBboxLabels==='function') _removeBboxLabels();
   // Hide all panels
@@ -1532,6 +1644,12 @@ function setZebraMode(mode) {
   });
   viewerScene&&viewerScene.traverse(o=>{if(o.isAmbientLight) o.intensity=0.6;});
   zebraMode=mode;
+  // Style toggle buttons
+  ['zebra-h','zebra-v'].forEach(id=>{ const b=document.getElementById(id); if(b) b.classList.remove('active'); });
+  if(mode!=='off'){ const ab=document.getElementById('zebra-'+mode); if(ab) ab.classList.add('active'); }
+  // Disable the other button
+  const hb=document.getElementById('zebra-h'), vb=document.getElementById('zebra-v');
+  if(hb) hb.disabled=(mode==='v'); if(vb) vb.disabled=(mode==='h');
   ['zebra-off','zebra-h','zebra-v'].forEach(id=>{
     const b=document.getElementById(id); if(!b) return;
     const active=id===`zebra-${mode}`;
@@ -1550,8 +1668,11 @@ function setZebraMode(mode) {
     varying vec3 vNormal;
     uniform int axis;
     uniform float scale;
+    uniform float rotation;
     void main(){
-      float coord=axis==1?vWorldPos.y:vWorldPos.x;
+      float c=cos(rotation), s=sin(rotation);
+      float rx=vWorldPos.x*c-vWorldPos.z*s;
+      float coord=axis==1?vWorldPos.y:rx;
       float stripe=mod(coord*scale,1.0);
       float band=step(0.5,stripe);
       // Dark stripe=0.0 (fully darken), light stripe=1.0 (transparent — shows lit model)
@@ -1571,7 +1692,7 @@ function setZebraMode(mode) {
     if(!child.isMesh) return;
     const mat=new THREE.ShaderMaterial({
       vertexShader:zebraVertN, fragmentShader:zebraFrag,
-      uniforms:{axis:{value:axis},scale:{value:_zebraStripeScale}},
+      uniforms:{axis:{value:axis},scale:{value:_zebraStripeScale},rotation:{value:_zebraRotation*Math.PI/180}},
       transparent:true, depthWrite:false, depthTest:true,
       polygonOffset:true, polygonOffsetFactor:-1, polygonOffsetUnits:-1,
       side:THREE.DoubleSide, blending:THREE.NormalBlending
@@ -1673,25 +1794,64 @@ function _updateBboxLabels(){
   const size=box.getSize(new THREE.Vector3());
   const W=Math.round(size.x*100), H=Math.round(size.y*100), D=Math.round(size.z*100);
   const mid=box.getCenter(new THREE.Vector3());
+  // Edge midpoints: W along bottom front edge, H along right vertical edge, D along right depth edge
   const dims=[
-    {pos:new THREE.Vector3(mid.x, box.min.y-0.04, mid.z), text:W+'cm W'},
-    {pos:new THREE.Vector3(box.max.x+0.06, mid.y, mid.z), text:H+'cm H'},
-    {pos:new THREE.Vector3(mid.x, mid.y, box.max.z+0.06), text:D+'cm D'},
+    {edge3d:new THREE.Vector3(mid.x, box.min.y, box.min.z), text:W+' cm', dir:'down'},
+    {edge3d:new THREE.Vector3(box.max.x, mid.y, mid.z),     text:H+' cm', dir:'right'},
+    {edge3d:new THREE.Vector3(mid.x, box.max.y, box.max.z), text:D+' cm', dir:'back'},
   ];
   const r=viewerRenderer.domElement.getBoundingClientRect();
-  dims.forEach(({pos,text})=>{
-    const v=pos.clone().project(viewerCamera); if(v.z>=1) return;
-    const sx=(v.x*0.5+0.5)*r.width+r.left;
-    const sy=(-v.y*0.5+0.5)*r.height+r.top;
+  const wrap=document.getElementById('viewer-canvas-wrap');
+  dims.forEach(({edge3d,text,dir})=>{
+    const v=edge3d.clone().project(viewerCamera); if(v.z>=1) return;
+    const ex=(v.x*0.5+0.5)*r.width+r.left-r.left;
+    const ey=(-v.y*0.5+0.5)*r.height+r.top-r.top;
+    // Offset label 30px outward based on direction
+    const off=dir==='down'?{dx:0,dy:22}:dir==='right'?{dx:30,dy:0}:{dx:20,dy:-18};
+    const lx=ex+off.dx, ly=ey+off.dy;
+    // Line from edge point to label
+    const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+    svg.style.cssText='position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:139;overflow:visible;';
+    const line=document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1',ex); line.setAttribute('y1',ey);
+    line.setAttribute('x2',lx); line.setAttribute('y2',ly);
+    line.setAttribute('stroke','rgba(200,245,66,0.45)'); line.setAttribute('stroke-width','1');
+    svg.appendChild(line); wrap.appendChild(svg); _bboxLabelDivs.push(svg);
+    // Label div
     const div=document.createElement('div');
-    div.style.cssText='position:fixed;pointer-events:none;z-index:140;font-family:DM Mono,monospace;font-size:10px;color:#c8f542;background:rgba(10,10,14,0.75);border:1px solid rgba(200,245,66,0.3);border-radius:3px;padding:1px 5px;transform:translate(-50%,-50%);white-space:nowrap;';
-    div.textContent=text;
-    div.style.left=sx+'px'; div.style.top=sy+'px';
-    document.getElementById('viewer-canvas-wrap').appendChild(div);
-    _bboxLabelDivs.push(div);
+    div.style.cssText='position:absolute;pointer-events:none;z-index:140;font-family:DM Mono,monospace;font-size:10px;color:#c8f542;background:rgba(10,10,14,0.80);border:1px solid rgba(200,245,66,0.35);border-radius:3px;padding:1px 5px;transform:translate(-50%,-50%);white-space:nowrap;';
+    div.textContent=text; div.style.left=lx+'px'; div.style.top=ly+'px';
+    wrap.appendChild(div); _bboxLabelDivs.push(div);
   });
 }
 
+function toggleZebra(mode){
+  // If already active, toggle off. If other is active, switch.
+  if(zebraMode===mode){ setZebraMode('off'); }
+  else { setZebraMode(mode); }
+}
+let _zebraRotation=0;
+function onZebraRotation(val){
+  _zebraRotation=parseFloat(val);
+  const lbl=document.getElementById('zebra-rot-val'); if(lbl) lbl.textContent=Math.round(val)+'°';
+  if(zebraMode!=='off') setZebraMode(zebraMode);
+}
+let _sliceGhostMesh=null;
+function toggleSliceGhost(on){
+  if(!loadedModel) return;
+  if(_sliceGhostMesh){viewerScene?.remove(_sliceGhostMesh);_sliceGhostMesh=null;}
+  if(!on) return;
+  const ghostGroup=new THREE.Group();
+  loadedModel.traverse(c=>{
+    if(!c.isMesh) return;
+    const mat=new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0.07,depthWrite:false,side:THREE.DoubleSide});
+    const m=new THREE.Mesh(c.geometry,mat);
+    m.matrix.copy(c.matrixWorld); m.matrixAutoUpdate=false;
+    ghostGroup.add(m);
+  });
+  _sliceGhostMesh=ghostGroup;
+  viewerScene.add(_sliceGhostMesh);
+}
 function onZebraSize(val){_zebraStripeScale=parseFloat(val); const lbl=document.getElementById('zebra-size-val'); if(lbl)lbl.textContent=val; if(zebraMode!=='off')setZebraMode(zebraMode);} // kept for compat — zebra now uses ShaderMaterial
 
 // ════════════════════════════════════════════════════════════
@@ -1699,6 +1859,12 @@ function onZebraSize(val){_zebraStripeScale=parseFloat(val); const lbl=document.
 // ════════════════════════════════════════════════════════════
 let gridOverlayOpacity = 0.15;
 
+function toggleGridOverlayDisplay(){
+  // Toggle wireframe grid overlay while keeping tex/clay/alpha mode
+  toggleGridOverlay();
+  const btn=document.getElementById('tex-btn-grid');
+  if(btn) btn.classList.toggle('active', gridOverlayActive);
+}
 function toggleGridOverlay() {
   gridOverlayActive=!gridOverlayActive;
   const tog=document.getElementById('grid-overlay-tog'); if(tog) tog.checked=gridOverlayActive;
@@ -1812,10 +1978,12 @@ function _applyShowcaseMode(on) {
     const gb=document.getElementById('grid-toggle-btn');
     if(gb) gb.classList.toggle('active',!gridGroup.visible);
   }
-  // Top bar opacity
+  // Top bar — dimmed during showcase but hover restores it
   const tb=document.getElementById('top-bar');
-  if(tb) tb.style.opacity=on?'0.18':'1';
-  if(tb) tb.style.pointerEvents=on?'none':'';
+  if(tb){
+    if(on){ tb.classList.add('showcase-dim'); }
+    else  { tb.classList.remove('showcase-dim'); tb.style.opacity='1'; tb.style.pointerEvents=''; }
+  }
   // Left panel
   const lp=document.getElementById('left-panel');
   if(lp) lp.style.opacity=on?'0':'1';
@@ -1852,7 +2020,7 @@ function _applyShowcaseMode(on) {
     document.getElementById('light-btn')?.classList.remove('active');
   }
   // Add smooth CSS transition (only on first call)
-  [tb,lp,rp,vl].forEach(el=>{ if(el) el.style.transition='opacity 0.6s ease'; });
+  [lp,rp,vl].forEach(el=>{ if(el) el.style.transition='opacity 0.6s ease'; });
 }
 
 function toggleMeasFloorSnap() {
@@ -1901,8 +2069,8 @@ function toggleAllAnnotations() {
   measLabelDivs.forEach(div=>{div.style.display=allAnnotationsVisible?'block':'none';});
   // Keep section eye buttons consistent with hide-all state
   _pinsHidden=!allAnnotationsVisible; _dimsHidden=!allAnnotationsVisible;
-  const pb=document.getElementById('pins-eye-btn'); if(pb) pb.textContent=allAnnotationsVisible?'●':'○';
-  const db=document.getElementById('dims-eye-btn'); if(db) db.textContent=allAnnotationsVisible?'●':'○';
+  const pb=document.getElementById('pins-eye-btn'); if(pb) pb.innerHTML=allAnnotationsVisible?'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>':'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+  const db=document.getElementById('dims-eye-btn'); if(db) db.innerHTML=allAnnotationsVisible?'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>':'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
 }
 function closePinPopup() {
   if(pinPopupEl){ pinPopupEl.remove(); pinPopupEl=null; }
@@ -2067,7 +2235,7 @@ function toggleSectionVisibility(section) {
       if(a.labelDiv) a.labelDiv.style.display=(_pinsHidden||a._hidden)?'none':'';
     });
     const btn=document.getElementById('pins-eye-btn');
-    if(btn){ btn.textContent=_pinsHidden?'○':'●'; btn.style.opacity=_pinsHidden?'1':'0.6'; }
+    if(btn){ btn.innerHTML=_pinsHidden?'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/><line x1="1" y1="1" x2="23" y2="23"/></svg>':'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>'; }
   } else {
     _dimsHidden=!_dimsHidden;
     savedMeasurements.forEach(m=>{
@@ -2077,7 +2245,7 @@ function toggleSectionVisibility(section) {
       const ld=measLabelDivs.get(m.id); if(ld) ld.style.display=(_dimsHidden||m._hidden)?'none':'block';
     });
     const btn=document.getElementById('dims-eye-btn');
-    if(btn){ btn.textContent=_dimsHidden?'○':'●'; btn.style.opacity=_dimsHidden?'1':'0.6'; }
+    if(btn){ btn.innerHTML=_dimsHidden?'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/><line x1="1" y1="1" x2="23" y2="23"/></svg>':'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>'; }
   }
 }
 
@@ -2218,8 +2386,8 @@ function _spawnMeasureLine(ptA, ptB, label, id, color) {
   const line=new THREE.LineSegments(geo.clone(),new THREE.LineDashedMaterial({color:col,linewidth:1,dashSize:0.018,gapSize:0.010,depthTest:false,opacity:0.80,transparent:true}));
   line.renderOrder=11; line.computeLineDistances();
   // Ghost line behind model (very faint, depth tested — shows line is going through object)
-  const lineGhost=new THREE.LineSegments(geo,new THREE.LineDashedMaterial({color:col,linewidth:1,dashSize:0.018,gapSize:0.010,depthTest:true,opacity:0.10,transparent:true}));
-  lineGhost.renderOrder=9; lineGhost.computeLineDistances();
+  const lineGhost=new THREE.LineSegments(geo,new THREE.LineDashedMaterial({color:col,linewidth:1,dashSize:0.025,gapSize:0.04,depthTest:true,opacity:0.08,transparent:true,depthWrite:false}));
+  lineGhost.renderOrder=0; lineGhost.computeLineDistances();
   viewerScene.add(lineGhost);
   line.computeLineDistances();
   viewerScene.add(line);
@@ -2477,7 +2645,7 @@ async function exportPinReport() {
   // Footer
   pdf.setDrawColor(200,200,215); pdf.setLineWidth(0.15); pdf.line(14,PH-8,PW-14,PH-8);
   pdf.setFont('helvetica','normal'); pdf.setFontSize(6); pdf.setTextColor(150,150,170);
-  pdf.text(`CAD Inspector v0.4.3  ·  Exported ${new Date().toLocaleDateString()}`, 14, PH-3);
+  pdf.text(`CAD Inspector v0.4.4  ·  Exported ${new Date().toLocaleDateString()}`, 14, PH-3);
 
   pdf.save(`${modelName}-pin-report.pdf`);
 }
@@ -2940,7 +3108,11 @@ function missResetExplode() {
 }
 
 // ── Symmetry Check ───────────────────────────────────────────
-let _missSymMesh=null;
+let _missSymMesh=null, _missSymAxis=null;
+function toggleSymmetry(axis){
+  if(_missSymAxis===axis){ missClearSymmetry(); return; }
+  missSymmetry(axis);
+}
 function missSymmetry(axis) {
   missClearSymmetry();
   if(!loadedModel) return;
@@ -2948,9 +3120,10 @@ function missSymmetry(axis) {
   ghost.traverse(c=>{ if(c.isMesh&&c.material){ c.material=c.material.clone(); c.material.transparent=true; c.material.opacity=0.18; c.material.color.set(0x42f5c8); c.material.needsUpdate=true; } });
   const sc=new THREE.Vector3(axis==='x'?-1:1, 1, axis==='z'?-1:1);
   ghost.scale.multiply(sc); // mirror
-  viewerScene.add(ghost); _missSymMesh=ghost;
+  viewerScene.add(ghost); _missSymMesh=ghost; _missSymAxis=axis;
+  ['x','z'].forEach(a=>{ const b=document.getElementById('sym-btn-'+a); if(b) b.classList.toggle('active',a===axis); });
 }
-function missClearSymmetry() { if(_missSymMesh){viewerScene?.remove(_missSymMesh);_missSymMesh=null;} }
+function missClearSymmetry() { if(_missSymMesh){viewerScene?.remove(_missSymMesh);_missSymMesh=null;} _missSymAxis=null; ['x','z'].forEach(a=>{ const b=document.getElementById('sym-btn-'+a); if(b) b.classList.remove('active'); }); }
 
 // ── Annotation Layers ─────────────────────────────────────────
 let _missLayers=[], _missActiveLayer=null;
