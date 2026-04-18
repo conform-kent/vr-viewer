@@ -159,6 +159,8 @@ body.browser-open{overflow:auto;}
 .tb-btn:hover{background:rgba(255,255,255,0.07);color:var(--text);}
 .tb-btn.active{background:rgba(200,245,66,0.12);color:var(--accent);}
 .tb-btn.active-measure{background:rgba(245,161,66,0.12);color:var(--warn);}
+.tb-btn.active-height{background:rgba(33,150,243,0.2)!important;border:1px solid rgba(33,150,243,0.5)!important;}
+.tb-btn.active-width{background:rgba(244,67,54,0.2)!important;border:1px solid rgba(244,67,54,0.5)!important;}
 .tb-btn.active-pin{background:rgba(245,66,66,0.12);color:var(--danger);}
 .tb-sep{width:1px;height:20px;background:rgba(255,255,255,0.07);margin:0 2px;flex-shrink:0;}
 .vr-btn{background:var(--accent);color:#0a0a0b;border:none;border-radius:20px;padding:6px 12px;font-family:'DM Mono',monospace;font-size:10px;font-weight:500;cursor:pointer;transition:opacity 0.15s;white-space:nowrap;height:34px;}
@@ -208,31 +210,29 @@ body.browser-open{overflow:auto;}
 </head>
 <body>
 
-<!-- BROWSER -->
+<!-- BROWSER — compact top bar + slide-down thumbnail drawer -->
 <div id="browser-screen">
-  <div class="topbar">
-    <div class="topbar-left">
-      <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;">
-        <rect width="32" height="32" rx="8" fill="#0e0e12"/>
-        <rect x="1" y="1" width="30" height="30" rx="7" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
-        <polygon points="16,4 26,9.5 26,22.5 16,28 6,22.5 6,9.5" fill="none" stroke="#c8f542" stroke-width="1.5" stroke-linejoin="round"/>
-        <line x1="11" y1="13" x2="16" y2="20" stroke="#c8f542" stroke-width="1.5" stroke-linecap="round"/>
-        <line x1="21" y1="13" x2="16" y2="20" stroke="#c8f542" stroke-width="1.5" stroke-linecap="round"/>
-        <line x1="13" y1="13" x2="19" y2="13" stroke="rgba(200,245,66,0.4)" stroke-width="1" stroke-linecap="round"/>
-      </svg>
-      <div style="display:flex;flex-direction:column;gap:1px;">
-        <span class="wordmark">VR<span>.</span>browser</span>
-        <span style="font-family:'DM Mono',monospace;font-size:9px;color:#5a5a6a;letter-spacing:.06em;">v0.2 · Design Review</span>
-      </div>
+  <!-- Slim top bar -->
+  <div style="display:flex;align-items:center;gap:0;background:rgba(13,13,16,0.98);border-bottom:1px solid var(--border);padding:0;">
+    <!-- Logo pill -->
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 20px;border-right:1px solid var(--border);">
+      <svg width="22" height="22" viewBox="0 0 32 32" fill="none"><polygon points="16,4 26,9.5 26,22.5 16,28 6,22.5 6,9.5" fill="none" stroke="#c8f542" stroke-width="2" stroke-linejoin="round"/><line x1="11" y1="13" x2="16" y2="20" stroke="#c8f542" stroke-width="2" stroke-linecap="round"/><line x1="21" y1="13" x2="16" y2="20" stroke="#c8f542" stroke-width="2" stroke-linecap="round"/></svg>
+      <span style="font-family:'DM Mono',monospace;font-size:13px;font-weight:500;letter-spacing:-.3px;">VR<span style="color:var(--accent)">.</span>browser <span style="font-size:9px;color:var(--accent);opacity:0.8;">v0.2.5</span></span>
     </div>
-    <button class="btn-icon" onclick="loadModels()">↺ Refresh</button>
+    <!-- Model list — click to expand -->
+    <div id="model-list-bar" style="flex:1;display:flex;align-items:center;overflow-x:auto;gap:2px;padding:6px 12px;scrollbar-width:none;">
+      <span id="model-list-empty" style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);padding:4px 8px;">Loading…</span>
+    </div>
+    <button class="btn-icon" onclick="loadModels()" style="margin:6px 12px;flex-shrink:0;">↺</button>
   </div>
-  <div class="content">
-    <div class="section-header">
-      <span class="section-title">Models in folder</span>
-      <span class="count-badge" id="count-badge">0 files</span>
-    </div>
-    <div class="grid" id="model-grid"></div>
+  <!-- Thumbnail drawer (slides down when a model is hovered/selected) -->
+  <div id="thumb-drawer" style="display:none;background:rgba(13,13,16,0.98);border-bottom:1px solid var(--border);padding:12px 16px;">
+    <div id="thumb-drawer-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;max-width:900px;"></div>
+  </div>
+  <!-- Count badge -->
+  <div style="padding:8px 20px;display:flex;align-items:center;gap:8px;">
+    <span style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);">Models in folder</span>
+    <span class="count-badge" id="count-badge">0 files</span>
   </div>
 </div>
 
@@ -245,6 +245,21 @@ body.browser-open{overflow:auto;}
       <div class="spinner"></div>
       <span class="loading-label" id="loading-label">Loading model…</span>
     </div>
+    <!-- Slice gimbals (SVG arrows shown when slice active) -->
+    <svg id="slice-gimbals" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:15;overflow:visible;display:none;">
+      <!-- H-slice gimbal: drag handle circle at slice intersection with viewport centre -->
+      <g id="gimbal-h" style="display:none;">
+        <line id="gh-h" stroke="#42f5c8" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.6"/>
+        <circle id="gh-c" r="7" fill="rgba(66,245,200,0.15)" stroke="#42f5c8" stroke-width="1.5" style="pointer-events:all;cursor:ns-resize;"/>
+        <text id="gh-lbl" fill="#42f5c8" font-family="DM Mono,monospace" font-size="10" text-anchor="middle" dy="-10" opacity="0.8"></text>
+      </g>
+      <!-- V-slice gimbal -->
+      <g id="gimbal-v" style="display:none;">
+        <line id="gv-v" stroke="#c8f542" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.6"/>
+        <circle id="gv-c" r="7" fill="rgba(200,245,66,0.15)" stroke="#c8f542" stroke-width="1.5" style="pointer-events:all;cursor:ew-resize;"/>
+        <text id="gv-lbl" fill="#c8f542" font-family="DM Mono,monospace" font-size="10" text-anchor="middle" dy="-10" opacity="0.8"></text>
+      </g>
+    </svg>
     <!-- Fake floor cone glow -->
     <canvas id="floor-cone-canvas" style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);pointer-events:none;z-index:1;opacity:0.22;width:500px;height:180px;max-width:80vw;"></canvas>
   </div>
@@ -257,15 +272,16 @@ body.browser-open{overflow:auto;}
   <div id="left-panel">
     <div class="lp-head" id="lp-drag-handle">
       <span class="lp-head-title" onclick="toggleLeftPanel()" style="flex:1;cursor:pointer;">Controls</span>
-      <button class="lp-head-btn" id="lp-pin-btn" onclick="togglePanelPin('left-panel','lp-pin-btn')" title="Pin to side">📌</button>
+      <button class="lp-head-btn" id="lp-pin-btn" onclick="togglePanelPin('left-panel','lp-pin-btn')" title="Pin to side">⬤</button>
       <span class="lp-head-icon open" id="lp-chevron" onclick="toggleLeftPanel()" style="cursor:pointer;">▾</span>
     </div>
     <div class="lp-body" id="lp-body">
       <!-- Slicing -->
       <div class="lp-section">
-        <div class="lp-sec-head" onclick="toggleLpSection('lps-0')">
-          <span class="lp-title" style="margin:0;flex:1;">Slicing</span>
-          <span class="lp-sec-chevron" id="lps-0-ch">▾</span>
+        <div class="lp-sec-head">
+          <span class="lp-title" style="margin:0;flex:1;cursor:pointer;" onclick="toggleLpSection('lps-0')">Slicing</span>
+          <button class="lp-head-btn" onclick="resetSlicing()" title="Reset slicing">↺</button>
+          <span class="lp-sec-chevron" id="lps-0-ch" onclick="toggleLpSection('lps-0')" style="cursor:pointer;">▾</span>
         </div>
         <div class="lp-sec-body" id="lps-0">
           <div class="lp-row"><span class="lp-label">H-Cut ↕</span><label class="tog teal"><input type="checkbox" id="hslice-tog" onchange="onHSliceToggle(this.checked)"><span class="tog-s"></span></label></div>
@@ -322,11 +338,16 @@ body.browser-open{overflow:auto;}
       </div>
       <!-- Light -->
       <div class="lp-section">
-        <div class="lp-sec-head" onclick="toggleLpSection('lps-4')">
-          <span class="lp-title" style="margin:0;flex:1;">Light</span>
-          <span class="lp-sec-chevron" id="lps-4-ch">▾</span>
+        <div class="lp-sec-head">
+          <span class="lp-title" style="margin:0;flex:1;cursor:pointer;" onclick="toggleLpSection('lps-4')">Light</span>
+          <button class="lp-head-btn" onclick="resetLight()" title="Reset light">↺</button>
+          <span class="lp-sec-chevron" id="lps-4-ch" onclick="toggleLpSection('lps-4')" style="cursor:pointer;">▾</span>
         </div>
         <div class="lp-sec-body" id="lps-4">
+          <div class="lp-row"><span class="lp-label">Sun Strength</span><span class="lp-val" id="light-str-val">1.2</span></div>
+          <input type="range" class="lp-slider warn" id="light-str" min="0" max="3" step="0.05" value="1.2" oninput="onLightSlider()">
+          <div class="lp-row"><span class="lp-label">Ambient</span><span class="lp-val" id="light-amb-val">0.5</span></div>
+          <input type="range" class="lp-slider" id="light-amb" min="0" max="2" step="0.05" value="0.5" oninput="onLightSlider()">
           <div class="lp-row"><span class="lp-label">Azimuth</span><span class="lp-val" id="light-az-val">45°</span></div>
           <input type="range" class="lp-slider warn" id="light-az" min="0" max="360" step="1" value="45" oninput="onLightSlider()">
           <div class="lp-row"><span class="lp-label">Elevation</span><span class="lp-val" id="light-el-val">40°</span></div>
@@ -351,7 +372,7 @@ body.browser-open{overflow:auto;}
     <div class="rp-head" id="rp-drag-handle">
       <span class="rp-title" style="cursor:pointer;" onclick="toggleRightPanel()">Annotations &amp; Pins</span>
       <span id="annot-count" style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-right:4px;">0</span>
-      <button class="lp-head-btn" id="rp-pin-btn" onclick="togglePanelPin('right-panel','rp-pin-btn')" title="Pin to side">📌</button>
+      <button class="lp-head-btn" id="rp-pin-btn" onclick="togglePanelPin('right-panel','rp-pin-btn')" title="Pin to side">⬤</button>
     </div>
     <div id="pin-table-body"></div>
     <div id="meas-section" style="display:none;">
@@ -376,6 +397,14 @@ body.browser-open{overflow:auto;}
     <button class="tb-btn" id="dm-meas" onclick="setDesktopMode('measure')" title="M">
       <svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="8" x2="3" y2="16"/><line x1="21" y1="8" x2="21" y2="16"/></svg>
       <span class="tb-label">Measure</span>
+    </button>
+    <button class="tb-btn" id="meas-height-btn" onclick="toggleMeasSubMode('height')" title="Height (Z-axis)" style="min-width:38px;color:#2196f3;">
+      <svg viewBox="0 0 24 24" style="stroke:#2196f3;"><line x1="12" y1="3" x2="12" y2="21"/><polyline points="8,7 12,3 16,7" fill="none"/><polyline points="8,17 12,21 16,17" fill="none"/><line x1="8" y1="12" x2="16" y2="12" stroke-dasharray="2,2"/></svg>
+      <span class="tb-label">Height</span>
+    </button>
+    <button class="tb-btn" id="meas-width-btn" onclick="toggleMeasSubMode('width')" title="Width (X-axis)" style="min-width:38px;color:#f44336;">
+      <svg viewBox="0 0 24 24" style="stroke:#f44336;"><line x1="3" y1="12" x2="21" y2="12"/><polyline points="7,8 3,12 7,16" fill="none"/><polyline points="17,8 21,12 17,16" fill="none"/><line x1="12" y1="8" x2="12" y2="16" stroke-dasharray="2,2"/></svg>
+      <span class="tb-label">Width</span>
     </button>
     <button class="tb-btn" id="dm-pin" onclick="setDesktopMode('pin')" title="P">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><line x1="12" y1="12" x2="12" y2="21"/></svg>
@@ -519,7 +548,7 @@ function togglePanelPin(panelId, btnId) {
   if(!panel) return;
   _panelPinned[panelId]=!_panelPinned[panelId];
   panel.classList.toggle('pinned',_panelPinned[panelId]);
-  if(btn) btn.style.opacity=_panelPinned[panelId]?'1':'0.5';
+  if(btn){btn.textContent=_panelPinned[panelId]?'⬤':'○';btn.style.opacity=_panelPinned[panelId]?'1':'0.7';}
   if(_panelPinned[panelId]) {
     // Snap back to default pinned position
     if(panelId==='left-panel'){panel.style.left='14px';panel.style.top='14px';}
@@ -530,25 +559,35 @@ function makeDraggable(panelId, handleId) {
   const panel=document.getElementById(panelId);
   const handle=document.getElementById(handleId);
   if(!panel||!handle) return;
-  let ox=0,oy=0,sx=0,sy=0,dragging=false;
+  let startX=0,startY=0,origLeft=0,origTop=0,isDragging=false;
   handle.addEventListener('mousedown',e=>{
-    if(_panelPinned[panelId]) return;
-    if(e.target.tagName==='BUTTON'||e.target.tagName==='SPAN'&&e.target.classList.contains('lp-head-icon')) return;
-    dragging=true; handle.classList.add('dragging');
-    const rect=panel.getBoundingClientRect();
-    ox=e.clientX-rect.left; oy=e.clientY-rect.top;
+    if(_panelPinned[panelId]||e.target.tagName==='BUTTON') return;
+    startX=e.clientX; startY=e.clientY;
+    const r=panel.getBoundingClientRect();
+    origLeft=r.left; origTop=r.top;
+    isDragging=false;
     e.preventDefault();
+    function onMove(e2){
+      const dx=e2.clientX-startX, dy=e2.clientY-startY;
+      if(!isDragging&&Math.sqrt(dx*dx+dy*dy)<5) return;
+      isDragging=true;
+      panel.style.position='fixed';
+      panel.style.right='auto';
+      panel.style.left=Math.max(0,Math.min(window.innerWidth-panel.offsetWidth, origLeft+dx))+'px';
+      panel.style.top =Math.max(0,Math.min(window.innerHeight-panel.offsetHeight,origTop+dy))+'px';
+    }
+    function onUp(){
+      document.removeEventListener('mousemove',onMove);
+      document.removeEventListener('mouseup',onUp);
+      // Only suppress click if we actually dragged
+      if(isDragging){
+        isDragging=false;
+        handle.addEventListener('click',function stop(ev){ev.stopPropagation();handle.removeEventListener('click',stop);},{capture:true,once:true});
+      }
+    }
+    document.addEventListener('mousemove',onMove);
+    document.addEventListener('mouseup',onUp);
   });
-  document.addEventListener('mousemove',e=>{
-    if(!dragging) return;
-    let nx=e.clientX-ox, ny=e.clientY-oy;
-    const pw=panel.offsetWidth,ph=panel.offsetHeight;
-    nx=Math.max(0,Math.min(window.innerWidth-pw,nx));
-    ny=Math.max(0,Math.min(window.innerHeight-ph,ny));
-    panel.style.left=nx+'px'; panel.style.top=ny+'px';
-    panel.style.right='auto';
-  });
-  document.addEventListener('mouseup',()=>{ dragging=false; handle.classList.remove('dragging'); });
 }
 // Init drag after DOM ready
 function initDraggablePanels() {
@@ -632,6 +671,13 @@ const grabState = { left: null, right: null };
 // In-progress cursor (not yet saved)
 let measureState = { ptA:null, ptB:null, lineObj:null, sphereA:null, sphereB:null };
 let measurePhase = 0;
+// Measure sub-modes: 'free' | 'height' | 'width'
+// Height = vertical drop to floor (Z-axis blue 0x2196f3)
+// Width  = symmetric span across model centre plane (X-axis red 0xf44336)
+let measureSubMode = 'free';
+const MEAS_COL_FREE   = 0xf5a142; // orange — existing free measure
+const MEAS_COL_HEIGHT = 0x2196f3; // blue  — industry Z-axis
+const MEAS_COL_WIDTH  = 0xf44336; // red   — industry X-axis
 // Saved measurements — each has THREE.js objects so they can be deleted/moved
 // {id, ptA, ptB, label, line, sA, sB}
 let savedMeasurements = [];
@@ -740,7 +786,7 @@ function buildSessionData() {
       addedAt: a.addedAt||Date.now()
     })),
     annotCount,
-    measurements: savedMeasurements.map(m=>({id:m.id,ptA:{x:m.ptA.x,y:m.ptA.y,z:m.ptA.z},ptB:{x:m.ptB.x,y:m.ptB.y,z:m.ptB.z},label:m.label})),
+    measurements: savedMeasurements.map(m=>({id:m.id,ptA:{x:m.ptA.x,y:m.ptA.y,z:m.ptA.z},ptB:{x:m.ptB.x,y:m.ptB.y,z:m.ptB.z},label:m.label,color:m.color||MEAS_COL_FREE})),
     measureCount,
     updatedAt: Date.now()
   };
@@ -804,11 +850,18 @@ function restoreSession(session) {
   });
   (session.measurements||[]).forEach(m=>{
     const ptA = new THREE.Vector3(m.ptA.x, m.ptA.y, m.ptA.z);
+    const mColor = m.color||MEAS_COL_FREE;
     const ptB = new THREE.Vector3(m.ptB.x, m.ptB.y, m.ptB.z);
-    _spawnMeasureLine(ptA, ptB, m.label, m.id||++measureCount);
+    _spawnMeasureLine(ptA, ptB, m.label, m.id||++measureCount, mColor);
   });
   const ac=document.getElementById('annot-count'); if(ac) ac.textContent=annotations.length;
   rebuildSidebar();
+  // Reset all panel UI state
+  const hav=document.getElementById('hslice-ang-val'); if(hav) hav.textContent='0°';
+  const vav=document.getElementById('vslice-ang-val'); if(vav) vav.textContent='0°';
+  ['hslice-ang','vslice-ang','hslice-sl','vslice-sl'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=id.includes('ang')?0:0.5;});
+  hSliceAngle=0; vSliceAngle=0;
+  const gs=document.getElementById('slice-gimbals'); if(gs) gs.style.display='none';
 }
 
 // ════════════════════════════════════════════════════════════
@@ -871,6 +924,13 @@ function updateMeasLabels() {
     div.style.left=(v.x*0.5+0.5)*r.width+r.left+'px';
     div.style.top=(-v.y*0.5+0.5)*r.height+r.top+'px';
     div.textContent=m.label;
+    // Apply measurement type colour to label
+    if(m.color){
+      const h='#'+m.color.toString(16).padStart(6,'0');
+      div.style.color=h; div.style.borderColor=h+'55';
+    } else {
+      div.style.color='#f5a142'; div.style.borderColor='rgba(245,161,66,0.3)';
+    }
   });
   [...measLabelDivs.keys()].forEach(id=>{ if(!savedMeasurements.find(m=>m.id===id)) removeMeasLabel(id); });
 }
@@ -886,8 +946,9 @@ function showBrowser() {
 }
 
 async function loadModels() {
-  const grid=document.getElementById('model-grid');
-  grid.innerHTML='<div class="status-msg"><div class="spinner" style="margin:0 auto"></div></div>';
+  // Show spinner in the model-list-bar while loading
+  const bar=document.getElementById('model-list-bar');
+  if(bar) bar.innerHTML='<span style="font-family:DM Mono,monospace;font-size:11px;color:var(--muted);padding:4px 8px;"><span class="spinner" style="display:inline-block;width:12px;height:12px;border-width:1.5px;margin-right:6px;vertical-align:middle;"></span>Loading…</span>';
   const url=`https://www.googleapis.com/drive/v3/files?q='${config.folderId}'+in+parents+and+mimeType='model/gltf-binary'+and+trashed=false&fields=files(id,name,size,modifiedTime)&key=${config.apiKey}`;
   try {
     let res=await fetch(url), data=await res.json();
@@ -898,32 +959,72 @@ async function loadModels() {
     }
     if(data.error) throw new Error(data.error.message);
     currentModels=data.files||[];
-    document.getElementById('count-badge').textContent=currentModels.length+' file'+(currentModels.length!==1?'s':'');
     renderGrid(currentModels);
   } catch(e) {
-    grid.innerHTML=`<div class="status-msg error"><span class="big">⚠</span>${e.message}</div>`;
+    if(bar) bar.innerHTML=`<span style="font-family:DM Mono,monospace;font-size:11px;color:var(--danger);padding:4px 8px;">⚠ ${e.message}</span>`;
   }
 }
 
+let _activeModelPill=null;
+
 function renderGrid(models) {
-  const grid=document.getElementById('model-grid');
-  if(!models.length){grid.innerHTML='<div class="status-msg"><span class="big">📂</span>No .glb files found.</div>';return;}
-  grid.innerHTML='';
+  const bar=document.getElementById('model-list-bar');
+  const drawerGrid=document.getElementById('thumb-drawer-grid');
+  const badge=document.getElementById('count-badge');
+  if(badge) badge.textContent=models.length+' files';
+  if(!bar) return;
+  bar.innerHTML='';
+  if(!models.length){
+    bar.innerHTML='<span style="font-family:DM Mono,monospace;font-size:11px;color:var(--muted);padding:4px 8px;">No .glb files found in folder.</span>';
+    return;
+  }
+
+  // Top bar: one pill per model
   models.forEach(model=>{
-    const card=document.createElement('div'); card.className='model-card';
-    const sizeMB=model.size?(model.size/1024/1024).toFixed(1)+' MB':'—';
     const name=model.name.replace(/\.glb$/i,'');
-    // Show saved pin count if any
-    const sess=loadSession(model.id);
-    const pinBadge=sess&&sess.pins?.length?`<span style="font-family:'DM Mono',monospace;font-size:10px;color:#f54242;"> · ${sess.pins.length} pin${sess.pins.length!==1?'s':''}</span>`:'';
-    card.innerHTML=`
-      <div class="thumb-wrap" id="tw-${model.id}"><div class="thumb-placeholder"><span class="icon">⬡</span><span>Rendering…</span></div></div>
-      <div class="card-body"><div class="model-name" title="${name}">${name}${pinBadge}</div><div class="model-meta">${sizeMB}</div></div>
-      <button class="launch-btn" onclick="event.stopPropagation();openViewerAR('${model.id}','${name.replace(/'/g,"\\'")}')">⬡ Open in AR</button>`;
-    card.addEventListener('click',()=>openViewer(model.id,name));
-    grid.appendChild(card);
-    requestAnimationFrame(()=>renderThumb(model.id,name));
+    const pill=document.createElement('button');
+    pill.dataset.mid=model.id;
+    pill.style.cssText='font-family:DM Mono,monospace;font-size:11px;padding:5px 14px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all 0.15s;';
+    pill.textContent=name;
+    pill.onclick=()=>_selectModelPill(model.id, name, pill);
+    bar.appendChild(pill);
   });
+
+  // Thumbnail drawer grid
+  if(drawerGrid) {
+    drawerGrid.innerHTML='';
+    models.forEach(model=>{
+      const name=model.name.replace(/\.glb$/i,'');
+      const sizeMB=model.size?(model.size/1024/1024).toFixed(1)+' MB':'—';
+      const card=document.createElement('div');
+      card.style.cssText='border-radius:8px;overflow:hidden;background:rgba(18,18,22,1);border:1px solid var(--border);cursor:pointer;transition:all 0.15s;';
+      card.innerHTML=`<div id="tw-${model.id}" style="height:90px;display:flex;align-items:center;justify-content:center;background:#111;"><span style="font-size:22px;opacity:0.2">⬡</span></div><div style="padding:6px 8px 8px;font-family:DM Mono,monospace;font-size:10px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${name}<span style="display:block;color:var(--muted);font-size:9px;">${sizeMB}</span></div>`;
+      card.onmouseenter=()=>{ card.style.borderColor='rgba(200,245,66,0.4)'; card.style.transform='translateY(-2px)'; };
+      card.onmouseleave=()=>{ card.style.borderColor='var(--border)'; card.style.transform=''; };
+      card.onclick=()=>{ document.getElementById('thumb-drawer').style.display='none'; openViewer(model.id,name); };
+      drawerGrid.appendChild(card);
+      requestAnimationFrame(()=>renderThumb(model.id,name));
+    });
+  }
+}
+
+function _selectModelPill(id, name, pill) {
+  const drawer=document.getElementById('thumb-drawer');
+  if(!drawer) return;
+  // If clicking same pill again — toggle drawer closed
+  if(_activeModelPill===id && drawer.style.display!=='none') {
+    drawer.style.display='none'; _activeModelPill=null;
+    pill.style.background='transparent'; pill.style.color='var(--muted)'; pill.style.borderColor='var(--border)';
+    return;
+  }
+  // Deactivate previous pill
+  document.querySelectorAll('#model-list-bar button').forEach(b=>{
+    b.style.background='transparent'; b.style.color='var(--muted)'; b.style.borderColor='var(--border)';
+  });
+  // Activate this pill
+  pill.style.background='rgba(200,245,66,0.1)'; pill.style.color='var(--accent)'; pill.style.borderColor='rgba(200,245,66,0.35)';
+  _activeModelPill=id;
+  drawer.style.display='block';
 }
 
 // ════════════════════════════════════════════════════════════
@@ -966,13 +1067,21 @@ async function renderThumb(fileId,name) {
 //  VIEWER OPEN / CLOSE
 // ════════════════════════════════════════════════════════════
 function openViewer(fileId,name) {
+  // Clean up any existing viewer fully before starting new one
+  if(viewerRenderer||loadedModel) {
+    cleanupViewer();
+    // Give the cleanup a tick to finish before re-init
+    setTimeout(()=>_startViewer(fileId,name),120);
+  } else {
+    _startViewer(fileId,name);
+  }
+}
+function _startViewer(fileId,name) {
   currentFileId=fileId;
   document.getElementById('viewer-overlay').classList.add('active');
   document.getElementById('viewer-title').textContent=name;
   document.getElementById('loading-overlay').classList.remove('hidden');
   document.getElementById('loading-label').textContent='Loading model…';
-  if(viewerRenderer) cleanupViewer();
-  // Double rAF ensures the overlay is fully laid out before measuring canvas size
   requestAnimationFrame(()=>requestAnimationFrame(()=>initViewer(fileId)));
 }
 
@@ -1020,7 +1129,7 @@ function cleanupViewer() {
   grabState.left=grabState.right=null;
   measureState={ptA:null,ptB:null,lineObj:null,sphereA:null,sphereB:null}; measurePhase=0;
   explodeAmount=0; explodeOrigins.clear();
-  vrMode='grab'; desktopMode='orbit'; currentFileId=null;
+  vrMode='grab'; desktopMode='orbit'; currentFileId=null; loadedModel=null;
   _lastThumbL=_lastThumbR=_prevFaceA=false;
   document.getElementById('vr-hud').style.display='none';
   const lp2=document.getElementById('left-panel'); if(lp2) lp2.style.display='none';
@@ -1028,8 +1137,14 @@ function cleanupViewer() {
   const rp2=document.getElementById('right-panel'); if(rp2) rp2.style.display='none';
   const sb=document.getElementById('sidebar'); if(sb) sb.style.display='none';
   ['hslice-tog','vslice-tog'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=false;});
+  ['hslice-ang','vslice-ang'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=0;});
+  hSliceAngle=0; vSliceAngle=0;
+  const hav=document.getElementById('hslice-ang-val'); if(hav) hav.textContent='0°';
+  const vav=document.getElementById('vslice-ang-val'); if(vav) vav.textContent='0°';
+  ['hslice-sl','vslice-sl'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=0.5;});
   setDesktopMode('orbit',true);
   rebuildSidebar();
+  measureSubMode='free'; resetMeasSubMode();
 }
 
 // ════════════════════════════════════════════════════════════
@@ -1193,15 +1308,17 @@ function applyAllClipping() {
 //  LIGHT — azimuth + elevation (spherical coords)
 // ════════════════════════════════════════════════════════════
 function onLightSlider() {
-  lightAz = parseFloat(document.getElementById('light-az').value);
-  lightEl = parseFloat(document.getElementById('light-el').value);
+  lightAz = parseFloat(document.getElementById('light-az').value||45);
+  lightEl = parseFloat(document.getElementById('light-el').value||40);
+  const strEl=document.getElementById('light-str'); const str=strEl?parseFloat(strEl.value):1.2;
+  const ambEl=document.getElementById('light-amb'); const amb=ambEl?parseFloat(ambEl.value):0.5;
   const azv=document.getElementById('light-az-val'); if(azv) azv.textContent=Math.round(lightAz)+'°';
   const elv=document.getElementById('light-el-val'); if(elv) elv.textContent=Math.round(lightEl)+'°';
-  // Legacy element (may not exist in new design)
-  const lv=document.getElementById('light-val'); if(lv) lv.textContent=`${Math.round(lightAz)}°/${Math.round(lightEl)}°`;
-  if(!sunLight) return;
-  const az=lightAz*Math.PI/180, el=lightEl*Math.PI/180, r=8;
-  sunLight.position.set(Math.cos(el)*Math.sin(az)*r, Math.sin(el)*r, Math.cos(el)*Math.cos(az)*r);
+  const sv=document.getElementById('light-str-val'); if(sv) sv.textContent=str.toFixed(2);
+  const av=document.getElementById('light-amb-val'); if(av) av.textContent=amb.toFixed(2);
+  if(sunLight){ sunLight.intensity=str; const az=lightAz*Math.PI/180, el=lightEl*Math.PI/180, r=8; sunLight.position.set(Math.cos(el)*Math.sin(az)*r,Math.sin(el)*r,Math.cos(el)*Math.cos(az)*r); }
+  // Update ambient light
+  viewerScene&&viewerScene.traverse(o=>{if(o.isAmbientLight&&!o._floorSpot) o.intensity=amb;});
 }
 
 // ════════════════════════════════════════════════════════════
@@ -1635,11 +1752,14 @@ function rebuildMeasTable() {
   if(sec) sec.style.display=savedMeasurements.length?'block':'none';
   savedMeasurements.forEach((m,i)=>{
     const card=document.createElement('div'); card.className='meas-card';
-    const idSpan=document.createElement('span'); idSpan.className='meas-card-id'; idSpan.textContent=`M${String(i+1).padStart(2,'0')}`;
-    const lbl=document.createElement('span'); lbl.className='meas-card-lbl'; lbl.textContent=m.label;
+    const colHex='#'+(m.color||MEAS_COL_FREE).toString(16).padStart(6,'0');
+    const typeIcon=m.color===MEAS_COL_HEIGHT?'↕':m.color===MEAS_COL_WIDTH?'↔':'↗';
+    const badge=document.createElement('span'); badge.style.cssText=`color:${colHex};font-size:10px;margin-right:3px;`; badge.textContent=typeIcon;
+    const idSpan=document.createElement('span'); idSpan.className='meas-card-id'; idSpan.style.color=colHex; idSpan.textContent=`M${String(i+1).padStart(2,'0')}`;
+    const lbl=document.createElement('span'); lbl.className='meas-card-lbl'; lbl.style.color=colHex; lbl.textContent=m.label;
     const del=document.createElement('button'); del.className='ann-btn del'; del.textContent='✕';
     del.onclick=()=>{deleteMeasurement(m.id); rebuildMeasTable();};
-    card.appendChild(idSpan); card.appendChild(lbl); card.appendChild(del);
+    card.appendChild(badge); card.appendChild(idSpan); card.appendChild(lbl); card.appendChild(del);
     body.appendChild(card);
   });
   // Also update right panel visibility
@@ -1670,17 +1790,18 @@ function buildMeasureObjects(scene) {
 }
 
 // Spawn a finalised measurement — tracks Three.js objects for later deletion/move
-function _spawnMeasureLine(ptA, ptB, label, id) {
+function _spawnMeasureLine(ptA, ptB, label, id, color) {
+  const col = color||MEAS_COL_FREE;
   // Larger spheres (0.018 radius) so they're easy to click
-  const smat=new THREE.MeshBasicMaterial({color:0xf5a142}), sgeo=new THREE.SphereGeometry(0.018,10,10);
+  const smat=new THREE.MeshBasicMaterial({color:col}), sgeo=new THREE.SphereGeometry(0.018,10,10);
   const sA=new THREE.Mesh(sgeo,smat.clone()); sA.position.copy(ptA); viewerScene.add(sA);
   const sB=new THREE.Mesh(sgeo,smat.clone()); sB.position.copy(ptB); viewerScene.add(sB);
   const geo=new THREE.BufferGeometry().setFromPoints([ptA.clone(),ptB.clone()]);
-  const line=new THREE.Line(geo,new THREE.LineBasicMaterial({color:0xf5a142,linewidth:2}));
+  const line=new THREE.Line(geo,new THREE.LineBasicMaterial({color:col,linewidth:2}));
   viewerScene.add(line);
   sA.userData.measId=id; sA.userData.endpoint='A';
   sB.userData.measId=id; sB.userData.endpoint='B';
-  const rec={id,ptA:ptA.clone(),ptB:ptB.clone(),label,line,sA,sB};
+  const rec={id,ptA:ptA.clone(),ptB:ptB.clone(),label,line,sA,sB,color:col};
   savedMeasurements.push(rec);
   return rec;
 }
@@ -1730,6 +1851,11 @@ function clearMeasure() {
   const ov=document.getElementById('measure-readout-overlay'); if(ov) ov.style.display='none';
   const dr=document.getElementById('measure-readout'); if(dr) dr.textContent='—';
   const hm=document.getElementById('hud-measure'); if(hm) hm.style.display='none';
+}
+function resetMeasSubMode() {
+  measureSubMode='free';
+  document.getElementById('meas-height-btn')?.classList.remove('active-height');
+  document.getElementById('meas-width-btn')?.classList.remove('active-width');
 }
 
 function finaliseMeasure() {
@@ -1950,6 +2076,28 @@ function toggleRightPanel() {
   if(ms&&savedMeasurements.length) ms.style.display=wasOpen?'none':'block';
 }
 
+function toggleMeasSubMode(sub) {
+  if(measureSubMode===sub) {
+    // Already active — deactivate back to free
+    measureSubMode='free';
+    document.getElementById('meas-height-btn')?.classList.remove('active-height');
+    document.getElementById('meas-width-btn')?.classList.remove('active-width');
+  } else {
+    measureSubMode=sub;
+    // Enter measure mode first, then set sub-mode (clearMeasure called by setDesktopMode won't reset it)
+    setDesktopMode('measure');
+    measureSubMode=sub; // re-set after setDesktopMode (which calls resetMeasSubMode)
+    document.getElementById('meas-height-btn')?.classList.toggle('active-height', sub==='height');
+    document.getElementById('meas-width-btn')?.classList.toggle('active-width',  sub==='width');
+    if(sub==='height') document.getElementById('meas-width-btn')?.classList.remove('active-width');
+    else               document.getElementById('meas-height-btn')?.classList.remove('active-height');
+  }
+  clearMeasure();
+  // Show contextual hint in readout
+  const dr=document.getElementById('measure-readout');
+  if(dr) dr.textContent=measureSubMode==='height'?'↕ Click surface point…':measureSubMode==='width'?'↔ Click surface point…':'Click pt A…';
+}
+
 function setDesktopMode(mode, silent) {
   desktopMode=mode;
   ['dm-orbit','dm-meas','dm-pin'].forEach(id=>{
@@ -1961,14 +2109,14 @@ function setDesktopMode(mode, silent) {
   const b=document.getElementById(ids[mode]); if(b) b.classList.add(cls[mode]||'active');
   if(viewerControls){
     viewerControls.enabled=true;
-    viewerControls.enableRotate=(mode==='orbit');
+    // enableRotate handled above via mouseButtons
     // Middle mouse = ORBIT always; scroll = zoom; left = orbit only in orbit mode
-    viewerControls.mouseButtons=mode==='orbit'
-      ?{LEFT:THREE.MOUSE.ROTATE,  MIDDLE:THREE.MOUSE.ROTATE, RIGHT:THREE.MOUSE.PAN}
-      :{LEFT:null,                MIDDLE:THREE.MOUSE.ROTATE, RIGHT:THREE.MOUSE.PAN};
+    viewerControls.mouseButtons={LEFT:mode==='orbit'?THREE.MOUSE.ROTATE:null, MIDDLE:THREE.MOUSE.ROTATE, RIGHT:THREE.MOUSE.PAN};
+    viewerControls.enableRotate=true; // always allow middle-mouse orbit
   }
   const cw=document.getElementById('viewer-canvas-wrap');
   if(cw) cw.style.cursor=mode==='pin'?'crosshair':mode==='measure'?'cell':'grab';
+  if(mode!=='measure') resetMeasSubMode();
 }
 
 function getCanvasHit(e) {
@@ -2037,9 +2185,31 @@ function onCanvasClick(e) {
 
   if(desktopMode==='orbit') return;
 
-  // ── Measure mode: place points ─────────────────────────
+  // ── Measure mode: place points (with height/width sub-modes) ─
   if(desktopMode==='measure') {
     const pt=getCanvasHit(e);
+    // --- HEIGHT sub-mode: one click, drop vertical line to floor ---
+    if(measureSubMode==='height') {
+      if(!pt) return;
+      const ptTop=pt.clone();
+      const ptBot=new THREE.Vector3(pt.x, 0, pt.z); // floor (Y=0)
+      const h=ptTop.y;
+      const lbl=(h>=1?h.toFixed(3)+' m':(h*100).toFixed(1)+' cm')+' ↕';
+      _spawnMeasureLine(ptTop, ptBot, lbl, ++measureCount, MEAS_COL_HEIGHT);
+      rebuildMeasTable(); saveSession(); return;
+    }
+    // --- WIDTH sub-mode: one click, mirror to mid-plane (X=0) ---
+    if(measureSubMode==='width') {
+      if(!pt) return;
+      // Place point on surface, mirror through X=0 plane
+      const ptA=pt.clone();
+      const ptB=new THREE.Vector3(-pt.x, pt.y, pt.z);
+      const w=ptA.distanceTo(ptB);
+      const lbl=(w>=1?w.toFixed(3)+' m':(w*100).toFixed(1)+' cm')+' ↔';
+      _spawnMeasureLine(ptA, ptB, lbl, ++measureCount, MEAS_COL_WIDTH);
+      rebuildMeasTable(); saveSession(); return;
+    }
+    // --- FREE mode (default) ---
     let finalPt=pt;
     if(measFloorSnap||!pt){
       const cv2=viewerRenderer.domElement, rect2=cv2.getBoundingClientRect();
@@ -2072,6 +2242,55 @@ function onCanvasClick(e) {
 // HUD is now static — these are stubs for backward compat
 function updateHUD(){}
 function cycleVRMode(){}
+function resetSlicing() {
+  ['hslice-tog','vslice-tog'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=false;});
+  onHSliceToggle(false); onVSliceToggle(false);
+  ['hslice-sl','vslice-sl'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=0.5;});
+  ['hslice-ang','vslice-ang'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=0;});
+  hSliceAngle=0; vSliceAngle=0;
+  const hav=document.getElementById('hslice-ang-val'); if(hav) hav.textContent='0°';
+  const vav=document.getElementById('vslice-ang-val'); if(vav) vav.textContent='0°';
+  document.getElementById('slice-gimbals').style.display='none';
+}
+function resetLight() {
+  const els={light_az:45, light_el:40, light_str:1.2, light_amb:0.5};
+  Object.entries(els).forEach(([id,v])=>{const el=document.getElementById(id.replace('_','-'));if(el)el.value=v;});
+  lightAz=45; lightEl=40; onLightSlider();
+}
+
+// ── Update slice gimbals (SVG arrows at slice intersections) ──
+function updateSliceGimbals() {
+  if(!viewerCamera||!viewerRenderer||(!hSliceActive&&!vSliceActive)) {
+    const sg=document.getElementById('slice-gimbals'); if(sg) sg.style.display='none'; return;
+  }
+  const sg=document.getElementById('slice-gimbals'); if(!sg) return;
+  sg.style.display='block';
+  const rect=viewerRenderer.domElement.getBoundingClientRect();
+  const W=rect.width, H=rect.height;
+  // H-slice gimbal: project a point on the plane to screen
+  const gh=document.getElementById('gimbal-h');
+  if(gh&&hSliceActive&&hSlicePlane) {
+    const pt=hSlicePt.clone(); // anchor point on plane
+    const v=pt.clone().project(viewerCamera);
+    const sx=(v.x*0.5+0.5)*W, sy=(-v.y*0.5+0.5)*H;
+    const c=document.getElementById('gh-c'); if(c){c.setAttribute('cx',sx);c.setAttribute('cy',sy);}
+    const l=document.getElementById('gh-h'); if(l){l.setAttribute('x1',0);l.setAttribute('y1',sy);l.setAttribute('x2',W);l.setAttribute('y2',sy);}
+    const lbl=document.getElementById('gh-lbl'); if(lbl){lbl.setAttribute('x',sx+24);lbl.setAttribute('y',sy);lbl.textContent='H '+Math.round(hSliceAngle)+'°';}
+    gh.style.display='';
+  } else if(gh) gh.style.display='none';
+  // V-slice gimbal
+  const gv=document.getElementById('gimbal-v');
+  if(gv&&vSliceActive&&vSlicePlane) {
+    const pt=vSlicePt.clone();
+    const v=pt.clone().project(viewerCamera);
+    const sx=(v.x*0.5+0.5)*W, sy=(-v.y*0.5+0.5)*H;
+    const c=document.getElementById('gv-c'); if(c){c.setAttribute('cx',sx);c.setAttribute('cy',sy);}
+    const l=document.getElementById('gv-v'); if(l){l.setAttribute('x1',sx);l.setAttribute('y1',0);l.setAttribute('x2',sx);l.setAttribute('y2',H);}
+    const lbl=document.getElementById('gv-lbl'); if(lbl){lbl.setAttribute('x',sx);lbl.setAttribute('y',sy-16);lbl.textContent='V '+Math.round(vSliceAngle)+'°';}
+    gv.style.display='';
+  } else if(gv) gv.style.display='none';
+}
+
 
 // ── Measure floor snap ────────────────────────────────────────
 let measFloorSnap = false;
@@ -2154,6 +2373,11 @@ function onResetTransform() {
   // Reset all sliders to default values
   ['hslice-sl','vslice-sl'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=0.5;});
   ['hslice-tog','vslice-tog'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=false;});
+  ['hslice-ang','vslice-ang'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=0;});
+  hSliceAngle=0; vSliceAngle=0;
+  const hav=document.getElementById('hslice-ang-val'); if(hav) hav.textContent='0°';
+  const vav=document.getElementById('vslice-ang-val'); if(vav) vav.textContent='0°';
+  ['hslice-sl','vslice-sl'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=0.5;});
   onHSliceToggle(false); onVSliceToggle(false);
   const az=document.getElementById('light-az'); if(az){az.value=45;lightAz=45;}
   const el=document.getElementById('light-el'); if(el){el.value=40;lightEl=40;}
@@ -2166,7 +2390,12 @@ function onResetTransform() {
   const gbr=document.getElementById('grid-brightness-row'); if(gbr) gbr.style.display='none';
   autoRotate=false;
   const arb=document.getElementById('autorot-btn'); if(arb) arb.classList.remove('active');
+  // Reset light sliders
+  const lstr=document.getElementById('light-str'); if(lstr) lstr.value=1.2;
+  const lamb=document.getElementById('light-amb'); if(lamb) lamb.value=0.5;
+  onLightSlider();
   clearMeasure();
+  resetMeasSubMode();
 }
 function onResetRotation() {
   // Reset camera orbit to front view without moving target
@@ -2477,20 +2706,28 @@ function initViewer(fileId) {
     disc.renderOrder=-1;
     scene.add(disc);
   })(viewerScene);
-  // ── Floor grid with radial vertex fade ──
+  // ── Floor grid: manual Float32 position+color for guaranteed vertex alignment ──
   gridGroup = new THREE.Group();
   (function(grp){
-    const S=5, H=S*0.1, pts=[], cols=[];
+    const STEPS=8, HALF=0.8, FADE=HALF*1.1;
+    const pos=[], col=[];
     function ln(ax,ay,az,bx,by,bz){
-      const a=Math.max(0,1-(ax*ax+az*az)/(H*H)), b=Math.max(0,1-(bx*bx+bz*bz)/(H*H));
-      pts.push(new THREE.Vector3(ax,ay,az),new THREE.Vector3(bx,by,bz));
-      cols.push(a,a,a, b,b,b);
+      const dA=Math.sqrt(ax*ax+az*az)/FADE, dB=Math.sqrt(bx*bx+bz*bz)/FADE;
+      const a=Math.max(0,(1-dA)*0.8), b=Math.max(0,(1-dB)*0.8);
+      pos.push(ax,ay,az, bx,by,bz);
+      col.push(a,a,a,    b,b,b);
     }
-    for(let i=-S;i<=S;i++){const v=i*H/S; ln(-H,0,v,H,0,v); ln(v,0,-H,v,0,H);}
-    const geo=new THREE.BufferGeometry().setFromPoints(pts);
-    geo.setAttribute('color',new THREE.BufferAttribute(new Float32Array(cols),3));
+    const step=HALF/STEPS;
+    for(let i=-STEPS;i<=STEPS;i++){
+      const v=i*step;
+      ln(-HALF,0,v, HALF,0,v);
+      ln(v,0,-HALF, v,0,HALF);
+    }
+    const geo=new THREE.BufferGeometry();
+    geo.setAttribute('position',new THREE.BufferAttribute(new Float32Array(pos),3));
+    geo.setAttribute('color',   new THREE.BufferAttribute(new Float32Array(col),3));
     grp.add(new THREE.LineSegments(geo,
-      new THREE.LineBasicMaterial({vertexColors:true,transparent:true,opacity:0.65})));
+      new THREE.LineBasicMaterial({vertexColors:true,transparent:true,opacity:0.85,depthWrite:false})));
   })(gridGroup);
   viewerScene.add(gridGroup);
 
@@ -2498,6 +2735,7 @@ function initViewer(fileId) {
   viewerControls.enableDamping=true; viewerControls.dampingFactor=0.07; viewerControls.target.set(0,0.8,0);
   // Scroll = zoom, middle mouse = pan, right = pan
   viewerControls.mouseButtons={LEFT:THREE.MOUSE.ROTATE,MIDDLE:THREE.MOUSE.ROTATE,RIGHT:THREE.MOUSE.PAN};
+  viewerControls.enableZoom=true;
   viewerControls.enableZoom=true; viewerControls.zoomSpeed=1.0;
 
   buildSlicer(viewerScene);
@@ -2559,6 +2797,11 @@ function initViewer(fileId) {
         drawFloorCone();
         rebuildSidebar();
         ['hslice-tog','vslice-tog'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=false;});
+  ['hslice-ang','vslice-ang'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=0;});
+  hSliceAngle=0; vSliceAngle=0;
+  const hav=document.getElementById('hslice-ang-val'); if(hav) hav.textContent='0°';
+  const vav=document.getElementById('vslice-ang-val'); if(vav) vav.textContent='0°';
+  ['hslice-sl','vslice-sl'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=0.5;});
         hSliceActive=vSliceActive=false;
         if(hContourLine) hContourLine.visible=false;
         if(vContourLine) vContourLine.visible=false;
@@ -2609,6 +2852,7 @@ function initViewer(fileId) {
     }
     updateAnnotationLabels();
     updateMeasLabels();
+    updateSliceGimbals();
     viewerRenderer.render(viewerScene,viewerCamera);
   });
 
