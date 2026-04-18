@@ -230,7 +230,7 @@ body.browser-open{overflow:auto;}
     <!-- Logo -->
     <div style="display:flex;align-items:center;gap:10px;padding:12px 20px;border-right:1px solid var(--border);flex-shrink:0;">
       <svg width="20" height="20" viewBox="0 0 32 32" fill="none"><polygon points="16,3 28,10 28,22 16,29 4,22 4,10" fill="none" stroke="#c8f542" stroke-width="2.2" stroke-linejoin="round"/><line x1="10" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="22" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="12" y1="13" x2="20" y2="13" stroke="rgba(200,245,66,0.5)" stroke-width="1.2" stroke-linecap="round"/></svg>
-      <span style="font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;letter-spacing:.07em;color:#e8e8e4;text-transform:uppercase;">CAD Inspector <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--accent);font-weight:400;letter-spacing:.06em;text-transform:none;">v0.3.1</span></span>
+      <span style="font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;letter-spacing:.07em;color:#e8e8e4;text-transform:uppercase;">CAD Inspector <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--accent);font-weight:400;letter-spacing:.06em;text-transform:none;">v0.3.2</span></span>
     </div>
     <!-- Model list pills -->
     <div id="model-list-bar" style="flex:1;display:flex;align-items:center;overflow-x:auto;gap:3px;padding:7px 12px;scrollbar-width:none;-webkit-overflow-scrolling:touch;">
@@ -255,7 +255,7 @@ body.browser-open{overflow:auto;}
   <div id="viewer-logo" style="position:fixed;top:0;left:0;z-index:125;display:none;align-items:center;gap:10px;padding:10px 18px 10px 14px;background:rgba(13,13,16,0.7);backdrop-filter:blur(12px);border-bottom-right-radius:12px;border-bottom:1px solid var(--border);border-right:1px solid var(--border);">
     <svg width="18" height="18" viewBox="0 0 32 32" fill="none" style="flex-shrink:0;"><polygon points="16,3 28,10 28,22 16,29 4,22 4,10" fill="none" stroke="#c8f542" stroke-width="2.2" stroke-linejoin="round"/><line x1="10" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="22" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="12" y1="13" x2="20" y2="13" stroke="rgba(200,245,66,0.5)" stroke-width="1.2" stroke-linecap="round"/></svg>
     <div style="display:flex;flex-direction:column;gap:1px;">
-      <span style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;color:#e8e8e4;text-transform:uppercase;">CAD Inspector</span>
+      <span style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;color:#e8e8e4;text-transform:uppercase;">CAD Inspector <span style="font-family:'DM Mono',monospace;font-size:8px;color:var(--accent);font-weight:400;letter-spacing:.06em;">v0.3.2</span></span>
       <span id="viewer-filename" style="font-family:'DM Mono',monospace;font-size:10px;color:#7a7a8a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px;"></span>
     </div>
   </div>
@@ -305,18 +305,22 @@ body.browser-open{overflow:auto;}
           <span class="lp-sec-chevron" id="lps-0-ch" onclick="toggleLpSection('lps-0')" style="cursor:pointer;">▾</span>
         </div>
         <div class="lp-sec-body" id="lps-0">
-          <div class="lp-row"><span class="lp-label">H-Cut ↕</span><label class="tog teal"><input type="checkbox" id="hslice-tog" onchange="onHSliceToggle(this.checked)"><span class="tog-s"></span></label></div>
-          <input type="range" class="lp-slider teal" id="hslice-sl" min="0" max="1" step="0.005" value="0.5" oninput="onHSliceSlider(this.value)">
-          <div class="lp-row"><span class="lp-label" style="font-size:9px;color:var(--muted)">H-Rotate</span><span class="lp-val" id="hslice-ang-val">0°</span></div>
-          <input type="range" class="lp-slider teal" id="hslice-ang" min="-90" max="90" step="1" value="0" oninput="onHSliceAngle(this.value)">
-          <div class="lp-row"><span class="lp-label" style="font-size:9px;color:var(--muted)">H-Origin</span><span class="lp-val" id="hslice-orig-val">50%</span></div>
-          <input type="range" class="lp-slider teal" id="hslice-orig" min="0" max="1" step="0.005" value="0.5" oninput="onHSliceOriginSlider(this.value)">
-          <div class="lp-row"><span class="lp-label">V-Cut ↔</span><label class="tog"><input type="checkbox" id="vslice-tog" onchange="onVSliceToggle(this.checked)"><span class="tog-s"></span></label></div>
-          <input type="range" class="lp-slider" id="vslice-sl" min="0" max="1" step="0.005" value="0.5" oninput="onVSliceSlider(this.value)">
-          <div class="lp-row"><span class="lp-label" style="font-size:9px;color:var(--muted)">V-Rotate</span><span class="lp-val" id="vslice-ang-val">0°</span></div>
-          <input type="range" class="lp-slider" id="vslice-ang" min="-90" max="90" step="1" value="0" oninput="onVSliceAngle(this.value)">
-          <div class="lp-row"><span class="lp-label" style="font-size:9px;color:var(--muted)">V-Origin</span><span class="lp-val" id="vslice-orig-val">50%</span></div>
-          <input type="range" class="lp-slider" id="vslice-orig" min="0" max="1" step="0.005" value="0.5" oninput="onVSliceOriginSlider(this.value)">
+          <div class="lp-row"><span class="lp-label">H-Cut ↕</span><label class="tog teal"><input type="checkbox" id="hslice-tog" onchange="onHSliceToggle(this.checked);toggleSliceControls('h',this.checked)"><span class="tog-s"></span></label></div>
+          <div id="hslice-controls" style="display:none;">
+            <input type="range" class="lp-slider teal" id="hslice-sl" min="0" max="1" step="0.005" value="0.5" oninput="onHSliceSlider(this.value)">
+            <div class="lp-row"><span class="lp-label" style="font-size:9px;color:var(--muted)">Rotate</span><span class="lp-val" id="hslice-ang-val">0°</span></div>
+            <input type="range" class="lp-slider teal" id="hslice-ang" min="-90" max="90" step="1" value="0" oninput="onHSliceAngle(this.value)">
+            <div class="lp-row"><span class="lp-label" style="font-size:9px;color:var(--muted)">Origin offset</span><span class="lp-val" id="hslice-orig-val">+0%</span></div>
+            <input type="range" class="lp-slider teal" id="hslice-orig" min="0" max="1" step="0.005" value="0.5" oninput="onHSliceOriginSlider(this.value)">
+          </div>
+          <div class="lp-row"><span class="lp-label">V-Cut ↔</span><label class="tog"><input type="checkbox" id="vslice-tog" onchange="onVSliceToggle(this.checked);toggleSliceControls('v',this.checked)"><span class="tog-s"></span></label></div>
+          <div id="vslice-controls" style="display:none;">
+            <input type="range" class="lp-slider" id="vslice-sl" min="0" max="1" step="0.005" value="0.5" oninput="onVSliceSlider(this.value)">
+            <div class="lp-row"><span class="lp-label" style="font-size:9px;color:var(--muted)">Rotate</span><span class="lp-val" id="vslice-ang-val">0°</span></div>
+            <input type="range" class="lp-slider" id="vslice-ang" min="-90" max="90" step="1" value="0" oninput="onVSliceAngle(this.value)">
+            <div class="lp-row"><span class="lp-label" style="font-size:9px;color:var(--muted)">Origin offset</span><span class="lp-val" id="vslice-orig-val">+0%</span></div>
+            <input type="range" class="lp-slider" id="vslice-orig" min="0" max="1" step="0.005" value="0.5" oninput="onVSliceOriginSlider(this.value)">
+          </div>
         </div>
       </div>
       <!-- Surface Analysis -->
@@ -477,25 +481,14 @@ body.browser-open{overflow:auto;}
       <span class="tb-label">Back</span>
     </button>
     <div class="tb-sep"></div>
-    <button class="tb-btn" onclick="toggleExpToolbox()" id="exp-lab-btn" title="Experimental lab tools" style="color:var(--accent);">
-      <svg viewBox="0 0 24 24"><path d="M9 3h6l1 9H8L9 3z"/><path d="M8 12l-3 6a1 1 0 00.9 1.5h12.2a1 1 0 00.9-1.5l-3-6"/><line x1="9" y1="7" x2="15" y2="7"/></svg>
-      <span class="tb-label" style="color:var(--accent);">Lab</span>
-    </button>
-    <button class="tb-btn" onclick="toggleMissToolbox()" id="miss-lab-btn" title="Pro tools preview" style="color:var(--accent2);">
-      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/></svg>
-      <span class="tb-label" style="color:var(--accent2);">Pro</span>
-    </button>
+
     <button class="vr-btn" id="vr-btn" onclick="enterVR()" style="height:32px;margin-left:4px;font-size:9px;padding:4px 10px;">⬡ VR</button>
     <button id="ar-btn" class="vr-btn secondary" onclick="enterAR()" style="display:none;height:32px;font-size:9px;padding:4px 10px;">⬡ AR</button>
   </div>
 
   <!-- BOTTOM pill — Orbit | Measure | Pin only -->
   <div id="bottom-bar" style="display:none;position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:122;align-items:center;gap:2px;padding:6px 10px;background:var(--surface);backdrop-filter:var(--blur);border:1px solid var(--border);border-radius:100px;box-shadow:0 8px 32px rgba(0,0,0,0.6);">
-    <!-- Title area -->
-    <div style="display:flex;flex-direction:column;padding:0 10px;min-width:90px;max-width:180px;border-right:1px solid var(--border);margin-right:4px;">
-      <span id="viewer-title" style="display:none;position:absolute;pointer-events:none;" aria-hidden="true">—</span>
-      <span style="font-family:'DM Mono',monospace;font-size:8px;color:var(--accent);letter-spacing:.06em;font-weight:500;">v0.3.1</span>
-    </div>
+    <span id="viewer-title" style="display:none;position:absolute;pointer-events:none;" aria-hidden="true">—</span>
     <!-- 3 inspection mode buttons -->
     <button class="tb-btn active" id="dm-orbit" onclick="setDesktopMode('orbit')" title="Orbit (O)" style="padding:8px 14px;">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="9" ry="4"/><line x1="12" y1="3" x2="12" y2="21"/></svg>
@@ -512,205 +505,6 @@ body.browser-open{overflow:auto;}
   </div>
 </div>
 
-  <!-- Experimental Toolbox -->
-  <div id="exp-toolbox" style="display:none;position:fixed;bottom:80px;right:14px;z-index:151;width:230px;background:var(--surface);backdrop-filter:var(--blur);border:1px solid rgba(200,245,66,0.25);border-radius:var(--radius);box-shadow:0 8px 32px rgba(0,0,0,0.6);">
-    <div id="exp-toolbox-handle" class="lp-head" style="border-bottom:1px solid rgba(200,245,66,0.15);cursor:grab;user-select:none;">
-      <span style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;color:var(--accent);text-transform:uppercase;flex:1;">⚗ Lab · Experimental</span>
-      <button class="lp-head-btn" onclick="document.getElementById('exp-toolbox').style.display='none'" title="Close">✕</button>
-    </div>
-    <div style="padding:10px 12px;display:flex;flex-direction:column;gap:8px;overflow-y:auto;max-height:70vh;">
-
-      <!-- Silhouette -->
-      <div class="exp-tool">
-        <div class="exp-tool-head">
-          <span class="exp-tool-name">Silhouette Overlay</span>
-          <label class="tog"><input type="checkbox" id="exp-silhouette" onchange="expSilhouette(this.checked)"><span class="tog-s"></span></label>
-        </div>
-        <span class="exp-tool-desc">Draws a bold outline around all model edges visible from the camera.</span>
-      </div>
-
-      <!-- Ambient Occlusion preview -->
-      <div class="exp-tool">
-        <div class="exp-tool-head">
-          <span class="exp-tool-name">AO Bake Preview</span>
-          <button class="exp-btn" onclick="expAOPreview()">Run</button>
-        </div>
-        <span class="exp-tool-desc">Fakes screen-space ambient occlusion by darkening geometry in concave areas using a depth comparison pass.</span>
-      </div>
-
-      <!-- Thickness map -->
-      <div class="exp-tool">
-        <div class="exp-tool-head">
-          <span class="exp-tool-name">Wall Thickness Heatmap</span>
-          <button class="exp-btn" onclick="expThicknessMap()">Run</button>
-        </div>
-        <span class="exp-tool-desc">Casts rays inward and colours surfaces by estimated wall thickness — useful for injection-moulding review.</span>
-      </div>
-
-      <!-- Draft angle -->
-      <div class="exp-tool">
-        <div class="exp-tool-head">
-          <span class="exp-tool-name">Draft Angle Check</span>
-          <button class="exp-btn" onclick="expDraftAngle()">Run</button>
-        </div>
-        <div class="exp-tool-row">
-          <span class="exp-tool-desc" style="flex:1;">Min angle</span>
-          <span id="exp-draft-val" style="font-family:'DM Mono',monospace;font-size:9px;color:var(--accent);">3°</span>
-        </div>
-        <input type="range" class="lp-slider" min="0.5" max="10" step="0.5" value="3" oninput="document.getElementById('exp-draft-val').textContent=this.value+'°'; expDraftAngle(parseFloat(this.value))">
-        <span class="exp-tool-desc">Highlights faces below the minimum draft angle in red — critical for moulded plastic parts.</span>
-      </div>
-
-      <!-- Section mass properties -->
-      <div class="exp-tool">
-        <div class="exp-tool-head">
-          <span class="exp-tool-name">Mass Properties</span>
-          <button class="exp-btn" onclick="expMassProps()">Calc</button>
-        </div>
-        <div id="exp-mass-out" style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);line-height:1.7;"></div>
-        <span class="exp-tool-desc">Estimates volume, surface area, and centre of gravity from mesh geometry.</span>
-      </div>
-
-      <!-- Compare two models -->
-      <div class="exp-tool">
-        <div class="exp-tool-head">
-          <span class="exp-tool-name">Ghost Previous Model</span>
-          <label class="tog"><input type="checkbox" id="exp-ghost" onchange="expGhostPrev(this.checked)"><span class="tog-s"></span></label>
-        </div>
-        <span class="exp-tool-desc">Overlays the previously viewed model as a transparent ghost for visual comparison.</span>
-      </div>
-
-      <!-- Curvature analysis -->
-      <div class="exp-tool">
-        <div class="exp-tool-head">
-          <span class="exp-tool-name">Curvature Heatmap</span>
-          <button class="exp-btn" onclick="expCurvature()">Run</button>
-        </div>
-        <span class="exp-tool-desc">Colours surfaces by mean curvature — concave in blue, convex in red, flat in white. Useful for aesthetic surface review.</span>
-      </div>
-
-      <!-- Parting line -->
-      <div class="exp-tool">
-        <div class="exp-tool-head">
-          <span class="exp-tool-name">Parting Line Detector</span>
-          <button class="exp-btn" onclick="expPartingLine()">Detect</button>
-        </div>
-        <span class="exp-tool-desc">Finds and highlights the mould parting line based on the horizontal mid-plane.</span>
-      </div>
-
-      <div style="font-family:'DM Mono',monospace;font-size:8px;color:var(--muted);border-top:1px solid var(--border);padding-top:8px;line-height:1.6;text-align:center;">Tools marked with ⚗ are prototypes.<br>Results are approximate — not for production use.</div>
-    </div>
-  </div>
-
-  <!-- Missing Tools Toolbox — draggable, pinnable, toggleable -->
-  <div id="miss-toolbox" style="display:none;position:fixed;top:50px;left:50%;transform:translateX(-50%);z-index:151;width:260px;background:var(--surface);backdrop-filter:var(--blur);border:1px solid rgba(66,245,200,0.25);border-radius:var(--radius);box-shadow:0 8px 32px rgba(0,0,0,0.6);">
-    <!-- Drag handle / header -->
-    <div id="miss-toolbox-handle" class="lp-head" style="border-bottom:1px solid rgba(66,245,200,0.15);cursor:grab;user-select:none;">
-      <span style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;color:var(--accent2);text-transform:uppercase;flex:1;">⊞ Pro Tools · Preview</span>
-      <button class="lp-head-btn" id="miss-pin-btn" onclick="togglePanelPin('miss-toolbox','miss-pin-btn')" title="Snap to side">◨</button>
-      <button class="lp-head-btn" onclick="toggleMissToolbox()" title="Close">✕</button>
-    </div>
-    <div style="overflow-y:auto;max-height:75vh;padding:10px 12px;display:flex;flex-direction:column;gap:7px;">
-
-      <!-- Explode View -->
-      <div class="exp-tool" style="border-color:rgba(66,245,200,0.15);">
-        <div class="exp-tool-head">
-          <span class="exp-tool-name" style="color:var(--accent2);">Explode View</span>
-          <span id="miss-explode-val" style="font-family:'DM Mono',monospace;font-size:9px;color:var(--accent2);">0%</span>
-        </div>
-        <input type="range" class="lp-slider teal" id="miss-explode-sl" min="0" max="1" step="0.01" value="0" oninput="missExplode(parseFloat(this.value))">
-        <div style="display:flex;gap:5px;margin-top:2px;">
-          <button class="exp-btn" style="border-color:rgba(66,245,200,0.3);color:var(--accent2);" onclick="missBuildExplode()">Build</button>
-          <button class="exp-btn" style="border-color:rgba(66,245,200,0.3);color:var(--accent2);" onclick="missResetExplode()">Reset</button>
-        </div>
-        <span class="exp-tool-desc">Explodes assembly parts outward from the bounding box centre. Hit Build first to cache part origins.</span>
-      </div>
-
-      <!-- Symmetry Check -->
-      <div class="exp-tool" style="border-color:rgba(66,245,200,0.15);">
-        <div class="exp-tool-head">
-          <span class="exp-tool-name" style="color:var(--accent2);">Symmetry Check</span>
-          <div style="display:flex;gap:3px;">
-            <button class="exp-btn" style="border-color:rgba(66,245,200,0.3);color:var(--accent2);" onclick="missSymmetry('x')">X</button>
-            <button class="exp-btn" style="border-color:rgba(66,245,200,0.3);color:var(--accent2);" onclick="missSymmetry('z')">Z</button>
-            <button class="exp-btn" style="border-color:rgba(255,100,100,0.35);color:var(--danger);" onclick="missClearSymmetry()">✕</button>
-          </div>
-        </div>
-        <span class="exp-tool-desc">Mirrors the model across X or Z plane as a ghost to verify design symmetry.</span>
-      </div>
-
-      <!-- Annotation Layers -->
-      <div class="exp-tool" style="border-color:rgba(66,245,200,0.15);">
-        <div class="exp-tool-head">
-          <span class="exp-tool-name" style="color:var(--accent2);">Annotation Layers</span>
-        </div>
-        <div id="miss-layers-list" style="display:flex;flex-direction:column;gap:4px;margin:4px 0;min-height:20px;"></div>
-        <div style="display:flex;gap:5px;align-items:center;">
-          <input id="miss-layer-input" placeholder="Layer name…" style="flex:1;background:rgba(255,255,255,0.05);border:1px solid var(--border-hi);border-radius:4px;color:var(--text);font-family:'DM Mono',monospace;font-size:10px;padding:3px 6px;outline:none;" onkeydown="if(event.key==='Enter')missAddLayer()">
-          <button class="exp-btn" style="border-color:rgba(66,245,200,0.3);color:var(--accent2);" onclick="missAddLayer()">＋</button>
-        </div>
-        <span class="exp-tool-desc">Group pins by topic or reviewer. New pins go to the active layer.</span>
-      </div>
-
-      <!-- Dimension Chain -->
-      <div class="exp-tool" style="border-color:rgba(66,245,200,0.15);">
-        <div class="exp-tool-head">
-          <span class="exp-tool-name" style="color:var(--accent2);">Dimension Chain</span>
-          <button class="exp-btn" style="border-color:rgba(66,245,200,0.3);color:var(--accent2);" onclick="missDimChain()">Start</button>
-        </div>
-        <div id="miss-chain-out" style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);line-height:1.7;min-height:14px;"></div>
-        <span class="exp-tool-desc">Click surface points to build a stacked vertical dimension chain showing cumulative heights.</span>
-      </div>
-
-      <!-- Tolerance Bands -->
-      <div class="exp-tool" style="border-color:rgba(66,245,200,0.15);">
-        <div class="exp-tool-head">
-          <span class="exp-tool-name" style="color:var(--accent2);">Tolerance on Measurement</span>
-          <button class="exp-btn" style="border-color:rgba(66,245,200,0.3);color:var(--accent2);" onclick="missSetTolerance()">Set ±</button>
-        </div>
-        <div style="display:flex;gap:5px;align-items:center;margin:3px 0;">
-          <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);">±</span>
-          <input id="miss-tol-val" type="number" min="0.01" step="0.01" value="0.5" style="width:60px;background:rgba(255,255,255,0.05);border:1px solid var(--border-hi);border-radius:4px;color:var(--text);font-family:'DM Mono',monospace;font-size:10px;padding:2px 5px;outline:none;">
-          <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);">mm</span>
-          <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);">to M</span>
-          <input id="miss-tol-id" type="number" min="1" step="1" value="1" style="width:40px;background:rgba(255,255,255,0.05);border:1px solid var(--border-hi);border-radius:4px;color:var(--text);font-family:'DM Mono',monospace;font-size:10px;padding:2px 5px;outline:none;">
-        </div>
-        <span class="exp-tool-desc">Appends ±Xmm tolerance to the selected measurement label and stores it in the session.</span>
-      </div>
-
-      <!-- Surface Finish Markers -->
-      <div class="exp-tool" style="border-color:rgba(66,245,200,0.15);">
-        <div class="exp-tool-head">
-          <span class="exp-tool-name" style="color:var(--accent2);">Surface Finish Marker</span>
-          <button class="exp-btn" style="border-color:rgba(66,245,200,0.3);color:var(--accent2);" onclick="missSurfaceFinish()">Place</button>
-        </div>
-        <div style="display:flex;gap:5px;align-items:center;margin:3px 0;">
-          <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);">Ra</span>
-          <select id="miss-ra-val" style="background:rgba(255,255,255,0.06);border:1px solid var(--border-hi);border-radius:4px;color:var(--text);font-family:'DM Mono',monospace;font-size:10px;padding:2px 5px;outline:none;">
-            <option>0.4</option><option>0.8</option><option>1.6</option><option>3.2</option><option>6.3</option><option>12.5</option>
-          </select>
-          <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);">μm</span>
-        </div>
-        <span class="exp-tool-desc">Click a surface to place an Ra surface-finish marker pin. Stored as a special annotation.</span>
-      </div>
-
-      <!-- BOM Tagger -->
-      <div class="exp-tool" style="border-color:rgba(66,245,200,0.15);">
-        <div class="exp-tool-head">
-          <span class="exp-tool-name" style="color:var(--accent2);">BOM Part Tag</span>
-          <button class="exp-btn" style="border-color:rgba(66,245,200,0.3);color:var(--accent2);" onclick="missBOMTag()">Tag</button>
-        </div>
-        <div style="display:flex;gap:5px;margin:3px 0;flex-wrap:wrap;">
-          <input id="miss-bom-pn" placeholder="Part No." style="flex:1;min-width:70px;background:rgba(255,255,255,0.05);border:1px solid var(--border-hi);border-radius:4px;color:var(--text);font-family:'DM Mono',monospace;font-size:10px;padding:2px 5px;outline:none;">
-          <input id="miss-bom-desc" placeholder="Description" style="flex:2;min-width:90px;background:rgba(255,255,255,0.05);border:1px solid var(--border-hi);border-radius:4px;color:var(--text);font-family:'DM Mono',monospace;font-size:10px;padding:2px 5px;outline:none;">
-        </div>
-        <button class="exp-btn" style="border-color:rgba(66,245,200,0.3);color:var(--accent2);width:100%;" onclick="missExportBOM()">Export BOM CSV</button>
-        <span class="exp-tool-desc">Click a surface to tag it with a part number. Export BOM generates a CSV of all tagged parts.</span>
-      </div>
-
-      <div style="font-family:'DM Mono',monospace;font-size:8px;color:var(--muted);border-top:1px solid rgba(66,245,200,0.1);padding-top:8px;line-height:1.6;text-align:center;">Preview tools — behaviour may change.<br>Drag header to move · □/■ to pin.</div>
-    </div>
-  </div>
 
 <!-- VR/AR HUD -->
 <div id="vr-hud" style="display:none;position:fixed;inset:0;pointer-events:none;z-index:200;">
@@ -847,8 +641,7 @@ function makeDraggable(panelId, handleId) {
 function initDraggablePanels() {
   makeDraggable('left-panel','lp-drag-handle');
   makeDraggable('right-panel','rp-drag-handle');
-  makeDraggable('miss-toolbox','miss-toolbox-handle');
-  makeDraggable('exp-toolbox','exp-toolbox-handle');
+  // toolboxes removed
 }
 
 // ── Panel collapse helpers ────────────────────────────────────
@@ -1179,7 +972,9 @@ function updateMeasLabels() {
     div.style.display='block';
     div.style.left=(v.x*0.5+0.5)*r.width+r.left+'px';
     div.style.top=(-v.y*0.5+0.5)*r.height+r.top+'px';
-    div.textContent=m.customLabel||m.label;
+    // Name above, number below
+    if(m.customLabel){div.innerHTML='<span style="display:block;font-size:9px;opacity:0.75;">'+m.customLabel+'</span><span>'+m.label+'</span>';}
+    else{div.textContent=m.label;}
     // Apply measurement type colour to label
     if(m.color){
       const h='#'+m.color.toString(16).padStart(6,'0');
@@ -1518,6 +1313,9 @@ function getModelBounds() {
   return {minY:box.min.y,maxY:box.max.y,minX:box.min.x,maxX:box.max.x};
 }
 
+function toggleSliceControls(axis, on) {
+  const el=document.getElementById(axis+'slice-controls'); if(el) el.style.display=on?'block':'none';
+}
 function onHSliceToggle(on) {
   if(on){ hSliceActive=true; document.getElementById('hslice-sl').value=0.5; onHSliceSlider(0.5); }
   else  { hSliceActive=false; applyAllClipping(); if(hContourLine) hContourLine.visible=false; }
@@ -1542,29 +1340,31 @@ function onVSliceAngle(val) {
 }
 
 function onHSliceOriginSlider(val) {
+  // Moves the rotation pivot Y offset independently of the cut position
+  // val: 0=bottom of model, 0.5=cut centre, 1=top of model
   const t=parseFloat(val);
-  const lbl=document.getElementById('hslice-orig-val'); if(lbl) lbl.textContent=Math.round(t*100)+'%';
-  // Re-run the H position slider to rebuild anchor at new origin fraction
-  const sl=document.getElementById('hslice-sl'); if(sl) onHSliceSlider(sl.value);
-  // Override anchor Y using this additional offset within the slice range
-  if(hSlicePlane&&hSliceActive&&loadedModel){
-    const {minY,maxY}=getModelBounds();
-    const posT=parseFloat(document.getElementById('hslice-sl')?.value||0.5);
-    const planeY=minY+posT*(maxY-minY+0.05);
-    hSlicePt.set(0,planeY,0);
-    _applyHSliceWithAngle(); applyAllClipping(); computeContour(hSlicePlane,hContourLine);
-  }
+  const pct=Math.round((t-0.5)*200); // show as -100 to +100
+  const lbl=document.getElementById('hslice-orig-val'); if(lbl) lbl.textContent=(pct>=0?'+':'')+pct+'%';
+  if(!hSlicePlane||!hSliceActive||!loadedModel) return;
+  const {minY,maxY}=getModelBounds();
+  const posT=parseFloat(document.getElementById('hslice-sl')?.value??0.5);
+  const planeY=minY+posT*(maxY-minY+0.05);
+  // Offset pivot along Y by ±half model height
+  const offset=(t-0.5)*(maxY-minY)*0.5;
+  hSlicePt.set(0, planeY+offset, 0);
+  _applyHSliceWithAngle(); applyAllClipping(); computeContour(hSlicePlane,hContourLine);
 }
 function onVSliceOriginSlider(val) {
   const t=parseFloat(val);
-  const lbl=document.getElementById('vslice-orig-val'); if(lbl) lbl.textContent=Math.round(t*100)+'%';
-  if(vSlicePlane&&vSliceActive&&loadedModel){
-    const {minX,maxX}=getModelBounds();
-    const posT=parseFloat(document.getElementById('vslice-sl')?.value||0.5);
-    const planeX=minX+posT*(maxX-minX);
-    vSlicePt.set(planeX,0,0);
-    _applyVSliceWithAngle(); applyAllClipping(); computeContour(vSlicePlane,vContourLine);
-  }
+  const pct=Math.round((t-0.5)*200);
+  const lbl=document.getElementById('vslice-orig-val'); if(lbl) lbl.textContent=(pct>=0?'+':'')+pct+'%';
+  if(!vSlicePlane||!vSliceActive||!loadedModel) return;
+  const {minX,maxX}=getModelBounds();
+  const posT=parseFloat(document.getElementById('vslice-sl')?.value??0.5);
+  const planeX=minX+posT*(maxX-minX);
+  const offset=(t-0.5)*(maxX-minX)*0.5;
+  vSlicePt.set(planeX+offset, 0, 0);
+  _applyVSliceWithAngle(); applyAllClipping(); computeContour(vSlicePlane,vContourLine);
 }
 
 // ── Gimbal drag: drag the circle handle to move the slice position ──
@@ -1744,22 +1544,27 @@ function setZebraMode(mode) {
   });
 }
 function onExplodeSlider(t) {
-  document.getElementById('explode-val-lp') && (document.getElementById('explode-val-lp').textContent=Math.round(t*100)+'%');
-  document.getElementById('miss-explode-val') && (document.getElementById('miss-explode-val').textContent=Math.round(t*100)+'%');
-  if(!loadedModel){ missBuildExplode(); } // auto-build if needed
-  if(!_missExplodeOrigins.size) missBuildExplode();
+  const lp=document.getElementById('explode-val-lp'); if(lp) lp.textContent=Math.round(t*100)+'%';
   if(!loadedModel) return;
+  if(!_missExplodeOrigins.size) missBuildExplode();
+  if(!_missExplodeOrigins.size) return; // nothing to explode
+  // Compute bounding box centre of entire model in world space
   const worldBox=new THREE.Box3().setFromObject(loadedModel);
-  const worldCtr=worldBox.getCenter(new THREE.Vector3());
-  const localCtr=loadedModel.worldToLocal(worldCtr.clone());
-  loadedModel.traverse(c=>{
-    if(!c.isMesh) return;
-    const orig=_missExplodeOrigins.get(c.uuid); if(!orig) return;
-    const dir=orig.clone().sub(localCtr);
-    // Never explode downward — clamp Y component to >= 0
-    dir.y=Math.max(0,dir.y);
-    const dist=dir.length(); dir.normalize();
-    c.position.copy(orig).addScaledVector(dir, t*(0.3+dist*0.8));
+  const ctr=worldBox.getCenter(new THREE.Vector3());
+  loadedModel.traverse(node=>{
+    if(!node.isMesh) return;
+    const orig=_missExplodeOrigins.get(node.uuid); if(!orig) return;
+    // Direction from centre to original mesh world position
+    const meshWorldOrig=orig.clone(); // already stored in world space
+    const dir=meshWorldOrig.clone().sub(ctr);
+    dir.y=Math.max(0,dir.y); // never down
+    const dist=dir.length()||0.001;
+    dir.multiplyScalar(1/dist);
+    // Convert back to local space
+    const newWorldPos=meshWorldOrig.clone().addScaledVector(dir, t*(0.2+dist));
+    const newLocal=node.parent ? node.parent.worldToLocal(newWorldPos.clone()) : newWorldPos;
+    if(t===0){ node.position.copy(orig.localOrig||orig); }
+    else { node.position.copy(newLocal); }
   });
 }
 function makeZebraTexture(h){return null;}
@@ -2077,7 +1882,12 @@ function rebuildPinTable() {
     locBtn.onclick=e=>{e.stopPropagation();highlightPin(pin.id);};
     const delBtn=document.createElement('button'); delBtn.className='ann-btn del'; delBtn.textContent='✕'; delBtn.title='Delete';
     delBtn.onclick=e=>{e.stopPropagation();removeAnnotation(pin.id);};
-    acts.appendChild(locBtn); acts.appendChild(delBtn); top.appendChild(acts);
+    const eyeP=document.createElement('button'); eyeP.className='ann-btn'; eyeP.style.fontSize='11px';
+    eyeP.textContent=pin._hidden?'○':'●'; eyeP.title='Toggle visibility';
+    eyeP.onclick=e=>{e.stopPropagation(); pin._hidden=!pin._hidden;
+      if(pin.mesh) pin.mesh.visible=!pin._hidden; if(pin.stem) pin.stem.visible=!pin._hidden;
+      if(pin.labelDiv) pin.labelDiv.style.display=pin._hidden?'none':''; rebuildPinTable();};
+    acts.appendChild(locBtn); acts.appendChild(eyeP); acts.appendChild(delBtn); top.appendChild(acts);
     card.appendChild(top);
     // Comment
     if(pin._editing){
@@ -2115,14 +1925,15 @@ function rebuildMeasTable() {
     const idSpan=document.createElement('span'); idSpan.className='meas-card-id'; idSpan.style.color=colHex; idSpan.textContent=`M${String(i+1).padStart(2,'0')}`;
     // Editable label — click to rename
     const lbl=document.createElement('span'); lbl.className='meas-card-lbl'; lbl.style.color=colHex; lbl.style.cursor='text'; lbl.title='Click to rename';
-    lbl.textContent=m.customLabel||m.label;
+    lbl.textContent=m.customLabel?m.customLabel+' · '+m.label:m.label;
     lbl.onclick=(ev)=>{ev.stopPropagation();
       const inp=document.createElement('input');
-      inp.value=m.customLabel||m.label;
+      inp.value=m.customLabel||'';' // edit only the name, not the dimension' 
       inp.style.cssText=`background:rgba(255,255,255,0.06);border:1px solid ${colHex}55;border-radius:3px;color:${colHex};font-family:'DM Mono',monospace;font-size:10px;width:100%;outline:none;padding:1px 4px;`;
       lbl.replaceWith(inp); inp.focus(); inp.select();
-      const done=()=>{ m.customLabel=inp.value||m.label; rebuildMeasTable(); saveSession(); };
-      inp.onblur=done; inp.onkeydown=e=>{if(e.key==='Enter')inp.blur();if(e.key==='Escape'){m.customLabel=null;inp.blur();}};
+      inp.placeholder='Add name…';
+      const done=()=>{ m.customLabel=inp.value.trim()||null; rebuildMeasTable(); saveSession(); };
+      inp.onblur=done; inp.onkeydown=e=>{if(e.key==='Enter')inp.blur();if(e.key==='Escape'){inp.blur();}};
     };
     const del=document.createElement('button'); del.className='ann-btn del'; del.textContent='✕';
     del.onclick=()=>{deleteMeasurement(m.id); rebuildMeasTable();};
@@ -2146,9 +1957,9 @@ function highlightPin(id) {
 //  MEASURE
 // ════════════════════════════════════════════════════════════
 function buildMeasureObjects(scene) {
-  measureState.lineObj = new THREE.Line(
+  measureState.lineObj = new THREE.LineSegments(
     new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(),new THREE.Vector3()]),
-    new THREE.LineBasicMaterial({color:0xf5a142, linewidth:1}));
+    new THREE.LineDashedMaterial({color:0xf5a142,dashSize:0.04,gapSize:0.025}));
   measureState.lineObj.visible=false; scene.add(measureState.lineObj);
   const smat=new THREE.MeshBasicMaterial({color:0xf5a142}), sgeo=new THREE.SphereGeometry(0.008,8,8);
   measureState.sphereA=new THREE.Mesh(sgeo,smat.clone()); measureState.sphereA.visible=false;
@@ -2157,14 +1968,28 @@ function buildMeasureObjects(scene) {
 }
 
 // Spawn a finalised measurement — tracks Three.js objects for later deletion/move
+function _makeDimMarker(col) {
+  // Inward-pointing cone (triangle in 3D) — 0.022 radius, 0.04 height
+  const coneGeo=new THREE.ConeGeometry(0.018,0.036,6);
+  return new THREE.Mesh(coneGeo, new THREE.MeshBasicMaterial({color:col,side:THREE.DoubleSide}));
+}
+function _orientDimMarker(mesh, pos, towards) {
+  mesh.position.copy(pos);
+  // Point cone towards the other endpoint
+  const dir=towards.clone().sub(pos).normalize();
+  const up=new THREE.Vector3(0,1,0);
+  if(Math.abs(dir.dot(up))>0.99) up.set(1,0,0);
+  mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0), dir);
+}
 function _spawnMeasureLine(ptA, ptB, label, id, color) {
   const col = color||MEAS_COL_FREE;
-  // Larger spheres (0.018 radius) so they're easy to click
-  const smat=new THREE.MeshBasicMaterial({color:col}), sgeo=new THREE.SphereGeometry(0.018,10,10);
-  const sA=new THREE.Mesh(sgeo,smat.clone()); sA.position.copy(ptA); viewerScene.add(sA);
-  const sB=new THREE.Mesh(sgeo,smat.clone()); sB.position.copy(ptB); viewerScene.add(sB);
+  // Inward-pointing cone markers instead of spheres
+  const sA=_makeDimMarker(col); _orientDimMarker(sA,ptA,ptB); viewerScene.add(sA);
+  const sB=_makeDimMarker(col); _orientDimMarker(sB,ptB,ptA); viewerScene.add(sB);
+  // Dashed line using LineDashedMaterial
   const geo=new THREE.BufferGeometry().setFromPoints([ptA.clone(),ptB.clone()]);
-  const line=new THREE.Line(geo,new THREE.LineBasicMaterial({color:col,linewidth:2}));
+  const line=new THREE.LineSegments(geo,new THREE.LineDashedMaterial({color:col,linewidth:1.5,dashSize:0.04,gapSize:0.025}));
+  line.computeLineDistances();
   viewerScene.add(line);
   sA.userData.measId=id; sA.userData.endpoint='A';
   sB.userData.measId=id; sB.userData.endpoint='B';
@@ -2184,12 +2009,15 @@ function deleteMeasurement(id) {
 // Update a saved measurement's endpoint position
 function updateMeasEndpoint(id, endpoint, newPt) {
   const m=savedMeasurements.find(r=>r.id===id); if(!m) return;
-  if(endpoint==='A'){ m.ptA.copy(newPt); m.sA.position.copy(newPt); }
-  else              { m.ptB.copy(newPt); m.sB.position.copy(newPt); }
+  if(endpoint==='A'){ m.ptA.copy(newPt); }
+  else              { m.ptB.copy(newPt); }
   const d=m.ptA.distanceTo(m.ptB);
   m.label=d>=1?d.toFixed(3)+' m':(d*100).toFixed(1)+' cm';
   m.line.geometry.setFromPoints([m.ptA.clone(),m.ptB.clone()]);
   m.line.geometry.computeBoundingSphere();
+  m.line.computeLineDistances();
+  // Re-orient cone markers to point toward each other
+  _orientDimMarker(m.sA,m.ptA,m.ptB); _orientDimMarker(m.sB,m.ptB,m.ptA);
   saveSession();
 }
 
@@ -2197,6 +2025,7 @@ function updateMeasureLine() {
   if(!measureState.ptA||!measureState.ptB) return;
   measureState.lineObj.geometry.setFromPoints([measureState.ptA.clone(),measureState.ptB.clone()]);
   measureState.lineObj.geometry.computeBoundingSphere();
+  measureState.lineObj.computeLineDistances?.();
   measureState.lineObj.visible=true;
   measureState.sphereA.position.copy(measureState.ptA); measureState.sphereA.visible=true;
   measureState.sphereB.position.copy(measureState.ptB); measureState.sphereB.visible=true;
@@ -2411,7 +2240,7 @@ async function exportPinReport() {
   // Footer
   pdf.setDrawColor(200,200,215); pdf.setLineWidth(0.15); pdf.line(14,PH-8,PW-14,PH-8);
   pdf.setFont('helvetica','normal'); pdf.setFontSize(6); pdf.setTextColor(150,150,170);
-  pdf.text(`VR.browser v0.3.1  ·  Exported ${new Date().toLocaleDateString()}`, 14, PH-3);
+  pdf.text(`VR.browser v0.3.2  ·  Exported ${new Date().toLocaleDateString()}`, 14, PH-3);
 
   pdf.save(`${modelName}-pin-report.pdf`);
 }
@@ -2540,6 +2369,8 @@ function onCanvasClick(e) {
     const pt=getCanvasHit(e)||null;
     if(pt){ updateMeasEndpoint(measMovingId,measMovingEndpoint,pt); rebuildMeasTable(); }
     measMovingId=null; measMovingEndpoint=null;
+    const ov2=document.getElementById('measure-readout-overlay'); if(ov2) ov2.style.display='none';
+    const dr2=document.getElementById('measure-readout'); if(dr2) dr2.textContent='—';
     setDesktopMode('measure'); return;
   }
 
@@ -2826,10 +2657,17 @@ function toggleMissToolbox() {
 const _missExplodeOrigins=new Map();
 function missBuildExplode() {
   _missExplodeOrigins.clear();
-  if(!loadedModel){alert('Load a model first.');return;}
-  loadedModel.traverse(c=>{if(c.isMesh) _missExplodeOrigins.set(c.uuid,c.position.clone());});
-  document.getElementById('miss-explode-sl').value=0;
-  document.getElementById('miss-explode-val').textContent='0%';
+  if(!loadedModel) return;
+  loadedModel.traverse(node=>{
+    if(!node.isMesh) return;
+    // Store world position as the origin reference
+    node.updateWorldMatrix(true,false);
+    const wp=new THREE.Vector3().setFromMatrixPosition(node.matrixWorld);
+    const entry=wp.clone(); entry.localOrig=node.position.clone();
+    _missExplodeOrigins.set(node.uuid,entry);
+  });
+  const sl=document.getElementById('explode-sl-lp'); if(sl) sl.value=0;
+  const lp=document.getElementById('explode-val-lp'); if(lp) lp.textContent='0%';
 }
 function missExplode(t) {
   document.getElementById('miss-explode-val').textContent=Math.round(t*100)+'%';
@@ -2846,10 +2684,10 @@ function missExplode(t) {
 }
 function missResetExplode() {
   _missExplodeOrigins.forEach((orig,uuid)=>{
-    loadedModel?.traverse(c=>{ if(c.isMesh&&c.uuid===uuid) c.position.copy(orig); });
+    loadedModel?.traverse(node=>{ if(node.isMesh&&node.uuid===uuid&&orig.localOrig) node.position.copy(orig.localOrig); });
   });
-  document.getElementById('miss-explode-sl').value=0;
-  document.getElementById('miss-explode-val').textContent='0%';
+  const sl=document.getElementById('explode-sl-lp'); if(sl) sl.value=0;
+  const lp=document.getElementById('explode-val-lp'); if(lp) lp.textContent='0%';
 }
 
 // ── Symmetry Check ───────────────────────────────────────────
@@ -3158,10 +2996,9 @@ function onResetTransform() {
     const size=box.getSize(new THREE.Vector3());
     const cent=box.getCenter(new THREE.Vector3());
     const maxDim=Math.max(size.x,size.y,size.z);
-    const cent2r=new THREE.Vector3(cent.x,cent.y-size.y*0.05,cent.z);
-    viewerControls.target.copy(cent2r);
-    viewerCamera.position.set(cent2r.x+maxDim*1.35,cent2r.y+maxDim*0.75,cent2r.z+maxDim*1.35);
-    viewerCamera.lookAt(cent2r); viewerControls.update();
+    viewerControls.target.copy(cent);
+    viewerCamera.position.set(cent.x+maxDim*1.35,cent.y+maxDim*0.75,cent.z+maxDim*1.35);
+    viewerCamera.lookAt(cent); viewerControls.update();
   }
   // Reset all sliders to default values
   ['hslice-sl','vslice-sl'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=0.5;});
@@ -3204,10 +3041,36 @@ function onResetRotation() {
 function onSnapshot() {
   if(!viewerRenderer||!viewerScene||!viewerCamera) return;
   viewerRenderer.render(viewerScene,viewerCamera);
+  const canvas=viewerRenderer.domElement;
+  const name=document.getElementById('viewer-title').textContent||'model';
+  if(!allAnnotationsVisible){
+    // Clean image — just the 3D render
+    const a=document.createElement('a');
+    a.href=canvas.toDataURL('image/png'); a.download=name+'-clean.png'; a.click();
+    return;
+  }
+  // Composite: 3D render + filename + visible dimension labels
+  const oc=document.createElement('canvas'); oc.width=canvas.width; oc.height=canvas.height;
+  const ctx=oc.getContext('2d');
+  ctx.drawImage(canvas,0,0);
+  ctx.font='bold 14px DM Mono,monospace';
+  ctx.fillStyle='rgba(200,245,66,0.9)';
+  ctx.fillText(name, 14, 22);
+  // Draw each measurement label at its projected position
+  const r=canvas.getBoundingClientRect();
+  const scaleX=canvas.width/(r.width||1), scaleY=canvas.height/(r.height||1);
+  ctx.font='11px DM Mono,monospace';
+  savedMeasurements.forEach(m=>{
+    const mid=m.ptA.clone().add(m.ptB).multiplyScalar(0.5);
+    const v=mid.project(viewerCamera); if(v.z>=1) return;
+    const sx=(v.x*0.5+0.5)*canvas.width, sy=(-v.y*0.5+0.5)*canvas.height;
+    const hexCol='#'+(m.color||MEAS_COL_FREE).toString(16).padStart(6,'0');
+    ctx.fillStyle=hexCol;
+    if(m.customLabel){ctx.fillText(m.customLabel,sx+4,sy-10);}
+    ctx.fillText(m.label,sx+4,sy+4);
+  });
   const a=document.createElement('a');
-  a.href=viewerRenderer.domElement.toDataURL('image/png');
-  a.download=(document.getElementById('viewer-title').textContent||'model')+'-snapshot.png';
-  a.click();
+  a.href=oc.toDataURL('image/png'); a.download=name+'-annotated.png'; a.click();
 }
 
 // ════════════════════════════════════════════════════════════
@@ -3502,43 +3365,51 @@ function initViewer(fileId) {
     disc.renderOrder=-1;
     scene.add(disc);
   })(viewerScene);
-  // ── Floor grid: grey-only, 1.5m radial fade, multi-resolution ──
+  // ── Floor grid: bright grey vertex-colour fade, 1.5m radius ──
   gridGroup = new THREE.Group();
   (function(grp){
-    const FADE=1.5; // fade radius metres
+    const FADE=1.5; // fade stops here
     const pos=[], col=[];
-    function ln(ax,ay,az,bx,by,bz,bright){
-      const dA=Math.sqrt(ax*ax+az*az)/FADE, dB=Math.sqrt(bx*bx+bz*bz)/FADE;
-      // Fade from 70% opaque (centre) to 0% at FADE radius
-      const a=Math.max(0,(1-dA)*0.7)*bright, b=Math.max(0,(1-dB)*0.7)*bright;
+    // ln: vertex colour = grey brightness fading linearly with distance / FADE
+    // a=0 means black (invisible on dark bg), a=1 means bright grey
+    function ln(ax,ay,az,bx,by,bz,peakBright){
+      const dA=Math.sqrt(ax*ax+az*az), dB=Math.sqrt(bx*bx+bz*bz);
+      const a=Math.max(0,1-dA/FADE)*peakBright;
+      const b=Math.max(0,1-dB/FADE)*peakBright;
       pos.push(ax,ay,az, bx,by,bz);
       col.push(a,a,a,    b,b,b);
     }
-    // 1cm grid — subtle, close to centre only (0.3m radius)
-    const EXTENT_CM=0.3;
+    const E=FADE; // extent = fade radius so edges fade to 0
+    // cm grid — very subtle, only central 0.3m area
     for(let i=-30;i<=30;i++){
-      const v=i*0.01; if(Math.abs(i)%10===0) continue; // skip 10cm lines
-      if(Math.abs(v)>EXTENT_CM) continue;
-      ln(-EXTENT_CM,0,v, EXTENT_CM,0,v, 0.28);
-      ln(v,0,-EXTENT_CM, v,0,EXTENT_CM, 0.28);
+      if(i===0||Math.abs(i)%10===0) continue;
+      const v=i*0.01; if(Math.abs(v)>0.3) continue;
+      ln(-0.3,0,v, 0.3,0,v, 0.20);
+      ln(v,0,-0.3, v,0,0.3, 0.20);
     }
-    // 10cm grid — main grid, full FADE extent
-    const EXTENT=FADE*1.05;
-    for(let i=Math.ceil(-EXTENT/0.1);i<=Math.floor(EXTENT/0.1);i++){
+    // 10cm grid — medium brightness
+    for(let i=-15;i<=15;i++){
       if(i===0) continue;
       const v=i*0.1;
-      ln(-EXTENT,0,v, EXTENT,0,v, i%10===0?0.62:0.38);
-      ln(v,0,-EXTENT, v,0,EXTENT, i%10===0?0.62:0.38);
+      ln(-E,0,v, E,0,v, 0.55);
+      ln(v,0,-E, v,0,E, 0.55);
     }
-    // Centre cross
-    ln(-EXTENT,0,0, EXTENT,0,0, 0.75);
-    ln(0,0,-EXTENT, 0,0,EXTENT, 0.75);
+    // 1m grid — brighter
+    for(let i=-1;i<=1;i++){
+      if(i===0) continue;
+      const v=i*1.0;
+      ln(-E,0,v, E,0,v, 0.80);
+      ln(v,0,-E, v,0,E, 0.80);
+    }
+    // Centre cross — brightest
+    ln(-E,0,0, E,0,0, 0.90);
+    ln(0,0,-E, 0,0,E, 0.90);
 
     const geo=new THREE.BufferGeometry();
-    geo.setAttribute('position',new THREE.BufferAttribute(new Float32Array(pos),3));
-    geo.setAttribute('color',   new THREE.BufferAttribute(new Float32Array(col),3));
+    geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(pos),3));
+    geo.setAttribute('color',    new THREE.BufferAttribute(new Float32Array(col),3));
     grp.add(new THREE.LineSegments(geo,
-      new THREE.LineBasicMaterial({vertexColors:true,transparent:true,opacity:0.9,depthWrite:false})));
+      new THREE.LineBasicMaterial({vertexColors:true,transparent:true,opacity:1.0,depthWrite:false})));
   })(gridGroup);
   viewerScene.add(gridGroup);
 
