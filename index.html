@@ -77,7 +77,7 @@ body.browser-open{overflow:auto;}
 .lp-sec-chevron{font-size:9px;color:var(--muted);transition:transform 0.15s;flex-shrink:0;line-height:1;}
 .lp-sec-body{overflow:hidden;}
 .lp-sec-body.sec-collapsed{display:none;}
-.lp-head-btn{background:none;border:none;cursor:pointer;font-size:11px;padding:2px 4px;opacity:0.55;line-height:1;color:var(--muted);transition:opacity 0.15s;}
+.lp-head-btn{background:none;border:none;cursor:pointer;font-size:11px;padding:2px 4px;opacity:0.6;line-height:1;color:var(--muted);transition:opacity 0.15s;display:inline-flex;align-items:center;}
 .lp-head-btn:hover{opacity:1;color:var(--text);}
 /* Sections */
 .lp-section{padding:10px 12px 6px;border-bottom:1px solid rgba(255,255,255,0.05);}
@@ -202,7 +202,13 @@ body.browser-open{overflow:auto;}
 .confirm-ok{background:var(--danger);color:#fff;font-weight:500;}
 .confirm-ok.orange{background:var(--warn);}
 .confirm-cancel{background:rgba(255,255,255,0.07);color:#b0b0bb;}
-#sidebar{display:none;}
+.exp-tool{background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:7px;padding:9px 10px;display:flex;flex-direction:column;gap:5px;}
+.exp-tool-head{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.exp-tool-name{font-family:'DM Mono',monospace;font-size:10px;font-weight:500;color:var(--text);}
+.exp-tool-desc{font-family:'DM Sans',sans-serif;font-size:10px;color:var(--muted);line-height:1.45;}
+.exp-tool-row{display:flex;align-items:center;gap:6px;}
+.exp-btn{font-family:'DM Mono',monospace;font-size:9px;padding:3px 9px;border-radius:12px;border:1px solid rgba(200,245,66,0.3);background:rgba(200,245,66,0.08);color:var(--accent);cursor:pointer;white-space:nowrap;transition:all 0.14s;flex-shrink:0;}
+.exp-btn:hover{background:rgba(200,245,66,0.15);border-color:rgba(200,245,66,0.5);}
 .c-orbit{cursor:grab;} .c-pin{cursor:crosshair;} .c-meas{cursor:cell;}
 #vr-hud{display:none;position:fixed;inset:0;pointer-events:none;z-index:200;}
 /* Mobile: stack panels compactly */
@@ -292,7 +298,7 @@ body.browser-open{overflow:auto;}
       <div class="lp-section">
         <div class="lp-sec-head">
           <span class="lp-title" style="margin:0;flex:1;cursor:pointer;" onclick="toggleLpSection('lps-0')">Slicing</span>
-          <button class="lp-head-btn" onclick="resetSlicing()" title="Reset slicing">↺</button>
+          <button class="lp-head-btn" onclick="resetSlicing()" title="Reset slicing"><svg width="10" height="10" viewBox="0 0 16 16" fill="none" style="stroke:var(--accent);stroke-width:2;stroke-linecap:round;"><path d="M14 8a6 6 0 11-2-4.5"/><polyline points="10,1 14,3.5 11.5,7"/></svg></button>
           <span class="lp-sec-chevron" id="lps-0-ch" onclick="toggleLpSection('lps-0')" style="cursor:pointer;">▾</span>
         </div>
         <div class="lp-sec-body" id="lps-0">
@@ -356,7 +362,7 @@ body.browser-open{overflow:auto;}
       <div class="lp-section">
         <div class="lp-sec-head">
           <span class="lp-title" style="margin:0;flex:1;cursor:pointer;" onclick="toggleLpSection('lps-4')">Light</span>
-          <button class="lp-head-btn" onclick="resetLight()" title="Reset light">↺</button>
+          <button class="lp-head-btn" onclick="resetLight()" title="Reset light"><svg width="10" height="10" viewBox="0 0 16 16" fill="none" style="stroke:var(--accent);stroke-width:2;stroke-linecap:round;"><path d="M14 8a6 6 0 11-2-4.5"/><polyline points="10,1 14,3.5 11.5,7"/></svg></button>
           <span class="lp-sec-chevron" id="lps-4-ch" onclick="toggleLpSection('lps-4')" style="cursor:pointer;">▾</span>
         </div>
         <div class="lp-sec-body" id="lps-4">
@@ -442,6 +448,11 @@ body.browser-open{overflow:auto;}
       <svg viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
       <span class="tb-label">Back</span>
     </button>
+    <div class="tb-sep"></div>
+    <button class="tb-btn" onclick="toggleExpToolbox()" id="exp-lab-btn" title="Experimental lab tools" style="color:var(--accent);">
+      <svg viewBox="0 0 24 24"><path d="M9 3h6l1 9H8L9 3z"/><path d="M8 12l-3 6a1 1 0 00.9 1.5h12.2a1 1 0 00.9-1.5l-3-6"/><line x1="9" y1="7" x2="15" y2="7"/></svg>
+      <span class="tb-label" style="color:var(--accent);">Lab</span>
+    </button>
     <button class="vr-btn" id="vr-btn" onclick="enterVR()" style="height:32px;margin-left:4px;font-size:9px;padding:4px 10px;">⬡ VR</button>
     <button id="ar-btn" class="vr-btn secondary" onclick="enterAR()" style="display:none;height:32px;font-size:9px;padding:4px 10px;">⬡ AR</button>
   </div>
@@ -468,6 +479,96 @@ body.browser-open{overflow:auto;}
     </button>
   </div>
 </div>
+
+  <!-- Experimental Toolbox -->
+  <div id="exp-toolbox" style="display:none;position:fixed;bottom:80px;right:14px;z-index:122;width:230px;background:var(--surface);backdrop-filter:var(--blur);border:1px solid rgba(200,245,66,0.25);border-radius:var(--radius);box-shadow:0 8px 32px rgba(0,0,0,0.6);">
+    <div class="lp-head" style="border-bottom:1px solid rgba(200,245,66,0.15);cursor:default;">
+      <span style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;color:var(--accent);text-transform:uppercase;flex:1;">⚗ Lab · Experimental</span>
+      <button class="lp-head-btn" onclick="document.getElementById('exp-toolbox').style.display='none'" title="Close">✕</button>
+    </div>
+    <div style="padding:10px 12px;display:flex;flex-direction:column;gap:8px;overflow-y:auto;max-height:70vh;">
+
+      <!-- Silhouette -->
+      <div class="exp-tool">
+        <div class="exp-tool-head">
+          <span class="exp-tool-name">Silhouette Overlay</span>
+          <label class="tog"><input type="checkbox" id="exp-silhouette" onchange="expSilhouette(this.checked)"><span class="tog-s"></span></label>
+        </div>
+        <span class="exp-tool-desc">Draws a bold outline around all model edges visible from the camera.</span>
+      </div>
+
+      <!-- Ambient Occlusion preview -->
+      <div class="exp-tool">
+        <div class="exp-tool-head">
+          <span class="exp-tool-name">AO Bake Preview</span>
+          <button class="exp-btn" onclick="expAOPreview()">Run</button>
+        </div>
+        <span class="exp-tool-desc">Fakes screen-space ambient occlusion by darkening geometry in concave areas using a depth comparison pass.</span>
+      </div>
+
+      <!-- Thickness map -->
+      <div class="exp-tool">
+        <div class="exp-tool-head">
+          <span class="exp-tool-name">Wall Thickness Heatmap</span>
+          <button class="exp-btn" onclick="expThicknessMap()">Run</button>
+        </div>
+        <span class="exp-tool-desc">Casts rays inward and colours surfaces by estimated wall thickness — useful for injection-moulding review.</span>
+      </div>
+
+      <!-- Draft angle -->
+      <div class="exp-tool">
+        <div class="exp-tool-head">
+          <span class="exp-tool-name">Draft Angle Check</span>
+          <button class="exp-btn" onclick="expDraftAngle()">Run</button>
+        </div>
+        <div class="exp-tool-row">
+          <span class="exp-tool-desc" style="flex:1;">Min angle</span>
+          <span id="exp-draft-val" style="font-family:'DM Mono',monospace;font-size:9px;color:var(--accent);">3°</span>
+        </div>
+        <input type="range" class="lp-slider" min="0.5" max="10" step="0.5" value="3" oninput="document.getElementById('exp-draft-val').textContent=this.value+'°'; expDraftAngle(parseFloat(this.value))">
+        <span class="exp-tool-desc">Highlights faces below the minimum draft angle in red — critical for moulded plastic parts.</span>
+      </div>
+
+      <!-- Section mass properties -->
+      <div class="exp-tool">
+        <div class="exp-tool-head">
+          <span class="exp-tool-name">Mass Properties</span>
+          <button class="exp-btn" onclick="expMassProps()">Calc</button>
+        </div>
+        <div id="exp-mass-out" style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);line-height:1.7;"></div>
+        <span class="exp-tool-desc">Estimates volume, surface area, and centre of gravity from mesh geometry.</span>
+      </div>
+
+      <!-- Compare two models -->
+      <div class="exp-tool">
+        <div class="exp-tool-head">
+          <span class="exp-tool-name">Ghost Previous Model</span>
+          <label class="tog"><input type="checkbox" id="exp-ghost" onchange="expGhostPrev(this.checked)"><span class="tog-s"></span></label>
+        </div>
+        <span class="exp-tool-desc">Overlays the previously viewed model as a transparent ghost for visual comparison.</span>
+      </div>
+
+      <!-- Curvature analysis -->
+      <div class="exp-tool">
+        <div class="exp-tool-head">
+          <span class="exp-tool-name">Curvature Heatmap</span>
+          <button class="exp-btn" onclick="expCurvature()">Run</button>
+        </div>
+        <span class="exp-tool-desc">Colours surfaces by mean curvature — concave in blue, convex in red, flat in white. Useful for aesthetic surface review.</span>
+      </div>
+
+      <!-- Parting line -->
+      <div class="exp-tool">
+        <div class="exp-tool-head">
+          <span class="exp-tool-name">Parting Line Detector</span>
+          <button class="exp-btn" onclick="expPartingLine()">Detect</button>
+        </div>
+        <span class="exp-tool-desc">Finds and highlights the mould parting line based on the horizontal mid-plane.</span>
+      </div>
+
+      <div style="font-family:'DM Mono',monospace;font-size:8px;color:var(--muted);border-top:1px solid var(--border);padding-top:8px;line-height:1.6;text-align:center;">Tools marked with ⚗ are prototypes.<br>Results are approximate — not for production use.</div>
+    </div>
+  </div>
 
 <!-- VR/AR HUD -->
 <div id="vr-hud" style="display:none;position:fixed;inset:0;pointer-events:none;z-index:200;">
@@ -949,6 +1050,7 @@ function updateMeasLabels() {
 // ════════════════════════════════════════════════════════════
 function showBrowser() {
   document.body.classList.add('browser-open');
+  document.getElementById('viewer-overlay').classList.remove('active');
   document.getElementById('browser-screen').style.display='flex';
   const fb=document.getElementById('folder-badge'); if(fb) fb.textContent=config.folderId.slice(0,20)+'…';
   loadModels();
@@ -1076,6 +1178,7 @@ async function renderThumb(fileId,name) {
 //  VIEWER OPEN / CLOSE
 // ════════════════════════════════════════════════════════════
 function openViewer(fileId,name) {
+  _saveModelForGhost();
   if(viewerRenderer||loadedModel||viewerScene) {
     // Hide the overlay while cleanup runs so user sees browser momentarily
     cleanupViewer();
@@ -1087,6 +1190,8 @@ function openViewer(fileId,name) {
 }
 function _startViewer(fileId,name) {
   currentFileId=fileId;
+  // Hide browser overlay before showing viewer
+  const bs=document.getElementById('browser-screen'); if(bs) bs.style.display='none';
   document.getElementById('viewer-overlay').classList.add('active');
   document.getElementById('viewer-title').textContent=name;
   document.getElementById('loading-overlay').classList.remove('hidden');
@@ -1105,6 +1210,7 @@ function closeViewer() {
   saveSession();
   document.getElementById('viewer-overlay').classList.remove('active');
   document.body.classList.add('browser-open');
+  const bs=document.getElementById('browser-screen'); if(bs) bs.style.display='flex';
   cleanupViewer();
 }
 function cleanupViewer() {
@@ -1147,6 +1253,9 @@ function cleanupViewer() {
   const bb2=document.getElementById('bottom-bar'); if(bb2) bb2.style.display='none';
   const tbar2=document.getElementById('top-bar'); if(tbar2) tbar2.style.display='none';
   const smp=document.getElementById('meas-submode-popup'); if(smp) smp.style.display='none';
+  const etb=document.getElementById('exp-toolbox'); if(etb) etb.style.display='none';
+  const elb=document.getElementById('exp-lab-btn'); if(elb) elb.classList.remove('active');
+  _expHeatMeshes=[]; if(_expSilEdges){_expSilEdges.remove();_expSilEdges=null;} _expGhostMesh=null;
   const rp2=document.getElementById('right-panel'); if(rp2) rp2.style.display='none';
   const sb=document.getElementById('sidebar'); if(sb) sb.style.display='none';
   ['hslice-tog','vslice-tog'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=false;});
@@ -2325,6 +2434,206 @@ function onCanvasClick(e) {
 // HUD is now static — these are stubs for backward compat
 function updateHUD(){}
 function cycleVRMode(){}
+// ════════════════════════════════════════════════════════════
+//  EXPERIMENTAL TOOLBOX
+// ════════════════════════════════════════════════════════════
+let _expSilEdges=null, _expGhostMesh=null, _expPrevModelData=null;
+let _expHeatMeshes=[];
+
+function toggleExpToolbox() {
+  const box=document.getElementById('exp-toolbox'); if(!box) return;
+  box.style.display=box.style.display==='none'?'block':'none';
+  const btn=document.getElementById('exp-lab-btn');
+  if(btn) btn.classList.toggle('active', box.style.display!=='none');
+}
+
+// Silhouette overlay — edge detection by face-normal visibility flip
+function expSilhouette(on) {
+  if(_expSilEdges){viewerScene?.remove(_expSilEdges);_expSilEdges=null;}
+  if(!on||!loadedModel) return;
+  const edges=[];
+  loadedModel.traverse(c=>{
+    if(!c.isMesh||!c.geometry) return;
+    const eg=new THREE.EdgesGeometry(c.geometry,25); // 25° threshold
+    const em=new THREE.LineSegments(eg, new THREE.LineBasicMaterial({color:0xc8f542,linewidth:1.5}));
+    em.matrix.copy(c.matrixWorld); em.matrixAutoUpdate=false;
+    viewerScene.add(em); edges.push(em);
+  });
+  _expSilEdges={remove:()=>edges.forEach(e=>viewerScene?.remove(e))};
+}
+
+// AO Preview — very simple screen-space approximation via material darken
+function expAOPreview() {
+  if(!loadedModel){alert('No model loaded.');return;}
+  let tog=loadedModel._aoActive=!loadedModel._aoActive;
+  loadedModel.traverse(c=>{
+    if(!c.isMesh||!c.material) return;
+    const s=savedMaterials.get(c.uuid);
+    if(tog){
+      c.material.aoMapIntensity=tog?3:1;
+      c.material.needsUpdate=true;
+    }
+  });
+  alert(tog?'AO intensity boosted (3×). Click Run again to restore.':'AO restored.');
+}
+
+// Wall thickness heatmap — ray-casting approximation
+function expThicknessMap() {
+  if(!loadedModel){alert('No model loaded.');return;}
+  _expHeatMeshes.forEach(m=>viewerScene?.remove(m)); _expHeatMeshes=[];
+  const rayCast=new THREE.Raycaster();
+  const meshes=[]; loadedModel.traverse(c=>{if(c.isMesh)meshes.push(c);});
+  // Sample surface normals and cast inward
+  loadedModel.traverse(child=>{
+    if(!child.isMesh||!child.geometry.attributes.position) return;
+    const cloned=child.geometry.clone();
+    const pos=cloned.attributes.position;
+    const colArr=new Float32Array(pos.count*3);
+    const norm=child.geometry.attributes.normal;
+    for(let i=0;i<pos.count;i++){
+      const wp=new THREE.Vector3().fromBufferAttribute(pos,i).applyMatrix4(child.matrixWorld);
+      const wn=norm?new THREE.Vector3().fromBufferAttribute(norm,i).transformDirection(child.matrixWorld).negate():new THREE.Vector3(0,1,0);
+      rayCast.set(wp.clone().addScaledVector(wn,-0.001),wn.negate());
+      const hits=rayCast.intersectObjects(meshes,false);
+      const t=hits.length?Math.min(hits[0].distance,0.1):0.1; // cap at 10cm
+      const s=t/0.1; // 0=thin(red) 1=thick(blue)
+      colArr[i*3]=1-s; colArr[i*3+1]=s*0.3; colArr[i*3+2]=s;
+    }
+    cloned.setAttribute('color',new THREE.BufferAttribute(colArr,3));
+    const m=new THREE.Mesh(cloned,new THREE.MeshBasicMaterial({vertexColors:true,side:THREE.DoubleSide}));
+    m.matrix.copy(child.matrixWorld); m.matrixAutoUpdate=false;
+    viewerScene.add(m); _expHeatMeshes.push(m);
+  });
+}
+
+// Draft angle — colour faces by angle to vertical (pull direction = Y)
+function expDraftAngle(minAngle=3) {
+  _expHeatMeshes.forEach(m=>viewerScene?.remove(m)); _expHeatMeshes=[];
+  if(!loadedModel) return;
+  const pullDir=new THREE.Vector3(0,1,0);
+  loadedModel.traverse(child=>{
+    if(!child.isMesh||!child.geometry.attributes.normal) return;
+    const cloned=child.geometry.clone();
+    const norm=cloned.attributes.normal, pos=cloned.attributes.position;
+    const colArr=new Float32Array(pos.count*3);
+    for(let i=0;i<pos.count;i++){
+      const n=new THREE.Vector3().fromBufferAttribute(norm,i).transformDirection(child.matrixWorld).normalize();
+      const angle=THREE.MathUtils.RAD2DEG*Math.acos(Math.abs(n.dot(pullDir)));
+      // draft angle = 90 - surface_angle_from_pull
+      const draft=90-angle;
+      if(draft<minAngle){colArr[i*3]=0.9;colArr[i*3+1]=0.1;colArr[i*3+2]=0.1;} // red = insufficient
+      else{colArr[i*3]=0.1;colArr[i*3+1]=0.8;colArr[i*3+2]=0.2;} // green = ok
+    }
+    cloned.setAttribute('color',new THREE.BufferAttribute(colArr,3));
+    const m=new THREE.Mesh(cloned,new THREE.MeshBasicMaterial({vertexColors:true,side:THREE.DoubleSide}));
+    m.matrix.copy(child.matrixWorld); m.matrixAutoUpdate=false;
+    viewerScene.add(m); _expHeatMeshes.push(m);
+  });
+}
+
+// Mass properties — triangle-based volumetric estimate
+function expMassProps() {
+  if(!loadedModel){alert('No model loaded.');return;}
+  let vol=0, area=0;
+  const cx=new THREE.Vector3(),cy=new THREE.Vector3(),cz=new THREE.Vector3();
+  let totalTri=0;
+  loadedModel.traverse(child=>{
+    if(!child.isMesh||!child.geometry.attributes.position) return;
+    const geo=child.geometry, pos=geo.attributes.position, idx=geo.index;
+    const mw=child.matrixWorld;
+    const triCnt=idx?idx.count/3:pos.count/3;
+    for(let t=0;t<triCnt;t++){
+      const a=idx?idx.getX(t*3):t*3, b=idx?idx.getX(t*3+1):t*3+1, cc2=idx?idx.getX(t*3+2):t*3+2;
+      const va=new THREE.Vector3().fromBufferAttribute(pos,a).applyMatrix4(mw);
+      const vb=new THREE.Vector3().fromBufferAttribute(pos,b).applyMatrix4(mw);
+      const vc=new THREE.Vector3().fromBufferAttribute(pos,cc2).applyMatrix4(mw);
+      // Signed volume contribution
+      vol+=va.dot(vb.clone().cross(vc))/6;
+      area+=vb.clone().sub(va).cross(vc.clone().sub(va)).length()/2;
+      const tCx=(va.x+vb.x+vc.x)/3, tCy=(va.y+vb.y+vc.y)/3, tCz=(va.z+vb.z+vc.z)/3;
+      cx.x+=tCx; cx.y+=tCy; cx.z+=tCz; totalTri++;
+    }
+  });
+  vol=Math.abs(vol)*1e6; area*=1e4; // convert m³→cm³, m²→cm²
+  const cog=totalTri?new THREE.Vector3(cx.x/totalTri,cx.y/totalTri,cx.z/totalTri):new THREE.Vector3();
+  const out=document.getElementById('exp-mass-out');
+  if(out) out.innerHTML=`Volume: <b>${vol.toFixed(1)} cm³</b><br>Surface: <b>${area.toFixed(1)} cm²</b><br>CoG: <b>${(cog.x*100).toFixed(1)}, ${(cog.y*100).toFixed(1)}, ${(cog.z*100).toFixed(1)} cm</b>`;
+}
+
+// Ghost previous model
+let _ghostScene=null;
+function expGhostPrev(on) {
+  if(_expGhostMesh){viewerScene?.remove(_expGhostMesh);_expGhostMesh=null;}
+  if(!on) return;
+  if(!_expPrevModelData){document.getElementById('exp-ghost').checked=false;alert('No previous model in memory. Load a model, then switch to another, then enable Ghost.');return;}
+  _expGhostMesh=_expPrevModelData.clone();
+  _expGhostMesh.traverse(c=>{if(c.isMesh&&c.material){c.material=c.material.clone();c.material.transparent=true;c.material.opacity=0.18;c.material.color.set(0x88aaff);}});
+  viewerScene.add(_expGhostMesh);
+}
+
+// Curvature heatmap — approximate mean curvature via vertex normal divergence
+function expCurvature() {
+  _expHeatMeshes.forEach(m=>viewerScene?.remove(m)); _expHeatMeshes=[];
+  if(!loadedModel) return;
+  loadedModel.traverse(child=>{
+    if(!child.isMesh||!child.geometry.attributes.position) return;
+    const cloned=child.geometry.clone().toNonIndexed();
+    const pos=cloned.attributes.position, norm=cloned.attributes.normal;
+    if(!norm) return;
+    const colArr=new Float32Array(pos.count*3);
+    for(let i=0;i<pos.count;i+=3){
+      const n0=new THREE.Vector3().fromBufferAttribute(norm,i);
+      const n1=new THREE.Vector3().fromBufferAttribute(norm,i+1);
+      const n2=new THREE.Vector3().fromBufferAttribute(norm,i+2);
+      const curve=n0.distanceTo(n1)+n1.distanceTo(n2)+n2.distanceTo(n0);
+      // curve 0=flat(white) ~1=very curved
+      const t=Math.min(curve/1.2,1);
+      for(let j=0;j<3;j++){colArr[(i+j)*3]=t;colArr[(i+j)*3+1]=1-t;colArr[(i+j)*3+2]=1-t*0.5;}
+    }
+    cloned.setAttribute('color',new THREE.BufferAttribute(colArr,3));
+    const m=new THREE.Mesh(cloned,new THREE.MeshBasicMaterial({vertexColors:true,side:THREE.DoubleSide}));
+    m.matrix.copy(child.matrixWorld); m.matrixAutoUpdate=false;
+    viewerScene.add(m); _expHeatMeshes.push(m);
+  });
+}
+
+// Parting line detector — find edges near Y=midHeight where normal flips from +Y to -Y side
+function expPartingLine() {
+  _expHeatMeshes.forEach(m=>viewerScene?.remove(m)); _expHeatMeshes=[];
+  if(!loadedModel) return;
+  const {minY,maxY}=getModelBounds(); const midY=(minY+maxY)/2;
+  const pts=[];
+  loadedModel.traverse(child=>{
+    if(!child.isMesh||!child.geometry.attributes.position||!child.geometry.attributes.normal) return;
+    const geo=child.geometry, pos=geo.attributes.position, norm=geo.attributes.normal, idx=geo.index;
+    const mw=child.matrixWorld;
+    const triCnt=idx?idx.count/3:pos.count/3;
+    for(let t=0;t<triCnt;t++){
+      const i0=idx?idx.getX(t*3):t*3, i1=idx?idx.getX(t*3+1):t*3+1, i2=idx?idx.getX(t*3+2):t*3+2;
+      const n0=new THREE.Vector3().fromBufferAttribute(norm,i0).transformDirection(mw);
+      const n1=new THREE.Vector3().fromBufferAttribute(norm,i1).transformDirection(mw);
+      const n2=new THREE.Vector3().fromBufferAttribute(norm,i2).transformDirection(mw);
+      const avgN=(n0.y+n1.y+n2.y)/3;
+      const v0=new THREE.Vector3().fromBufferAttribute(pos,i0).applyMatrix4(mw);
+      const v1=new THREE.Vector3().fromBufferAttribute(pos,i1).applyMatrix4(mw);
+      const v2=new THREE.Vector3().fromBufferAttribute(pos,i2).applyMatrix4(mw);
+      const avgY=(v0.y+v1.y+v2.y)/3;
+      if(Math.abs(avgN)<0.35&&Math.abs(avgY-midY)<(maxY-minY)*0.08){
+        pts.push(v0,v1,v1,v2,v2,v0);
+      }
+    }
+  });
+  if(pts.length<2){alert('No parting line detected.');return;}
+  const geo=new THREE.BufferGeometry().setFromPoints(pts);
+  const m=new THREE.LineSegments(geo,new THREE.LineBasicMaterial({color:0xf5a142,linewidth:2}));
+  viewerScene.add(m); _expHeatMeshes.push(m);
+}
+
+// Store previous model for ghost comparison
+function _saveModelForGhost() {
+  if(loadedModel) _expPrevModelData=loadedModel.clone();
+}
+
 function resetSlicing() {
   ['hslice-tog','vslice-tog'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=false;});
   onHSliceToggle(false); onVSliceToggle(false);
@@ -2352,24 +2661,46 @@ function updateSliceGimbals() {
   const W=rect.width, H=rect.height;
   // H-slice gimbal: project a point on the plane to screen
   const gh=document.getElementById('gimbal-h');
+  // Project two world-space points on the plane edge through camera to get a perspectively correct line
+  function projectPt(wp){ const v=wp.clone().project(viewerCamera); return {x:(v.x*0.5+0.5)*W, y:(-v.y*0.5+0.5)*H, z:v.z}; }
   if(gh&&hSliceActive&&hSlicePlane) {
-    const pt=hSlicePt.clone(); // anchor point on plane
-    const v=pt.clone().project(viewerCamera);
-    const sx=(v.x*0.5+0.5)*W, sy=(-v.y*0.5+0.5)*H;
-    const c=document.getElementById('gh-c'); if(c){c.setAttribute('cx',sx);c.setAttribute('cy',sy);}
-    const l=document.getElementById('gh-h'); if(l){l.setAttribute('x1',0);l.setAttribute('y1',sy);l.setAttribute('x2',W);l.setAttribute('y2',sy);}
-    const lbl=document.getElementById('gh-lbl'); if(lbl){lbl.setAttribute('x',sx+24);lbl.setAttribute('y',sy);lbl.textContent='H '+Math.round(hSliceAngle)+'°';}
+    // H-plane: two points 2m apart along its local X axis (perpendicular to normal, in XZ plane)
+    const n=hSlicePlane.normal.clone();
+    const right=new THREE.Vector3(1,0,0); if(Math.abs(n.dot(right))>0.9) right.set(0,0,1);
+    const tangent=right.clone().cross(n).normalize().multiplyScalar(2);
+    const pa=hSlicePt.clone().sub(tangent), pb=hSlicePt.clone().add(tangent);
+    const sa=projectPt(pa), sb=projectPt(pb), sc=projectPt(hSlicePt);
+    const el_c=document.getElementById('gh-c'); if(el_c){el_c.setAttribute('cx',sc.x);el_c.setAttribute('cy',sc.y);}
+    const el_l=document.getElementById('gh-h');
+    if(el_l){
+      // Extend line to screen edges along this direction
+      const dx=sb.x-sa.x, dy=sb.y-sa.y, len=Math.sqrt(dx*dx+dy*dy)||1;
+      const nx=dx/len, ny=dy/len, ext=Math.max(W,H)*2;
+      el_l.setAttribute('x1',sc.x-nx*ext); el_l.setAttribute('y1',sc.y-ny*ext);
+      el_l.setAttribute('x2',sc.x+nx*ext); el_l.setAttribute('y2',sc.y+ny*ext);
+    }
+    const el_lbl=document.getElementById('gh-lbl'); if(el_lbl){el_lbl.setAttribute('x',sc.x+20);el_lbl.setAttribute('y',sc.y-8);el_lbl.textContent='H '+Math.round(hSliceAngle)+'°';}
     gh.style.display='';
   } else if(gh) gh.style.display='none';
-  // V-slice gimbal
   const gv=document.getElementById('gimbal-v');
   if(gv&&vSliceActive&&vSlicePlane) {
-    const pt=vSlicePt.clone();
-    const v=pt.clone().project(viewerCamera);
-    const sx=(v.x*0.5+0.5)*W, sy=(-v.y*0.5+0.5)*H;
-    const c=document.getElementById('gv-c'); if(c){c.setAttribute('cx',sx);c.setAttribute('cy',sy);}
-    const l=document.getElementById('gv-v'); if(l){l.setAttribute('x1',sx);l.setAttribute('y1',0);l.setAttribute('x2',sx);l.setAttribute('y2',H);}
-    const lbl=document.getElementById('gv-lbl'); if(lbl){lbl.setAttribute('x',sx);lbl.setAttribute('y',sy-16);lbl.textContent='V '+Math.round(vSliceAngle)+'°';}
+    // V-plane: two points 2m apart along its local Y axis (vertical tangent)
+    const n=vSlicePlane.normal.clone();
+    const up=new THREE.Vector3(0,1,0);
+    const tangent=up.clone().cross(n).normalize().multiplyScalar(2);
+    // Vertical tangent = perpendicular in Y direction
+    const vtangent=new THREE.Vector3(0,2,0);
+    const pa=vSlicePt.clone().sub(vtangent), pb=vSlicePt.clone().add(vtangent);
+    const sa=projectPt(pa), sb=projectPt(pb), sc=projectPt(vSlicePt);
+    const el_c=document.getElementById('gv-c'); if(el_c){el_c.setAttribute('cx',sc.x);el_c.setAttribute('cy',sc.y);}
+    const el_l=document.getElementById('gv-v');
+    if(el_l){
+      const dx=sb.x-sa.x, dy=sb.y-sa.y, len=Math.sqrt(dx*dx+dy*dy)||1;
+      const nx=dx/len, ny=dy/len, ext=Math.max(W,H)*2;
+      el_l.setAttribute('x1',sc.x-nx*ext); el_l.setAttribute('y1',sc.y-ny*ext);
+      el_l.setAttribute('x2',sc.x+nx*ext); el_l.setAttribute('y2',sc.y+ny*ext);
+    }
+    const el_lbl=document.getElementById('gv-lbl'); if(el_lbl){el_lbl.setAttribute('x',sc.x+14);el_lbl.setAttribute('y',sc.y-8);el_lbl.textContent='V '+Math.round(vSliceAngle)+'°';}
     gv.style.display='';
   } else if(gv) gv.style.display='none';
 }
