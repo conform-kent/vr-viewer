@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VR Model Browser</title>
+<title>CAD INSPECTOR</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230d0d10'/%3E%3Cpolygon points='16,3 28,10 28,22 16,29 4,22 4,10' fill='none' stroke='%23c8f542' stroke-width='2.2' stroke-linejoin='round'/%3E%3Cline x1='10' y1='13' x2='16' y2='21' stroke='%23c8f542' stroke-width='2.2' stroke-linecap='round'/%3E%3Cline x1='22' y1='13' x2='16' y2='21' stroke='%23c8f542' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap');
 :root{
@@ -163,7 +164,7 @@ body.browser-open{overflow:auto;}
 .tb-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:7px 9px;border-radius:8px;border:none;background:transparent;color:var(--muted);cursor:pointer;transition:all 0.15s;font-family:'DM Mono',monospace;min-width:44px;}
 .tb-btn svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;display:block;}
 .tb-btn .tb-label{font-size:7px;letter-spacing:.04em;text-transform:uppercase;line-height:1;margin-top:1px;}
-.tb-btn:hover{background:rgba(255,255,255,0.07);color:var(--text);}
+.tb-btn:hover{background:rgba(255,255,255,0.09);color:var(--text);border-radius:50%!important;}
 .tb-btn.active{background:rgba(200,245,66,0.15);color:var(--accent);border-radius:50%!important;}
 .tb-btn.active-measure{background:rgba(245,161,66,0.15);color:var(--warn);border-radius:50%!important;}
 .tb-btn.active-height{background:rgba(33,150,243,0.2)!important;border:1px solid rgba(33,150,243,0.5)!important;}
@@ -452,7 +453,7 @@ body.browser-open{overflow:auto;}
       <span class="tb-label">Light</span>
     </button>
     <div class="tb-sep"></div>
-    <button class="tb-btn active" id="grid-toggle-btn" onclick="toggleFloorGrid()" title="Toggle floor grid" style="position:relative;">
+    <button class="tb-btn" id="grid-toggle-btn" onclick="toggleFloorGrid()" title="Toggle floor grid" style="position:relative;">
       <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="1"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/><line id="grid-cross" x1="3" y1="3" x2="21" y2="21" stroke-width="2.5" style="display:none;"/></svg>
       <span class="tb-label">Grid</span>
     </button>
@@ -1551,6 +1552,19 @@ function onExplodeSlider(t) {
   });
 }
 function makeZebraTexture(h){return null;}
+
+// Close floating popups when clicking anywhere outside them
+document.addEventListener('click', function(e) {
+  // Light popup
+  const lp=document.getElementById('light-popup');
+  const lb=document.getElementById('light-btn');
+  if(lp&&lp.style.display!=='none'){
+    if(!lp.contains(e.target)&&e.target!==lb&&!lb?.contains(e.target)){
+      lp.style.display='none';
+      lb?.classList.remove('active');
+    }
+  }
+}, true); // capture phase so it fires before other handlers
 function toggleLightPopup(){
   const p=document.getElementById('light-popup');
   const b=document.getElementById('light-btn');
@@ -1561,11 +1575,12 @@ function toggleLightPopup(){
 }
 function toggleFloorGrid(){
   if(!gridGroup) return;
-  // Button starts active (grid visible by default)
   gridGroup.visible=!gridGroup.visible;
   const btn=document.getElementById('grid-toggle-btn');
   const cross=document.getElementById('grid-cross');
-  if(btn) btn.classList.toggle('active', gridGroup.visible);
+  // OFF state = highlighted (active class) + cross line
+  // ON  state = plain grey, no highlight, no cross
+  if(btn) btn.classList.toggle('active', !gridGroup.visible);
   if(cross) cross.style.display=gridGroup.visible?'none':'';
 }
 function onZebraSize(val){_zebraStripeScale=parseFloat(val); const lbl=document.getElementById('zebra-size-val'); if(lbl)lbl.textContent=val; if(zebraMode!=='off')setZebraMode(zebraMode);} // kept for compat — zebra now uses ShaderMaterial
@@ -1670,6 +1685,41 @@ function toggleAutoRotate() {
   autoRotate=!autoRotate;
   const b=document.getElementById('autorot-btn');
   if(b) b.classList.toggle('active',autoRotate);
+  _applyShowcaseMode(autoRotate);
+}
+let _showcasePrevGridVisible=true;
+function _applyShowcaseMode(on) {
+  // Grid
+  if(gridGroup){
+    if(on){ _showcasePrevGridVisible=gridGroup.visible; gridGroup.visible=false; }
+    else  { gridGroup.visible=_showcasePrevGridVisible; }
+    const gc=document.getElementById('grid-cross');
+    if(gc) gc.style.display=gridGroup.visible?'none':'';
+    const gb=document.getElementById('grid-toggle-btn');
+    if(gb) gb.classList.toggle('active',!gridGroup.visible);
+  }
+  // Top bar opacity
+  const tb=document.getElementById('top-bar');
+  if(tb) tb.style.opacity=on?'0.18':'1';
+  if(tb) tb.style.pointerEvents=on?'none':'';
+  // Left panel
+  const lp=document.getElementById('left-panel');
+  if(lp) lp.style.opacity=on?'0':'1';
+  if(lp) lp.style.pointerEvents=on?'none':'';
+  // Right panel
+  const rp=document.getElementById('right-panel');
+  if(rp) rp.style.opacity=on?'0':'1';
+  if(rp) rp.style.pointerEvents=on?'none':'';
+  // Logo
+  const vl=document.getElementById('viewer-logo');
+  if(vl) vl.style.opacity=on?'0.15':'1';
+  // Close any open popups
+  if(on){
+    const lpp=document.getElementById('light-popup'); if(lpp) lpp.style.display='none';
+    document.getElementById('light-btn')?.classList.remove('active');
+  }
+  // Add smooth CSS transition (only on first call)
+  [tb,lp,rp,vl].forEach(el=>{ if(el) el.style.transition='opacity 0.6s ease'; });
 }
 
 function toggleMeasFloorSnap() {
@@ -1991,8 +2041,17 @@ function _orientDimMarker(mesh, pos, towards) {
 function _spawnMeasureLine(ptA, ptB, label, id, color) {
   const col = color||MEAS_COL_FREE;
   // Inward-pointing cone markers instead of spheres
-  const sA=_makeDimMarker(col); _orientDimMarker(sA,ptA,ptB); viewerScene.add(sA);
-  const sB=_makeDimMarker(col); _orientDimMarker(sB,ptB,ptA); viewerScene.add(sB);
+  const sA=_makeDimMarker(col); viewerScene.add(sA);
+  const sB=_makeDimMarker(col); viewerScene.add(sB);
+  // Height measurements: both cones vertical; others: point along line
+  const isHeight=(color===MEAS_COL_HEIGHT);
+  if(isHeight){
+    // sA (surface) points down (toward floor), sB (floor) points up (toward model)
+    sA.position.copy(ptA); sA.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),new THREE.Vector3(0,-1,0));
+    sB.position.copy(ptB); sB.quaternion.identity(); // points up (+Y)
+  } else {
+    _orientDimMarker(sA,ptA,ptB); _orientDimMarker(sB,ptB,ptA);
+  }
   // Dashed line using LineDashedMaterial
   const geo=new THREE.BufferGeometry().setFromPoints([ptA.clone(),ptB.clone()]);
   const line=new THREE.LineSegments(geo,new THREE.LineDashedMaterial({color:col,linewidth:1,dashSize:0.018,gapSize:0.010}));
@@ -2023,7 +2082,12 @@ function updateMeasEndpoint(id, endpoint, newPt) {
   m.line.geometry.setFromPoints([m.ptA.clone(),m.ptB.clone()]);
   m.line.geometry.computeBoundingSphere();
   m.line.computeLineDistances();
-  _orientDimMarker(m.sA,m.ptA,m.ptB); _orientDimMarker(m.sB,m.ptB,m.ptA);
+  if(m.color===MEAS_COL_HEIGHT){
+    m.sA.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),new THREE.Vector3(0,-1,0));
+    m.sB.quaternion.identity();
+  } else {
+    _orientDimMarker(m.sA,m.ptA,m.ptB); _orientDimMarker(m.sB,m.ptB,m.ptA);
+  }
   saveSession();
 }
 
@@ -3339,8 +3403,22 @@ function _buildViewer(fileId, name, myToken) { function initViewer(fileId){
   sunLight.shadow.camera.top=3; sunLight.shadow.camera.bottom=-3;
   sunLight.shadow.bias=-0.001;
   viewerScene.add(sunLight);
-  const fill=new THREE.DirectionalLight(0x8888ff,0.15); fill.position.set(-4,2,-3); viewerScene.add(fill);
-  // Floor disc removed (was causing light halo artefact on model)
+  // fill light removed — was causing curved halo artefact on model top
+  // Floor disc — soft radial glow on floor surface (wanted back)
+  (function buildFloorDisc(scene){
+    const geo=new THREE.CircleGeometry(1.4,64);
+    const cv=document.createElement('canvas'); cv.width=cv.height=256;
+    const ctx=cv.getContext('2d');
+    const grad=ctx.createRadialGradient(128,128,0,128,128,128);
+    grad.addColorStop(0,'rgba(170,170,185,0.30)');
+    grad.addColorStop(0.45,'rgba(110,110,125,0.12)');
+    grad.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=grad; ctx.fillRect(0,0,256,256);
+    const tex=new THREE.CanvasTexture(cv);
+    const mat=new THREE.MeshBasicMaterial({map:tex,transparent:true,depthWrite:false,side:THREE.DoubleSide});
+    const disc=new THREE.Mesh(geo,mat); disc.rotation.x=-Math.PI/2; disc.position.y=0.002;
+    disc.renderOrder=-1; scene.add(disc);
+  })(viewerScene);
   // Shadow receiver plane at floor
   const shadowReceiver=new THREE.Mesh(
     new THREE.PlaneGeometry(10,10),
@@ -3348,21 +3426,17 @@ function _buildViewer(fileId, name, myToken) { function initViewer(fileId){
   );
   shadowReceiver.rotation.x=-Math.PI/2; shadowReceiver.position.y=0; shadowReceiver.receiveShadow=true;
   viewerScene.add(shadowReceiver);
-  // ── Floor grid: true-scale lime canvas texture, 2048px, radial fade ──
+  // ── Floor grid: grey, 1:1 scale, cm/10cm/1m, radial fade ──
   gridGroup = new THREE.Group();
   (function(grp){
-    // SIZE = physical size in metres. 1 metre = exactly 1 grid unit.
-    // We draw lines every 0.1m (10cm) and every 1m.
-    const SIZE=6.0;  // total plane size in metres (visible before fade)
-    const RES=2048;  // texture resolution
-    const PX=RES/SIZE; // pixels per metre
+    const SIZE=6.0; // metres — 1m == exactly PX pixels
+    const RES=2048;
+    const PX=RES/SIZE; // pixels per metre (341.3 px/m)
     const canvas=document.createElement('canvas'); canvas.width=canvas.height=RES;
     const ctx=canvas.getContext('2d');
     ctx.clearRect(0,0,RES,RES);
-
-    // cm grid — very fine
-    function drawGrid(spacingM, lw, r,g,b, alpha){
-      ctx.strokeStyle=`rgba(${r},${g},${b},${alpha})`;
+    function drawGrid(spacingM,lw,grey,alpha){
+      ctx.strokeStyle=`rgba(${grey},${grey},${grey},${alpha})`;
       ctx.lineWidth=lw;
       ctx.beginPath();
       const n=Math.ceil(SIZE/spacingM)+1;
@@ -3373,21 +3447,19 @@ function _buildViewer(fileId, name, myToken) { function initViewer(fileId){
       }
       ctx.stroke();
     }
-    drawGrid(0.01, 0.5, 100,130, 0, 0.18); // cm — lime dark
-    drawGrid(0.10, 0.8, 140,185,50, 0.35); // 10cm — lime medium
-    drawGrid(1.00, 1.5, 180,230,80, 0.65); // 1m — lime bright
-
-    // Radial alpha mask
+    drawGrid(0.01,0.4,130,0.20); // 1cm
+    drawGrid(0.10,0.7,155,0.38); // 10cm
+    drawGrid(1.00,1.4,190,0.65); // 1m
+    // Radial alpha fade
     const imgd=ctx.getImageData(0,0,RES,RES);
     const d=imgd.data, R=RES/2;
     for(let y=0;y<RES;y++) for(let x=0;x<RES;x++){
       const dist=Math.sqrt((x-R)*(x-R)+(y-R)*(y-R));
       const fade=Math.max(0,1-dist/R);
-      const f=fade*fade*(3-2*fade); // smoothstep
-      d[(y*RES+x)*4+3]=Math.round(d[(y*RES+x)*4+3]*f*0.75); // 75% max opacity
+      const f=fade*fade*(3-2*fade);
+      d[(y*RES+x)*4+3]=Math.round(d[(y*RES+x)*4+3]*f*0.75);
     }
     ctx.putImageData(imgd,0,0);
-
     const tex=new THREE.CanvasTexture(canvas);
     tex.anisotropy=16; tex.needsUpdate=true;
     const plane=new THREE.Mesh(
@@ -3397,7 +3469,7 @@ function _buildViewer(fileId, name, myToken) { function initViewer(fileId){
     plane.rotation.x=-Math.PI/2; plane.position.set(0,0.001,0);
     grp.add(plane);
   })(gridGroup);
-  gridGroup.position.set(0,0,0); // anchor at world origin
+  gridGroup.position.set(0,0,0);
   viewerScene.add(gridGroup);
 
 
