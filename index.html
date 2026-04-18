@@ -72,6 +72,13 @@ body.browser-open{overflow:auto;}
 .lp-head-icon.closed{transform:rotate(-90deg);}
 .lp-body{overflow-y:auto;max-height:calc(100vh - 100px);transition:max-height 0.22s;}
 .lp-body.collapsed{max-height:0;overflow:hidden;}
+/* Collapsible section bodies */
+.lp-sec-head{display:flex;align-items:center;cursor:pointer;user-select:none;padding-bottom:6px;gap:4px;}
+.lp-sec-chevron{font-size:9px;color:var(--muted);transition:transform 0.15s;flex-shrink:0;line-height:1;}
+.lp-sec-body{overflow:hidden;}
+.lp-sec-body.sec-collapsed{display:none;}
+.lp-head-btn{background:none;border:none;cursor:pointer;font-size:11px;padding:2px 4px;opacity:0.55;line-height:1;color:var(--muted);transition:opacity 0.15s;}
+.lp-head-btn:hover{opacity:1;color:var(--text);}
 /* Sections */
 .lp-section{padding:10px 12px 6px;border-bottom:1px solid rgba(255,255,255,0.05);}
 .lp-section:last-child{border-bottom:none;}
@@ -210,34 +217,39 @@ body.browser-open{overflow:auto;}
 </head>
 <body>
 
-<!-- BROWSER — compact top bar + slide-down thumbnail drawer -->
-<div id="browser-screen">
-  <!-- Slim top bar -->
-  <div style="display:flex;align-items:center;gap:0;background:rgba(13,13,16,0.98);border-bottom:1px solid var(--border);padding:0;">
-    <!-- Logo pill -->
-    <div style="display:flex;align-items:center;gap:10px;padding:10px 20px;border-right:1px solid var(--border);">
-      <svg width="22" height="22" viewBox="0 0 32 32" fill="none"><polygon points="16,4 26,9.5 26,22.5 16,28 6,22.5 6,9.5" fill="none" stroke="#c8f542" stroke-width="2" stroke-linejoin="round"/><line x1="11" y1="13" x2="16" y2="20" stroke="#c8f542" stroke-width="2" stroke-linecap="round"/><line x1="21" y1="13" x2="16" y2="20" stroke="#c8f542" stroke-width="2" stroke-linecap="round"/></svg>
-      <span style="font-family:'DM Mono',monospace;font-size:13px;font-weight:500;letter-spacing:-.3px;">VR<span style="color:var(--accent)">.</span>browser <span style="font-size:9px;color:var(--accent);opacity:0.8;">v0.2.5</span></span>
+<!-- BROWSER — full-screen overlay, slides down from top -->
+<div id="browser-screen" style="position:fixed;inset:0;z-index:200;background:rgba(13,13,16,0.97);display:none;flex-direction:column;overflow:hidden;">
+  <!-- Top bar -->
+  <div style="display:flex;align-items:center;gap:0;background:rgba(10,10,14,1);border-bottom:1px solid var(--border);flex-shrink:0;">
+    <!-- Logo -->
+    <div style="display:flex;align-items:center;gap:10px;padding:12px 20px;border-right:1px solid var(--border);flex-shrink:0;">
+      <svg width="20" height="20" viewBox="0 0 32 32" fill="none"><polygon points="16,3 28,10 28,22 16,29 4,22 4,10" fill="none" stroke="#c8f542" stroke-width="2.2" stroke-linejoin="round"/><line x1="10" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="22" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="12" y1="13" x2="20" y2="13" stroke="rgba(200,245,66,0.5)" stroke-width="1.2" stroke-linecap="round"/></svg>
+      <span style="font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;letter-spacing:.07em;color:#e8e8e4;text-transform:uppercase;">CAD Inspector <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--accent);font-weight:400;letter-spacing:.06em;text-transform:none;">v0.3</span></span>
     </div>
-    <!-- Model list — click to expand -->
-    <div id="model-list-bar" style="flex:1;display:flex;align-items:center;overflow-x:auto;gap:2px;padding:6px 12px;scrollbar-width:none;">
+    <!-- Model list pills -->
+    <div id="model-list-bar" style="flex:1;display:flex;align-items:center;overflow-x:auto;gap:3px;padding:7px 12px;scrollbar-width:none;-webkit-overflow-scrolling:touch;">
       <span id="model-list-empty" style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);padding:4px 8px;">Loading…</span>
     </div>
-    <button class="btn-icon" onclick="loadModels()" style="margin:6px 12px;flex-shrink:0;">↺</button>
+    <button class="btn-icon" onclick="loadModels()" style="margin:6px 12px;flex-shrink:0;" title="Refresh">↺</button>
   </div>
-  <!-- Thumbnail drawer (slides down when a model is hovered/selected) -->
-  <div id="thumb-drawer" style="display:none;background:rgba(13,13,16,0.98);border-bottom:1px solid var(--border);padding:12px 16px;">
-    <div id="thumb-drawer-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;max-width:900px;"></div>
-  </div>
-  <!-- Count badge -->
-  <div style="padding:8px 20px;display:flex;align-items:center;gap:8px;">
-    <span style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);">Models in folder</span>
-    <span class="count-badge" id="count-badge">0 files</span>
+  <!-- Thumbnail grid — fills remaining space -->
+  <div id="thumb-drawer" style="flex:1;overflow-y:auto;padding:20px 24px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+      <span style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);">Models in folder</span>
+      <span class="count-badge" id="count-badge">0 files</span>
+    </div>
+    <div id="thumb-drawer-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;"></div>
   </div>
 </div>
 
 <!-- VIEWER — canvas fills screen, panels float above it -->
 <div id="viewer-overlay">
+
+  <!-- Top-left logo bar — always visible in viewer -->
+  <div id="viewer-logo" style="position:fixed;top:0;left:0;z-index:125;display:none;align-items:center;gap:10px;padding:10px 18px 10px 14px;background:rgba(13,13,16,0.7);backdrop-filter:blur(12px);border-bottom-right-radius:12px;border-bottom:1px solid var(--border);border-right:1px solid var(--border);">
+    <svg width="18" height="18" viewBox="0 0 32 32" fill="none" style="flex-shrink:0;"><polygon points="16,3 28,10 28,22 16,29 4,22 4,10" fill="none" stroke="#c8f542" stroke-width="2.2" stroke-linejoin="round"/><line x1="10" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="22" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="12" y1="13" x2="20" y2="13" stroke="rgba(200,245,66,0.5)" stroke-width="1.2" stroke-linecap="round"/></svg>
+    <span style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;color:#e8e8e4;text-transform:uppercase;">CAD Inspector</span>
+  </div>
 
   <!-- Full-screen canvas -->
   <div id="viewer-canvas-wrap">
@@ -272,7 +284,7 @@ body.browser-open{overflow:auto;}
   <div id="left-panel">
     <div class="lp-head" id="lp-drag-handle">
       <span class="lp-head-title" onclick="toggleLeftPanel()" style="flex:1;cursor:pointer;">Controls</span>
-      <button class="lp-head-btn" id="lp-pin-btn" onclick="togglePanelPin('left-panel','lp-pin-btn')" title="Pin to side">⬤</button>
+      <button class="lp-head-btn" id="lp-pin-btn" onclick="togglePanelPin('left-panel','lp-pin-btn')" title="Pin to side">□</button>
       <span class="lp-head-icon open" id="lp-chevron" onclick="toggleLeftPanel()" style="cursor:pointer;">▾</span>
     </div>
     <div class="lp-body" id="lp-body">
@@ -287,11 +299,15 @@ body.browser-open{overflow:auto;}
           <div class="lp-row"><span class="lp-label">H-Cut ↕</span><label class="tog teal"><input type="checkbox" id="hslice-tog" onchange="onHSliceToggle(this.checked)"><span class="tog-s"></span></label></div>
           <input type="range" class="lp-slider teal" id="hslice-sl" min="0" max="1" step="0.005" value="0.5" oninput="onHSliceSlider(this.value)">
           <div class="lp-row"><span class="lp-label" style="font-size:9px;color:var(--muted)">H-Rotate</span><span class="lp-val" id="hslice-ang-val">0°</span></div>
-          <input type="range" class="lp-slider teal" id="hslice-ang" min="-45" max="45" step="1" value="0" oninput="onHSliceAngle(this.value)">
+          <input type="range" class="lp-slider teal" id="hslice-ang" min="-90" max="90" step="1" value="0" oninput="onHSliceAngle(this.value)">
+          <div class="lp-row"><span class="lp-label" style="font-size:9px;color:var(--muted)">H-Origin</span><span class="lp-val" id="hslice-orig-val">50%</span></div>
+          <input type="range" class="lp-slider teal" id="hslice-orig" min="0" max="1" step="0.005" value="0.5" oninput="onHSliceOriginSlider(this.value)">
           <div class="lp-row"><span class="lp-label">V-Cut ↔</span><label class="tog"><input type="checkbox" id="vslice-tog" onchange="onVSliceToggle(this.checked)"><span class="tog-s"></span></label></div>
           <input type="range" class="lp-slider" id="vslice-sl" min="0" max="1" step="0.005" value="0.5" oninput="onVSliceSlider(this.value)">
           <div class="lp-row"><span class="lp-label" style="font-size:9px;color:var(--muted)">V-Rotate</span><span class="lp-val" id="vslice-ang-val">0°</span></div>
-          <input type="range" class="lp-slider" id="vslice-ang" min="-45" max="45" step="1" value="0" oninput="onVSliceAngle(this.value)">
+          <input type="range" class="lp-slider" id="vslice-ang" min="-90" max="90" step="1" value="0" oninput="onVSliceAngle(this.value)">
+          <div class="lp-row"><span class="lp-label" style="font-size:9px;color:var(--muted)">V-Origin</span><span class="lp-val" id="vslice-orig-val">50%</span></div>
+          <input type="range" class="lp-slider" id="vslice-orig" min="0" max="1" step="0.005" value="0.5" oninput="onVSliceOriginSlider(this.value)">
         </div>
       </div>
       <!-- Surface Analysis -->
@@ -372,7 +388,7 @@ body.browser-open{overflow:auto;}
     <div class="rp-head" id="rp-drag-handle">
       <span class="rp-title" style="cursor:pointer;" onclick="toggleRightPanel()">Annotations &amp; Pins</span>
       <span id="annot-count" style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-right:4px;">0</span>
-      <button class="lp-head-btn" id="rp-pin-btn" onclick="togglePanelPin('right-panel','rp-pin-btn')" title="Pin to side">⬤</button>
+      <button class="lp-head-btn" id="rp-pin-btn" onclick="togglePanelPin('right-panel','rp-pin-btn')" title="Pin to side">□</button>
     </div>
     <div id="pin-table-body"></div>
     <div id="meas-section" style="display:none;">
@@ -381,82 +397,75 @@ body.browser-open{overflow:auto;}
     </div>
   </div>
 
-  <!-- Floating bottom toolbar -->
-  <div id="bottom-bar">
-    <!-- Title -->
-    <div style="display:flex;flex-direction:column;padding:0 8px;min-width:80px;max-width:170px;">
-      <span id="viewer-title" style="font-family:'DM Mono',monospace;font-size:11px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px;">—</span>
-      <span style="font-family:'DM Mono',monospace;font-size:8px;color:var(--accent);letter-spacing:.06em;font-weight:500;">v0.2.5</span>
-    </div>
-    <div class="tb-sep"></div>
-    <!-- Mode -->
-    <button class="tb-btn active" id="dm-orbit" onclick="setDesktopMode('orbit')" title="O">
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="9" ry="4"/><line x1="12" y1="3" x2="12" y2="21"/></svg>
-      <span class="tb-label">Orbit</span>
-    </button>
-    <button class="tb-btn" id="dm-meas" onclick="setDesktopMode('measure')" title="M">
-      <svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="8" x2="3" y2="16"/><line x1="21" y1="8" x2="21" y2="16"/></svg>
-      <span class="tb-label">Measure</span>
-    </button>
-    <button class="tb-btn" id="meas-height-btn" onclick="toggleMeasSubMode('height')" title="Height (Z-axis)" style="min-width:38px;color:#2196f3;">
-      <svg viewBox="0 0 24 24" style="stroke:#2196f3;"><line x1="12" y1="3" x2="12" y2="21"/><polyline points="8,7 12,3 16,7" fill="none"/><polyline points="8,17 12,21 16,17" fill="none"/><line x1="8" y1="12" x2="16" y2="12" stroke-dasharray="2,2"/></svg>
+  <!-- Sub-mode popup: appears above Measure button -->
+  <div id="meas-submode-popup" style="display:none;position:fixed;bottom:80px;left:50%;transform:translateX(-50%);z-index:125;display:none;align-items:center;gap:4px;padding:5px 8px;background:var(--surface);backdrop-filter:var(--blur);border:1px solid var(--border);border-radius:100px;box-shadow:0 4px 20px rgba(0,0,0,0.5);">
+    <button class="tb-btn" id="meas-height-btn" onclick="toggleMeasSubMode('height')" title="Height — drops to floor" style="min-width:36px;color:#2196f3;">
+      <svg viewBox="0 0 24 24" style="stroke:#2196f3;"><line x1="12" y1="3" x2="12" y2="21"/><polyline points="9,6 12,3 15,6" fill="none"/><polyline points="9,18 12,21 15,18" fill="none"/></svg>
       <span class="tb-label">Height</span>
     </button>
-    <button class="tb-btn" id="meas-width-btn" onclick="toggleMeasSubMode('width')" title="Width (X-axis)" style="min-width:38px;color:#f44336;">
-      <svg viewBox="0 0 24 24" style="stroke:#f44336;"><line x1="3" y1="12" x2="21" y2="12"/><polyline points="7,8 3,12 7,16" fill="none"/><polyline points="17,8 21,12 17,16" fill="none"/><line x1="12" y1="8" x2="12" y2="16" stroke-dasharray="2,2"/></svg>
+    <button class="tb-btn" id="meas-width-btn" onclick="toggleMeasSubMode('width')" title="Width — mirrors to centre" style="min-width:36px;color:#f44336;">
+      <svg viewBox="0 0 24 24" style="stroke:#f44336;"><line x1="3" y1="12" x2="21" y2="12"/><polyline points="6,9 3,12 6,15" fill="none"/><polyline points="18,9 21,12 18,15" fill="none"/></svg>
       <span class="tb-label">Width</span>
     </button>
-    <button class="tb-btn" id="dm-pin" onclick="setDesktopMode('pin')" title="P">
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><line x1="12" y1="12" x2="12" y2="21"/></svg>
-      <span class="tb-label">Pin</span>
-    </button>
-    <div class="tb-sep"></div>
-    <!-- Floor snap -->
-    <button class="tb-btn" id="meas-floor-btn" onclick="toggleMeasFloorSnap()">
-      <svg viewBox="0 0 24 24"><line x1="4" y1="20" x2="20" y2="20"/><line x1="12" y1="4" x2="12" y2="18"/><polyline points="8,14 12,18 16,14"/></svg>
-      <span class="tb-label">Floor</span>
-    </button>
-    <div class="tb-sep"></div>
-    <!-- Auto-rot -->
-    <button class="tb-btn" id="autorot-btn" onclick="toggleAutoRotate()">
+  </div>
+
+  <!-- TOP toolbar — secondary tools -->
+  <div id="top-bar" style="display:none;position:fixed;top:0;left:50%;transform:translateX(-50%);z-index:122;padding:4px 6px;background:var(--surface);backdrop-filter:var(--blur);border:1px solid var(--border);border-bottom-left-radius:10px;border-bottom-right-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,0.4);display:none;align-items:center;gap:1px;">
+    <button class="tb-btn" id="autorot-btn" onclick="toggleAutoRotate()" title="Auto-rotate">
       <svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 11-9-9"/><polyline points="21 3 21 9 15 9"/></svg>
-      <span class="tb-label">Auto-rot</span>
+      <span class="tb-label">Auto</span>
     </button>
-    <!-- Reset Rot -->
-    <button class="tb-btn" onclick="onResetRotation()">
+    <button class="tb-btn" onclick="onResetRotation()" title="Reset camera angle">
       <svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 109-9"/><polyline points="3 3 3 9 9 9"/></svg>
-      <span class="tb-label">Reset Rot</span>
+      <span class="tb-label">Cam</span>
     </button>
-    <!-- Full Reset -->
-    <button class="tb-btn" onclick="onResetTransform()">
+    <button class="tb-btn" onclick="onResetTransform()" title="Reset all">
       <svg viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
-      <span class="tb-label">Full Reset</span>
+      <span class="tb-label">Reset</span>
     </button>
     <div class="tb-sep"></div>
-    <!-- Hide all -->
-    <button class="tb-btn" id="hide-all-btn" onclick="toggleAllAnnotations()">
+    <button class="tb-btn" id="hide-all-btn" onclick="toggleAllAnnotations()" title="Hide/show all annotations">
       <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-      <span class="tb-label">👁 All</span>
+      <span class="tb-label">All</span>
     </button>
     <div class="tb-sep"></div>
-    <!-- PDF -->
-    <button class="tb-btn" onclick="exportPinReport()">
+    <button class="tb-btn" onclick="exportPinReport()" title="Export PDF">
       <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
       <span class="tb-label">PDF</span>
     </button>
-    <!-- Snapshot -->
-    <button class="tb-btn" onclick="onSnapshot()">
+    <button class="tb-btn" onclick="onSnapshot()" title="Snapshot">
       <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
-      <span class="tb-label">Snap</span>
+      <span class="tb-label">Shot</span>
     </button>
     <div class="tb-sep"></div>
-    <!-- Back -->
-    <button class="tb-btn" onclick="closeViewer()">
+    <button class="tb-btn" onclick="closeViewer()" title="Back to browser">
       <svg viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
       <span class="tb-label">Back</span>
     </button>
-    <button class="vr-btn" id="vr-btn" onclick="enterVR()" style="height:40px;margin-left:4px;font-size:10px;">⬡ VR</button>
-    <button id="ar-btn" class="vr-btn secondary" onclick="enterAR()" style="display:none;height:40px;font-size:10px;">⬡ AR</button>
+    <button class="vr-btn" id="vr-btn" onclick="enterVR()" style="height:32px;margin-left:4px;font-size:9px;padding:4px 10px;">⬡ VR</button>
+    <button id="ar-btn" class="vr-btn secondary" onclick="enterAR()" style="display:none;height:32px;font-size:9px;padding:4px 10px;">⬡ AR</button>
+  </div>
+
+  <!-- BOTTOM pill — Orbit | Measure | Pin only -->
+  <div id="bottom-bar" style="display:none;position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:122;align-items:center;gap:2px;padding:6px 10px;background:var(--surface);backdrop-filter:var(--blur);border:1px solid var(--border);border-radius:100px;box-shadow:0 8px 32px rgba(0,0,0,0.6);">
+    <!-- Title area -->
+    <div style="display:flex;flex-direction:column;padding:0 10px;min-width:90px;max-width:180px;border-right:1px solid var(--border);margin-right:4px;">
+      <span id="viewer-title" style="font-family:'DM Mono',monospace;font-size:11px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:170px;">—</span>
+      <span style="font-family:'DM Mono',monospace;font-size:8px;color:var(--accent);letter-spacing:.06em;font-weight:500;">v0.3</span>
+    </div>
+    <!-- 3 inspection mode buttons -->
+    <button class="tb-btn active" id="dm-orbit" onclick="setDesktopMode('orbit')" title="Orbit (O)" style="padding:8px 14px;">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="9" ry="4"/><line x1="12" y1="3" x2="12" y2="21"/></svg>
+      <span class="tb-label">Orbit</span>
+    </button>
+    <button class="tb-btn" id="dm-meas" onclick="setDesktopMode('measure')" title="Measure (M)" style="padding:8px 14px;">
+      <svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="8" x2="3" y2="16"/><line x1="21" y1="8" x2="21" y2="16"/></svg>
+      <span class="tb-label">Measure</span>
+    </button>
+    <button class="tb-btn" id="dm-pin" onclick="setDesktopMode('pin')" title="Pin (P)" style="padding:8px 14px;">
+      <svg viewBox="0 0 24 24"><rect x="9" y="4" width="6" height="6" rx="1"/><line x1="12" y1="10" x2="12" y2="20"/></svg>
+      <span class="tb-label">Pin</span>
+    </button>
   </div>
 </div>
 
@@ -548,7 +557,7 @@ function togglePanelPin(panelId, btnId) {
   if(!panel) return;
   _panelPinned[panelId]=!_panelPinned[panelId];
   panel.classList.toggle('pinned',_panelPinned[panelId]);
-  if(btn){btn.textContent=_panelPinned[panelId]?'⬤':'○';btn.style.opacity=_panelPinned[panelId]?'1':'0.7';}
+  if(btn){btn.textContent=_panelPinned[panelId]?'■':'□';btn.style.opacity=_panelPinned[panelId]?'1':'0.7';}
   if(_panelPinned[panelId]) {
     // Snap back to default pinned position
     if(panelId==='left-panel'){panel.style.left='14px';panel.style.top='14px';}
@@ -786,7 +795,7 @@ function buildSessionData() {
       addedAt: a.addedAt||Date.now()
     })),
     annotCount,
-    measurements: savedMeasurements.map(m=>({id:m.id,ptA:{x:m.ptA.x,y:m.ptA.y,z:m.ptA.z},ptB:{x:m.ptB.x,y:m.ptB.y,z:m.ptB.z},label:m.label,color:m.color||MEAS_COL_FREE})),
+    measurements: savedMeasurements.map(m=>({id:m.id,ptA:{x:m.ptA.x,y:m.ptA.y,z:m.ptA.z},ptB:{x:m.ptB.x,y:m.ptB.y,z:m.ptB.z},label:m.label,color:m.color||MEAS_COL_FREE,customLabel:m.customLabel||null})),
     measureCount,
     updatedAt: Date.now()
   };
@@ -852,7 +861,7 @@ function restoreSession(session) {
     const ptA = new THREE.Vector3(m.ptA.x, m.ptA.y, m.ptA.z);
     const mColor = m.color||MEAS_COL_FREE;
     const ptB = new THREE.Vector3(m.ptB.x, m.ptB.y, m.ptB.z);
-    _spawnMeasureLine(ptA, ptB, m.label, m.id||++measureCount, mColor);
+    const rec2=_spawnMeasureLine(ptA, ptB, m.label, m.id||++measureCount, mColor); if(m.customLabel) rec2.customLabel=m.customLabel;
   });
   const ac=document.getElementById('annot-count'); if(ac) ac.textContent=annotations.length;
   rebuildSidebar();
@@ -923,7 +932,7 @@ function updateMeasLabels() {
     div.style.display='block';
     div.style.left=(v.x*0.5+0.5)*r.width+r.left+'px';
     div.style.top=(-v.y*0.5+0.5)*r.height+r.top+'px';
-    div.textContent=m.label;
+    div.textContent=m.customLabel||m.label;
     // Apply measurement type colour to label
     if(m.color){
       const h='#'+m.color.toString(16).padStart(6,'0');
@@ -940,7 +949,7 @@ function updateMeasLabels() {
 // ════════════════════════════════════════════════════════════
 function showBrowser() {
   document.body.classList.add('browser-open');
-  document.getElementById('browser-screen').style.display='block';
+  document.getElementById('browser-screen').style.display='flex';
   const fb=document.getElementById('folder-badge'); if(fb) fb.textContent=config.folderId.slice(0,20)+'…';
   loadModels();
 }
@@ -1067,11 +1076,11 @@ async function renderThumb(fileId,name) {
 //  VIEWER OPEN / CLOSE
 // ════════════════════════════════════════════════════════════
 function openViewer(fileId,name) {
-  // Clean up any existing viewer fully before starting new one
-  if(viewerRenderer||loadedModel) {
+  if(viewerRenderer||loadedModel||viewerScene) {
+    // Hide the overlay while cleanup runs so user sees browser momentarily
     cleanupViewer();
-    // Give the cleanup a tick to finish before re-init
-    setTimeout(()=>_startViewer(fileId,name),120);
+    // Wait for GPU resources to fully release before creating new renderer
+    setTimeout(()=>_startViewer(fileId,name), 200);
   } else {
     _startViewer(fileId,name);
   }
@@ -1122,6 +1131,7 @@ function cleanupViewer() {
   annotations=[]; annotCount=0;
   savedMeasurements=[]; measureCount=0; measMovingId=null; measMovingEndpoint=null;
   pinMovingId=null; annotationsVisible=true; highlightedPinId=null;
+  if(viewerControls){try{viewerControls.dispose();}catch(e){}} // removes doc-level event listeners
   viewerScene=viewerCamera=viewerControls=loadedModel=modelRoot=sunLight=null;
   slicerPlane=slicerMesh=slicerGroup=null; slicerActive=false;
   hSlicePlane=vSlicePlane=null; hSliceActive=vSliceActive=false;
@@ -1129,11 +1139,14 @@ function cleanupViewer() {
   grabState.left=grabState.right=null;
   measureState={ptA:null,ptB:null,lineObj:null,sphereA:null,sphereB:null}; measurePhase=0;
   explodeAmount=0; explodeOrigins.clear();
-  vrMode='grab'; desktopMode='orbit'; currentFileId=null; loadedModel=null;
+  vrMode='grab'; desktopMode='orbit'; currentFileId=null;
   _lastThumbL=_lastThumbR=_prevFaceA=false;
   document.getElementById('vr-hud').style.display='none';
+  const vlogo=document.getElementById('viewer-logo'); if(vlogo) vlogo.style.display='none';
   const lp2=document.getElementById('left-panel'); if(lp2) lp2.style.display='none';
   const bb2=document.getElementById('bottom-bar'); if(bb2) bb2.style.display='none';
+  const tbar2=document.getElementById('top-bar'); if(tbar2) tbar2.style.display='none';
+  const smp=document.getElementById('meas-submode-popup'); if(smp) smp.style.display='none';
   const rp2=document.getElementById('right-panel'); if(rp2) rp2.style.display='none';
   const sb=document.getElementById('sidebar'); if(sb) sb.style.display='none';
   ['hslice-tog','vslice-tog'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=false;});
@@ -1262,6 +1275,64 @@ function onVSliceAngle(val) {
   vSliceAngle=parseFloat(val);
   const lbl=document.getElementById('vslice-ang-val'); if(lbl) lbl.textContent=Math.round(vSliceAngle)+'°';
   if(vSlicePlane&&vSliceActive){ _applyVSliceWithAngle(); applyAllClipping(); computeContour(vSlicePlane,vContourLine); }
+}
+
+function onHSliceOriginSlider(val) {
+  const t=parseFloat(val);
+  const lbl=document.getElementById('hslice-orig-val'); if(lbl) lbl.textContent=Math.round(t*100)+'%';
+  // Re-run the H position slider to rebuild anchor at new origin fraction
+  const sl=document.getElementById('hslice-sl'); if(sl) onHSliceSlider(sl.value);
+  // Override anchor Y using this additional offset within the slice range
+  if(hSlicePlane&&hSliceActive&&loadedModel){
+    const {minY,maxY}=getModelBounds();
+    const posT=parseFloat(document.getElementById('hslice-sl')?.value||0.5);
+    const planeY=minY+posT*(maxY-minY+0.05);
+    hSlicePt.set(0,planeY,0);
+    _applyHSliceWithAngle(); applyAllClipping(); computeContour(hSlicePlane,hContourLine);
+  }
+}
+function onVSliceOriginSlider(val) {
+  const t=parseFloat(val);
+  const lbl=document.getElementById('vslice-orig-val'); if(lbl) lbl.textContent=Math.round(t*100)+'%';
+  if(vSlicePlane&&vSliceActive&&loadedModel){
+    const {minX,maxX}=getModelBounds();
+    const posT=parseFloat(document.getElementById('vslice-sl')?.value||0.5);
+    const planeX=minX+posT*(maxX-minX);
+    vSlicePt.set(planeX,0,0);
+    _applyVSliceWithAngle(); applyAllClipping(); computeContour(vSlicePlane,vContourLine);
+  }
+}
+
+// ── Gimbal drag: drag the circle handle to move the slice position ──
+function initGimbalDrag() {
+  function setupGimbalDrag(circleId, isH) {
+    const el = document.getElementById(circleId); if(!el) return;
+    let dragging=false, startY=0, startX=0;
+    el.addEventListener('pointerdown', e=>{
+      dragging=true; startY=e.clientY; startX=e.clientX;
+      el.setPointerCapture(e.pointerId); e.stopPropagation();
+    });
+    el.addEventListener('pointermove', e=>{
+      if(!dragging) return;
+      const rect=viewerRenderer?.domElement?.getBoundingClientRect(); if(!rect) return;
+      if(isH) {
+        const dy=e.clientY-startY; startY=e.clientY;
+        const sl=document.getElementById('hslice-sl'); if(!sl) return;
+        const delta=-(dy/rect.height); // up = more cut
+        sl.value=Math.max(0,Math.min(1,parseFloat(sl.value)+delta));
+        onHSliceSlider(sl.value);
+      } else {
+        const dx=e.clientX-startX; startX=e.clientX;
+        const sl=document.getElementById('vslice-sl'); if(!sl) return;
+        const delta=(dx/rect.width);
+        sl.value=Math.max(0,Math.min(1,parseFloat(sl.value)+delta));
+        onVSliceSlider(sl.value);
+      }
+    });
+    el.addEventListener('pointerup', e=>{ dragging=false; });
+  }
+  setupGimbalDrag('gh-c', true);
+  setupGimbalDrag('gv-c', false);
 }
 function onHSliceSlider(val) {
   if(!hSlicePlane||!loadedModel||!hSliceActive) return;
@@ -1756,7 +1827,17 @@ function rebuildMeasTable() {
     const typeIcon=m.color===MEAS_COL_HEIGHT?'↕':m.color===MEAS_COL_WIDTH?'↔':'↗';
     const badge=document.createElement('span'); badge.style.cssText=`color:${colHex};font-size:10px;margin-right:3px;`; badge.textContent=typeIcon;
     const idSpan=document.createElement('span'); idSpan.className='meas-card-id'; idSpan.style.color=colHex; idSpan.textContent=`M${String(i+1).padStart(2,'0')}`;
-    const lbl=document.createElement('span'); lbl.className='meas-card-lbl'; lbl.style.color=colHex; lbl.textContent=m.label;
+    // Editable label — click to rename
+    const lbl=document.createElement('span'); lbl.className='meas-card-lbl'; lbl.style.color=colHex; lbl.style.cursor='text'; lbl.title='Click to rename';
+    lbl.textContent=m.customLabel||m.label;
+    lbl.onclick=(ev)=>{ev.stopPropagation();
+      const inp=document.createElement('input');
+      inp.value=m.customLabel||m.label;
+      inp.style.cssText=`background:rgba(255,255,255,0.06);border:1px solid ${colHex}55;border-radius:3px;color:${colHex};font-family:'DM Mono',monospace;font-size:10px;width:100%;outline:none;padding:1px 4px;`;
+      lbl.replaceWith(inp); inp.focus(); inp.select();
+      const done=()=>{ m.customLabel=inp.value||m.label; rebuildMeasTable(); saveSession(); };
+      inp.onblur=done; inp.onkeydown=e=>{if(e.key==='Enter')inp.blur();if(e.key==='Escape'){m.customLabel=null;inp.blur();}};
+    };
     const del=document.createElement('button'); del.className='ann-btn del'; del.textContent='✕';
     del.onclick=()=>{deleteMeasurement(m.id); rebuildMeasTable();};
     card.appendChild(badge); card.appendChild(idSpan); card.appendChild(lbl); card.appendChild(del);
@@ -2044,7 +2125,7 @@ async function exportPinReport() {
   // Footer
   pdf.setDrawColor(200,200,215); pdf.setLineWidth(0.15); pdf.line(14,PH-8,PW-14,PH-8);
   pdf.setFont('helvetica','normal'); pdf.setFontSize(6); pdf.setTextColor(150,150,170);
-  pdf.text(`VR.browser v0.2.5  ·  Exported ${new Date().toLocaleDateString()}`, 14, PH-3);
+  pdf.text(`VR.browser v0.3  ·  Exported ${new Date().toLocaleDateString()}`, 14, PH-3);
 
   pdf.save(`${modelName}-pin-report.pdf`);
 }
@@ -2116,6 +2197,8 @@ function setDesktopMode(mode, silent) {
   }
   const cw=document.getElementById('viewer-canvas-wrap');
   if(cw) cw.style.cursor=mode==='pin'?'crosshair':mode==='measure'?'cell':'grab';
+  const smp=document.getElementById('meas-submode-popup');
+  if(smp) smp.style.display=mode==='measure'?'flex':'none';
   if(mode!=='measure') resetMeasSubMode();
 }
 
@@ -2706,28 +2789,49 @@ function initViewer(fileId) {
     disc.renderOrder=-1;
     scene.add(disc);
   })(viewerScene);
-  // ── Floor grid: manual Float32 position+color for guaranteed vertex alignment ──
+  // ── Floor grid: multi-resolution infinite-feeling with radial fade ──
   gridGroup = new THREE.Group();
   (function(grp){
-    const STEPS=8, HALF=0.8, FADE=HALF*1.1;
+    // Three layers: 1cm (very faint), 10cm, 1m (brightest centre lines)
+    const FADE=2.4; // fade radius in metres
     const pos=[], col=[];
-    function ln(ax,ay,az,bx,by,bz){
+    function ln(ax,ay,az,bx,by,bz,bright){
       const dA=Math.sqrt(ax*ax+az*az)/FADE, dB=Math.sqrt(bx*bx+bz*bz)/FADE;
-      const a=Math.max(0,(1-dA)*0.8), b=Math.max(0,(1-dB)*0.8);
+      const a=Math.max(0,1-dA)*bright, b=Math.max(0,1-dB)*bright;
       pos.push(ax,ay,az, bx,by,bz);
       col.push(a,a,a,    b,b,b);
     }
-    const step=HALF/STEPS;
-    for(let i=-STEPS;i<=STEPS;i++){
-      const v=i*step;
-      ln(-HALF,0,v, HALF,0,v);
-      ln(v,0,-HALF, v,0,HALF);
+    const EXTENT=2.4; // half-extent
+    // 1cm grid (very faint, fine detail near centre only)
+    const CM_FADE=0.4, CM_BRIGHT=0.12;
+    for(let i=-40;i<=40;i++){
+      const v=i*0.01; if(v%0.1===0||Math.abs(v)>CM_FADE) continue;
+      ln(-CM_FADE,0,v, CM_FADE,0,v, CM_BRIGHT);
+      ln(v,0,-CM_FADE, v,0,CM_FADE, CM_BRIGHT);
     }
+    // 10cm grid (medium brightness)
+    for(let i=-24;i<=24;i++){
+      if(i===0) continue; // skip centre — drawn by 1m grid
+      const v=i*0.1;
+      ln(-EXTENT,0,v, EXTENT,0,v, 0.38);
+      ln(v,0,-EXTENT, v,0,EXTENT, 0.38);
+    }
+    // 1m grid (brighter)
+    for(let i=-2;i<=2;i++){
+      if(i===0) continue;
+      const v=i*1.0;
+      ln(-EXTENT,0,v, EXTENT,0,v, 0.65);
+      ln(v,0,-EXTENT, v,0,EXTENT, 0.65);
+    }
+    // Centre cross (strongest)
+    ln(-EXTENT,0,0, EXTENT,0,0, 0.85);
+    ln(0,0,-EXTENT, 0,0,EXTENT, 0.85);
+
     const geo=new THREE.BufferGeometry();
     geo.setAttribute('position',new THREE.BufferAttribute(new Float32Array(pos),3));
     geo.setAttribute('color',   new THREE.BufferAttribute(new Float32Array(col),3));
     grp.add(new THREE.LineSegments(geo,
-      new THREE.LineBasicMaterial({vertexColors:true,transparent:true,opacity:0.85,depthWrite:false})));
+      new THREE.LineBasicMaterial({vertexColors:true,transparent:true,opacity:0.9,depthWrite:false})));
   })(gridGroup);
   viewerScene.add(gridGroup);
 
@@ -2792,9 +2896,11 @@ function initViewer(fileId) {
         cacheExplodeOrigins();
         const ov=document.getElementById('loading-overlay'); if(ov) ov.classList.add('hidden');
         document.getElementById('left-panel').style.display='block';
+        const vlogo=document.getElementById('viewer-logo'); if(vlogo) vlogo.style.display='flex';
         initDraggablePanels();
         document.getElementById('bottom-bar').style.display='flex';
-        drawFloorCone();
+        const tbar=document.getElementById('top-bar'); if(tbar) tbar.style.display='flex';
+        drawFloorCone(); initGimbalDrag();
         rebuildSidebar();
         ['hslice-tog','vslice-tog'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=false;});
   ['hslice-ang','vslice-ang'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=0;});
