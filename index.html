@@ -18,7 +18,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 body.browser-open{overflow:auto;}
 
 /* ── BROWSER ── */
-#browser-screen{display:none;min-height:100vh;overflow-y:auto;}
+/* browser-screen display managed via JS */
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(13,13,16,0.95);backdrop-filter:var(--blur);z-index:10;}
 .topbar-left{display:flex;align-items:center;gap:14px;}
 .wordmark{font-family:'DM Mono',monospace;font-size:14px;font-weight:400;letter-spacing:-0.3px;}
@@ -224,35 +224,33 @@ body.browser-open{overflow:auto;}
 <body>
 
 <!-- BROWSER — full-screen overlay, slides down from top -->
-<div id="browser-screen" style="display:none;">
-  <!-- The actual drawer — slides from top, z above viewer -->
-  <div id="model-drawer" style="position:fixed;top:0;left:0;right:0;z-index:250;background:rgba(10,10,14,0.98);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);box-shadow:0 8px 40px rgba(0,0,0,0.7);transform:translateY(-100%);transition:transform 0.4s cubic-bezier(0.22,1,0.36,1);will-change:transform;max-height:85vh;display:flex;flex-direction:column;">
-    <!-- Drawer handle strip -->
-    <div id="drawer-handle-strip" style="display:flex;align-items:center;justify-content:space-between;padding:10px 20px;border-bottom:1px solid var(--border);flex-shrink:0;cursor:pointer;" onclick="toggleDrawer()">
-      <div style="display:flex;align-items:center;gap:12px;">
-        <svg width="18" height="18" viewBox="0 0 32 32" fill="none"><polygon points="16,3 28,10 28,22 16,29 4,22 4,10" fill="none" stroke="#c8f542" stroke-width="2.2" stroke-linejoin="round"/><line x1="10" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="22" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="12" y1="13" x2="20" y2="13" stroke="rgba(200,245,66,0.5)" stroke-width="1.2" stroke-linecap="round"/></svg>
-        <span style="font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;letter-spacing:.07em;color:#e4e4e0;text-transform:uppercase;">CAD Inspector <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--accent);font-weight:400;">v0.3.3</span></span>
-        <span style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);border:1px solid rgba(200,245,66,0.35);border-radius:4px;padding:2px 7px;">MODEL DRAWER</span>
-      </div>
-      <div style="display:flex;align-items:center;gap:10px;">
-        <span class="count-badge" id="count-badge">0 files</span>
-        <button class="btn-icon" onclick="event.stopPropagation();loadModels()" title="Refresh" style="padding:5px 10px;">↺</button>
-        <span id="drawer-chevron" style="font-family:'DM Mono',monospace;color:var(--muted);font-size:12px;">▲</span>
+<div id="browser-screen" style="position:fixed;inset:0;z-index:200;background:rgba(10,10,14,0.99);display:none;flex-direction:column;overflow:hidden;">
+
+  <!-- Top bar -->
+  <div style="display:flex;align-items:center;padding:0;background:rgba(8,8,12,1);border-bottom:1px solid var(--border);flex-shrink:0;">
+    <!-- Logo -->
+    <div style="display:flex;align-items:center;gap:10px;padding:12px 20px;border-right:1px solid var(--border);flex-shrink:0;">
+      <svg width="20" height="20" viewBox="0 0 32 32" fill="none"><polygon points="16,3 28,10 28,22 16,29 4,22 4,10" fill="none" stroke="#c8f542" stroke-width="2.2" stroke-linejoin="round"/><line x1="10" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="22" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="12" y1="13" x2="20" y2="13" stroke="rgba(200,245,66,0.5)" stroke-width="1.2" stroke-linecap="round"/></svg>
+      <div>
+        <div style="font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;letter-spacing:.07em;color:#e4e4e0;text-transform:uppercase;">CAD Inspector <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--accent);font-weight:400;letter-spacing:.06em;text-transform:none;">v0.3.4</span></div>
+        <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-top:1px;">3D CAD Model Review</div>
       </div>
     </div>
-    <!-- Model pills row -->
-    <div id="model-list-bar" style="display:flex;align-items:center;overflow-x:auto;gap:4px;padding:8px 16px;flex-shrink:0;scrollbar-width:none;border-bottom:1px solid var(--border);">
-      <span id="model-list-empty" style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);">Loading models…</span>
+    <!-- Model name pills -->
+    <div id="model-list-bar" style="flex:1;display:flex;align-items:center;overflow-x:auto;gap:4px;padding:8px 14px;scrollbar-width:none;">
+      <span id="model-list-empty" style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);">Loading…</span>
     </div>
-    <!-- Thumbnail grid -->
-    <div id="thumb-drawer" style="overflow-y:auto;padding:18px 20px;flex:1;">
-      <div id="thumb-drawer-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:12px;"></div>
+    <!-- Actions -->
+    <div style="display:flex;align-items:center;gap:8px;padding:0 16px;flex-shrink:0;border-left:1px solid var(--border);">
+      <span class="count-badge" id="count-badge">—</span>
+      <button class="btn-icon" onclick="loadModels()" title="Refresh models">↺</button>
     </div>
   </div>
-  <!-- Drawer tab — visible even when closed, click to open -->
-  <div id="drawer-tab" onclick="openDrawer()" style="position:fixed;top:0;left:50%;transform:translateX(-50%);z-index:251;background:rgba(10,10,14,0.95);border:1px solid var(--border);border-top:none;border-radius:0 0 10px 10px;padding:6px 24px;cursor:pointer;display:flex;align-items:center;gap:8px;box-shadow:0 4px 16px rgba(0,0,0,0.5);transition:top 0.4s;">
-    <span style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);">MODEL DRAWER</span>
-    <span style="color:var(--muted);font-size:10px;">▼</span>
+
+  <!-- Thumbnail grid -->
+  <div style="flex:1;overflow-y:auto;padding:24px 28px;">
+    <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:16px;">Select a model to inspect</div>
+    <div id="thumb-drawer-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:14px;"></div>
   </div>
 </div>
 
@@ -263,7 +261,7 @@ body.browser-open{overflow:auto;}
   <div id="viewer-logo" style="position:fixed;top:0;left:0;z-index:125;display:none;align-items:center;gap:10px;padding:10px 18px 10px 14px;background:rgba(13,13,16,0.7);backdrop-filter:blur(12px);border-bottom-right-radius:12px;border-bottom:1px solid var(--border);border-right:1px solid var(--border);">
     <svg width="18" height="18" viewBox="0 0 32 32" fill="none" style="flex-shrink:0;"><polygon points="16,3 28,10 28,22 16,29 4,22 4,10" fill="none" stroke="#c8f542" stroke-width="2.2" stroke-linejoin="round"/><line x1="10" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="22" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="12" y1="13" x2="20" y2="13" stroke="rgba(200,245,66,0.5)" stroke-width="1.2" stroke-linecap="round"/></svg>
     <div style="display:flex;flex-direction:column;gap:1px;">
-      <span style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;color:#e8e8e4;text-transform:uppercase;">CAD Inspector <span style="font-family:'DM Mono',monospace;font-size:8px;color:var(--accent);font-weight:400;letter-spacing:.06em;">v0.3.3</span></span>
+      <span style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;color:#e8e8e4;text-transform:uppercase;">CAD Inspector <span style="font-family:'DM Mono',monospace;font-size:8px;color:var(--accent);font-weight:400;letter-spacing:.06em;">v0.3.4</span></span>
       <span id="viewer-filename" style="font-family:'DM Mono',monospace;font-size:10px;color:#7a7a8a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px;"></span>
     </div>
   </div>
@@ -811,7 +809,7 @@ let highlightedPinId = null;
 // ════════════════════════════════════════════════════════════
 (function boot() {
   try { const tc=localStorage.getItem(THUMB_KEY); if(tc) thumbCache=JSON.parse(tc); } catch(e){}
-  showBrowser(); setTimeout(bounceDrawer,600);
+  showBrowser();
   // Keyboard shortcuts
   document.addEventListener('keydown', e => {
     if(e.target.tagName==='TEXTAREA'||e.target.tagName==='INPUT') return;
@@ -998,45 +996,10 @@ function updateMeasLabels() {
 //  BROWSER
 // ════════════════════════════════════════════════════════════
 
-// ── MODEL DRAWER ─────────────────────────────────────────────
-let _drawerOpen = false;
-function openDrawer() {
-  _drawerOpen=true;
-  document.getElementById('browser-screen').style.display='block';
-  const d=document.getElementById('model-drawer');
-  const tab=document.getElementById('drawer-tab');
-  const ch=document.getElementById('drawer-chevron');
-  if(d) d.style.transform='translateY(0)';
-  if(tab) tab.style.top='-60px'; // hide tab when open
-  if(ch) ch.textContent='▲';
-}
-function closeDrawer() {
-  _drawerOpen=false;
-  const d=document.getElementById('model-drawer');
-  const tab=document.getElementById('drawer-tab');
-  const ch=document.getElementById('drawer-chevron');
-  if(d) d.style.transform='translateY(-100%)';
-  if(tab) { tab.style.top='0'; }
-  if(ch) ch.textContent='▼';
-}
-function toggleDrawer() { _drawerOpen?closeDrawer():openDrawer(); }
-function bounceDrawer() {
-  // Bounce animation to grab attention on first load
-  const d=document.getElementById('model-drawer');
-  if(!d) return;
-  d.style.transition='transform 0.3s cubic-bezier(0.22,1,0.36,1)';
-  d.style.transform='translateY(80px)';
-  setTimeout(()=>{ d.style.transform='translateY(0)'; d.style.transition='transform 0.4s cubic-bezier(0.22,1,0.36,1)'; },300);
-  setTimeout(()=>{ d.style.transform='translateY(30px)'; },650);
-  setTimeout(()=>{ d.style.transform='translateY(0)'; },900);
-}
-
-// Show browser = open the drawer
+// ── BROWSER NAV ──────────────────────────────────────────────
 function showBrowser() {
-  document.body.classList.add('browser-open');
   document.getElementById('viewer-overlay').classList.remove('active');
-  document.getElementById('browser-screen').style.display='block';
-  openDrawer();
+  document.getElementById('browser-screen').style.display='flex';
   loadModels();
 }
 
@@ -1082,7 +1045,7 @@ function renderGrid(models) {
     pill.dataset.mid=model.id;
     pill.style.cssText='font-family:DM Mono,monospace;font-size:11px;padding:5px 14px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all 0.15s;';
     pill.textContent=name;
-    pill.onclick=()=>_selectModelPill(model.id, name, pill);
+    pill.onclick=()=>{ document.getElementById('browser-screen').style.display='none'; openViewer(model.id,name); };
     bar.appendChild(pill);
   });
 
@@ -1097,31 +1060,14 @@ function renderGrid(models) {
       card.innerHTML=`<div id="tw-${model.id}" style="height:90px;display:flex;align-items:center;justify-content:center;background:#111;"><span style="font-size:22px;opacity:0.2">⬡</span></div><div style="padding:6px 8px 8px;font-family:DM Mono,monospace;font-size:10px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${name}<span style="display:block;color:var(--muted);font-size:9px;">${sizeMB}</span></div>`;
       card.onmouseenter=()=>{ card.style.borderColor='rgba(200,245,66,0.4)'; card.style.transform='translateY(-2px)'; };
       card.onmouseleave=()=>{ card.style.borderColor='var(--border)'; card.style.transform=''; };
-      card.onclick=()=>{ closeDrawer(); setTimeout(()=>openViewer(model.id,name),150); };
+      card.onclick=()=>{ document.getElementById('browser-screen').style.display='none'; openViewer(model.id,name); };
       drawerGrid.appendChild(card);
       requestAnimationFrame(()=>renderThumb(model.id,name));
     });
   }
 }
 
-function _selectModelPill(id, name, pill) {
-  const drawer=document.getElementById('thumb-drawer');
-  if(!drawer) return;
-  // If clicking same pill again — toggle drawer closed
-  if(_activeModelPill===id && drawer.style.display!=='none') {
-    drawer.style.display='none'; _activeModelPill=null;
-    pill.style.background='transparent'; pill.style.color='var(--muted)'; pill.style.borderColor='var(--border)';
-    return;
-  }
-  // Deactivate previous pill
-  document.querySelectorAll('#model-list-bar button').forEach(b=>{
-    b.style.background='transparent'; b.style.color='var(--muted)'; b.style.borderColor='var(--border)';
-  });
-  // Activate this pill
-  pill.style.background='rgba(200,245,66,0.1)'; pill.style.color='var(--accent)'; pill.style.borderColor='rgba(200,245,66,0.35)';
-  _activeModelPill=id;
-  drawer.style.display='block';
-}
+function _selectModelPill(id,name,pill){ openViewer(id,name); }
 
 // ════════════════════════════════════════════════════════════
 //  THUMBNAILS
@@ -1178,7 +1124,7 @@ function _launchViewer(fileId, name) {
   const myToken = window._loadToken;
   currentFileId = fileId;
   // Hide browser, show viewer
-  document.getElementById('browser-screen').style.display='none';
+  const bs2=document.getElementById('browser-screen'); if(bs2) bs2.style.display='none';
   const vo = document.getElementById('viewer-overlay');
   vo.classList.add('active');
   document.getElementById('viewer-title').textContent = name;
@@ -1249,69 +1195,9 @@ function closeViewer() {
   document.getElementById('viewer-overlay').classList.remove('active');
   _destroyViewer();
   document.body.classList.add('browser-open');
-  const bs=document.getElementById('browser-screen'); if(bs) bs.style.display='flex';
+  showBrowser();
 }
-function cleanupViewer() {
-  closePinPopup(); closeMeasPopup(); closeConfirm();
-  measLabelDivs.forEach(div=>div.remove()); measLabelDivs.clear();
-  // Clean up zebra analysis objects
-  vrGroundSnap=true; vrPalmMenuVisible=false; frozenContourLine=null;
-  const pm=document.getElementById('vr-palm-menu'); if(pm) pm.style.display='none';
-  const arc=document.getElementById('ar-mobile-controls'); if(arc) arc.style.display='none';
-  zebraObjects.forEach(o=>viewerScene?.remove(o)); zebraObjects=[];
-  if(zebraGridMesh){viewerScene?.remove(zebraGridMesh);zebraGridMesh=null;}
-  if(zebraTexture){zebraTexture.dispose();zebraTexture=null;}
-  gridOverlayObjects.forEach(o=>viewerScene?.remove(o)); gridOverlayObjects=[];
-  gridOverlayActive=false; gridGroup=null;
-  zebraMode='off'; autoRotate=false; texMode='tex'; allAnnotationsVisible=true;
-  savedMaterials.clear();
-  if(viewerRenderer){
-    if(viewerRenderer.xr?.isPresenting) viewerRenderer.xr.getSession()?.end();
-    viewerRenderer.setAnimationLoop(null);
-    viewerRenderer.dispose(); viewerRenderer=null;
-  }
-  document.getElementById('viewer-canvas-wrap').querySelector('canvas')?.remove();
-  annotations.forEach(a=>{viewerScene?.remove(a.mesh);viewerScene?.remove(a.stem);a.labelDiv?.remove();});
-  annotations=[]; annotCount=0;
-  savedMeasurements=[]; measureCount=0; measMovingId=null; measMovingEndpoint=null;
-  pinMovingId=null; annotationsVisible=true; highlightedPinId=null;
-  if(viewerControls){try{viewerControls.dispose();}catch(e){}} // removes doc-level event listeners
-  viewerScene=viewerCamera=viewerControls=loadedModel=modelRoot=sunLight=null;
-  slicerPlane=slicerMesh=slicerGroup=null; slicerActive=false;
-  hSlicePlane=vSlicePlane=null; hSliceActive=vSliceActive=false;
-  hContourLine=vContourLine=null; laserLine=laserDot=null;
-  grabState.left=grabState.right=null;
-  measureState={ptA:null,ptB:null,lineObj:null,sphereA:null,sphereB:null}; measurePhase=0;
-  explodeAmount=0; explodeOrigins.clear();
-  vrMode='grab'; desktopMode='orbit'; currentFileId=null;
-  _lastThumbL=_lastThumbR=_prevFaceA=false;
-  document.getElementById('vr-hud').style.display='none';
-  const vlogo=document.getElementById('viewer-logo'); if(vlogo) vlogo.style.display='none';
-  const lp2=document.getElementById('left-panel'); if(lp2) lp2.style.display='none';
-  const bb2=document.getElementById('bottom-bar'); if(bb2) bb2.style.display='none';
-  const tbar2=document.getElementById('top-bar'); if(tbar2) tbar2.style.display='none';
-  const smp=document.getElementById('meas-submode-popup'); if(smp) smp.style.display='none';
-  const etb=document.getElementById('exp-toolbox'); if(etb) etb.style.display='none';
-  const elb=document.getElementById('exp-lab-btn'); if(elb) elb.classList.remove('active');
-  const mtb=document.getElementById('miss-toolbox'); if(mtb) mtb.style.display='none';
-  const mlb=document.getElementById('miss-lab-btn'); if(mlb) mlb.classList.remove('active');
-  _expHeatMeshes=[]; if(_expSilEdges){_expSilEdges.remove();_expSilEdges=null;} _expGhostMesh=null;
-  missClearSymmetry(); _missExplodeOrigins.clear(); _missChainPts=[]; _missChainActive=false; _missChainObjs=[]; _missBOMMode=false; _missSFMode=false;
-  const rp2=document.getElementById('right-panel'); if(rp2) rp2.style.display='none';
-  const sb=document.getElementById('sidebar'); if(sb) sb.style.display='none';
-  ['hslice-tog','vslice-tog'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=false;});
-  ['hslice-ang','vslice-ang','hslice-orig','vslice-orig'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=0.5;});
-  const horl=document.getElementById('hslice-orig-val'); if(horl) horl.textContent='50%';
-  const vorl=document.getElementById('vslice-orig-val'); if(vorl) vorl.textContent='50%';
-  hSliceAngle=0; vSliceAngle=0; hSlicePt.set(0,0,0); vSlicePt.set(0,0,0);
-  ['hslice-ang','vslice-ang'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=0;});
-  const hav=document.getElementById('hslice-ang-val'); if(hav) hav.textContent='0°';
-  const vav=document.getElementById('vslice-ang-val'); if(vav) vav.textContent='0°';
-  ['hslice-sl','vslice-sl'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=0.5;});
-  setDesktopMode('orbit',true);
-  rebuildSidebar();
-  measureSubMode='free'; resetMeasSubMode();
-}
+function cleanupViewer() { _destroyViewer(); }
 
 // ════════════════════════════════════════════════════════════
 //  SLICER — VR: tiny invisible blade, bright dot at tip
@@ -2340,7 +2226,7 @@ async function exportPinReport() {
   // Footer
   pdf.setDrawColor(200,200,215); pdf.setLineWidth(0.15); pdf.line(14,PH-8,PW-14,PH-8);
   pdf.setFont('helvetica','normal'); pdf.setFontSize(6); pdf.setTextColor(150,150,170);
-  pdf.text(`VR.browser v0.3.3  ·  Exported ${new Date().toLocaleDateString()}`, 14, PH-3);
+  pdf.text(`VR.browser v0.3.4  ·  Exported ${new Date().toLocaleDateString()}`, 14, PH-3);
 
   pdf.save(`${modelName}-pin-report.pdf`);
 }
@@ -3584,9 +3470,7 @@ function _buildViewer(fileId, name, myToken) { function initViewer(fileId){
         initDraggablePanels();
         document.getElementById('bottom-bar').style.display='flex';
         const tbar=document.getElementById('top-bar'); if(tbar) tbar.style.display='flex';
-        // Show drawer tab so user can load other models
-        document.getElementById('browser-screen').style.display='block';
-        closeDrawer();
+        // Browser is hidden while viewing
         drawFloorCone(); initGimbalDrag();
         rebuildSidebar();
         ['hslice-tog','vslice-tog'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=false;});
