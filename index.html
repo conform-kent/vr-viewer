@@ -164,11 +164,11 @@ body.browser-open{overflow:auto;}
 .tb-btn svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;display:block;}
 .tb-btn .tb-label{font-size:7px;letter-spacing:.04em;text-transform:uppercase;line-height:1;margin-top:1px;}
 .tb-btn:hover{background:rgba(255,255,255,0.07);color:var(--text);}
-.tb-btn.active{background:rgba(200,245,66,0.12);color:var(--accent);}
-.tb-btn.active-measure{background:rgba(245,161,66,0.12);color:var(--warn);}
+.tb-btn.active{background:rgba(200,245,66,0.15);color:var(--accent);border-radius:50%!important;}
+.tb-btn.active-measure{background:rgba(245,161,66,0.15);color:var(--warn);border-radius:50%!important;}
 .tb-btn.active-height{background:rgba(33,150,243,0.2)!important;border:1px solid rgba(33,150,243,0.5)!important;}
 .tb-btn.active-width{background:rgba(244,67,54,0.2)!important;border:1px solid rgba(244,67,54,0.5)!important;}
-.tb-btn.active-pin{background:rgba(245,66,66,0.12);color:var(--danger);}
+.tb-btn.active-pin{background:rgba(245,66,66,0.15);color:var(--danger);border-radius:50%!important;}
 .tb-sep{width:1px;height:20px;background:rgba(255,255,255,0.07);margin:0 2px;flex-shrink:0;}
 .vr-btn{background:var(--accent);color:#0a0a0b;border:none;border-radius:20px;padding:6px 12px;font-family:'DM Mono',monospace;font-size:10px;font-weight:500;cursor:pointer;transition:opacity 0.15s;white-space:nowrap;height:34px;}
 .vr-btn:hover{opacity:0.82;}
@@ -224,27 +224,35 @@ body.browser-open{overflow:auto;}
 <body>
 
 <!-- BROWSER — full-screen overlay, slides down from top -->
-<div id="browser-screen" style="position:fixed;inset:0;z-index:200;background:rgba(13,13,16,0.97);display:none;flex-direction:column;overflow:hidden;">
-  <!-- Top bar -->
-  <div style="display:flex;align-items:center;gap:0;background:rgba(10,10,14,1);border-bottom:1px solid var(--border);flex-shrink:0;">
-    <!-- Logo -->
-    <div style="display:flex;align-items:center;gap:10px;padding:12px 20px;border-right:1px solid var(--border);flex-shrink:0;">
-      <svg width="20" height="20" viewBox="0 0 32 32" fill="none"><polygon points="16,3 28,10 28,22 16,29 4,22 4,10" fill="none" stroke="#c8f542" stroke-width="2.2" stroke-linejoin="round"/><line x1="10" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="22" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="12" y1="13" x2="20" y2="13" stroke="rgba(200,245,66,0.5)" stroke-width="1.2" stroke-linecap="round"/></svg>
-      <span style="font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;letter-spacing:.07em;color:#e8e8e4;text-transform:uppercase;">CAD Inspector <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--accent);font-weight:400;letter-spacing:.06em;text-transform:none;">v0.3.2</span></span>
+<div id="browser-screen" style="display:none;">
+  <!-- The actual drawer — slides from top, z above viewer -->
+  <div id="model-drawer" style="position:fixed;top:0;left:0;right:0;z-index:250;background:rgba(10,10,14,0.98);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);box-shadow:0 8px 40px rgba(0,0,0,0.7);transform:translateY(-100%);transition:transform 0.4s cubic-bezier(0.22,1,0.36,1);will-change:transform;max-height:85vh;display:flex;flex-direction:column;">
+    <!-- Drawer handle strip -->
+    <div id="drawer-handle-strip" style="display:flex;align-items:center;justify-content:space-between;padding:10px 20px;border-bottom:1px solid var(--border);flex-shrink:0;cursor:pointer;" onclick="toggleDrawer()">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <svg width="18" height="18" viewBox="0 0 32 32" fill="none"><polygon points="16,3 28,10 28,22 16,29 4,22 4,10" fill="none" stroke="#c8f542" stroke-width="2.2" stroke-linejoin="round"/><line x1="10" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="22" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="12" y1="13" x2="20" y2="13" stroke="rgba(200,245,66,0.5)" stroke-width="1.2" stroke-linecap="round"/></svg>
+        <span style="font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;letter-spacing:.07em;color:#e4e4e0;text-transform:uppercase;">CAD Inspector <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--accent);font-weight:400;">v0.3.3</span></span>
+        <span style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);border:1px solid rgba(200,245,66,0.35);border-radius:4px;padding:2px 7px;">MODEL DRAWER</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span class="count-badge" id="count-badge">0 files</span>
+        <button class="btn-icon" onclick="event.stopPropagation();loadModels()" title="Refresh" style="padding:5px 10px;">↺</button>
+        <span id="drawer-chevron" style="font-family:'DM Mono',monospace;color:var(--muted);font-size:12px;">▲</span>
+      </div>
     </div>
-    <!-- Model list pills -->
-    <div id="model-list-bar" style="flex:1;display:flex;align-items:center;overflow-x:auto;gap:3px;padding:7px 12px;scrollbar-width:none;-webkit-overflow-scrolling:touch;">
-      <span id="model-list-empty" style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);padding:4px 8px;">Loading…</span>
+    <!-- Model pills row -->
+    <div id="model-list-bar" style="display:flex;align-items:center;overflow-x:auto;gap:4px;padding:8px 16px;flex-shrink:0;scrollbar-width:none;border-bottom:1px solid var(--border);">
+      <span id="model-list-empty" style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);">Loading models…</span>
     </div>
-    <button class="btn-icon" onclick="loadModels()" style="margin:6px 12px;flex-shrink:0;" title="Refresh">↺</button>
+    <!-- Thumbnail grid -->
+    <div id="thumb-drawer" style="overflow-y:auto;padding:18px 20px;flex:1;">
+      <div id="thumb-drawer-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:12px;"></div>
+    </div>
   </div>
-  <!-- Thumbnail grid — fills remaining space -->
-  <div id="thumb-drawer" style="flex:1;overflow-y:auto;padding:20px 24px;">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-      <span style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);">Models in folder</span>
-      <span class="count-badge" id="count-badge">0 files</span>
-    </div>
-    <div id="thumb-drawer-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;"></div>
+  <!-- Drawer tab — visible even when closed, click to open -->
+  <div id="drawer-tab" onclick="openDrawer()" style="position:fixed;top:0;left:50%;transform:translateX(-50%);z-index:251;background:rgba(10,10,14,0.95);border:1px solid var(--border);border-top:none;border-radius:0 0 10px 10px;padding:6px 24px;cursor:pointer;display:flex;align-items:center;gap:8px;box-shadow:0 4px 16px rgba(0,0,0,0.5);transition:top 0.4s;">
+    <span style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);">MODEL DRAWER</span>
+    <span style="color:var(--muted);font-size:10px;">▼</span>
   </div>
 </div>
 
@@ -255,7 +263,7 @@ body.browser-open{overflow:auto;}
   <div id="viewer-logo" style="position:fixed;top:0;left:0;z-index:125;display:none;align-items:center;gap:10px;padding:10px 18px 10px 14px;background:rgba(13,13,16,0.7);backdrop-filter:blur(12px);border-bottom-right-radius:12px;border-bottom:1px solid var(--border);border-right:1px solid var(--border);">
     <svg width="18" height="18" viewBox="0 0 32 32" fill="none" style="flex-shrink:0;"><polygon points="16,3 28,10 28,22 16,29 4,22 4,10" fill="none" stroke="#c8f542" stroke-width="2.2" stroke-linejoin="round"/><line x1="10" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="22" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="12" y1="13" x2="20" y2="13" stroke="rgba(200,245,66,0.5)" stroke-width="1.2" stroke-linecap="round"/></svg>
     <div style="display:flex;flex-direction:column;gap:1px;">
-      <span style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;color:#e8e8e4;text-transform:uppercase;">CAD Inspector <span style="font-family:'DM Mono',monospace;font-size:8px;color:var(--accent);font-weight:400;letter-spacing:.06em;">v0.3.2</span></span>
+      <span style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;color:#e8e8e4;text-transform:uppercase;">CAD Inspector <span style="font-family:'DM Mono',monospace;font-size:8px;color:var(--accent);font-weight:400;letter-spacing:.06em;">v0.3.3</span></span>
       <span id="viewer-filename" style="font-family:'DM Mono',monospace;font-size:10px;color:#7a7a8a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px;"></span>
     </div>
   </div>
@@ -490,15 +498,15 @@ body.browser-open{overflow:auto;}
   <div id="bottom-bar" style="display:none;position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:122;align-items:center;gap:2px;padding:6px 10px;background:var(--surface);backdrop-filter:var(--blur);border:1px solid var(--border);border-radius:100px;box-shadow:0 8px 32px rgba(0,0,0,0.6);">
     <span id="viewer-title" style="display:none;position:absolute;pointer-events:none;" aria-hidden="true">—</span>
     <!-- 3 inspection mode buttons -->
-    <button class="tb-btn active" id="dm-orbit" onclick="setDesktopMode('orbit')" title="Orbit (O)" style="padding:8px 14px;">
+    <button class="tb-btn active" id="dm-orbit" onclick="setDesktopMode('orbit')" title="Orbit (O)" style="padding:8px;width:44px;height:44px;">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="9" ry="4"/><line x1="12" y1="3" x2="12" y2="21"/></svg>
       <span class="tb-label">Orbit</span>
     </button>
-    <button class="tb-btn" id="dm-meas" onclick="setDesktopMode('measure')" title="Measure (M)" style="padding:8px 14px;">
+    <button class="tb-btn" id="dm-meas" onclick="setDesktopMode('measure')" title="Measure (M)" style="padding:8px;width:44px;height:44px;">
       <svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="8" x2="3" y2="16"/><line x1="21" y1="8" x2="21" y2="16"/></svg>
       <span class="tb-label">Measure</span>
     </button>
-    <button class="tb-btn" id="dm-pin" onclick="setDesktopMode('pin')" title="Pin (P)" style="padding:8px 14px;">
+    <button class="tb-btn" id="dm-pin" onclick="setDesktopMode('pin')" title="Pin (P)" style="padding:8px;width:44px;height:44px;">
       <svg viewBox="0 0 24 24"><rect x="9" y="4" width="6" height="6" rx="1"/><line x1="12" y1="10" x2="12" y2="20"/></svg>
       <span class="tb-label">Pin</span>
     </button>
@@ -803,7 +811,7 @@ let highlightedPinId = null;
 // ════════════════════════════════════════════════════════════
 (function boot() {
   try { const tc=localStorage.getItem(THUMB_KEY); if(tc) thumbCache=JSON.parse(tc); } catch(e){}
-  showBrowser();
+  showBrowser(); setTimeout(bounceDrawer,600);
   // Keyboard shortcuts
   document.addEventListener('keydown', e => {
     if(e.target.tagName==='TEXTAREA'||e.target.tagName==='INPUT') return;
@@ -989,13 +997,49 @@ function updateMeasLabels() {
 // ════════════════════════════════════════════════════════════
 //  BROWSER
 // ════════════════════════════════════════════════════════════
+
+// ── MODEL DRAWER ─────────────────────────────────────────────
+let _drawerOpen = false;
+function openDrawer() {
+  _drawerOpen=true;
+  document.getElementById('browser-screen').style.display='block';
+  const d=document.getElementById('model-drawer');
+  const tab=document.getElementById('drawer-tab');
+  const ch=document.getElementById('drawer-chevron');
+  if(d) d.style.transform='translateY(0)';
+  if(tab) tab.style.top='-60px'; // hide tab when open
+  if(ch) ch.textContent='▲';
+}
+function closeDrawer() {
+  _drawerOpen=false;
+  const d=document.getElementById('model-drawer');
+  const tab=document.getElementById('drawer-tab');
+  const ch=document.getElementById('drawer-chevron');
+  if(d) d.style.transform='translateY(-100%)';
+  if(tab) { tab.style.top='0'; }
+  if(ch) ch.textContent='▼';
+}
+function toggleDrawer() { _drawerOpen?closeDrawer():openDrawer(); }
+function bounceDrawer() {
+  // Bounce animation to grab attention on first load
+  const d=document.getElementById('model-drawer');
+  if(!d) return;
+  d.style.transition='transform 0.3s cubic-bezier(0.22,1,0.36,1)';
+  d.style.transform='translateY(80px)';
+  setTimeout(()=>{ d.style.transform='translateY(0)'; d.style.transition='transform 0.4s cubic-bezier(0.22,1,0.36,1)'; },300);
+  setTimeout(()=>{ d.style.transform='translateY(30px)'; },650);
+  setTimeout(()=>{ d.style.transform='translateY(0)'; },900);
+}
+
+// Show browser = open the drawer
 function showBrowser() {
   document.body.classList.add('browser-open');
   document.getElementById('viewer-overlay').classList.remove('active');
-  document.getElementById('browser-screen').style.display='flex';
-  const fb=document.getElementById('folder-badge'); if(fb) fb.textContent=config.folderId.slice(0,20)+'…';
+  document.getElementById('browser-screen').style.display='block';
+  openDrawer();
   loadModels();
 }
+
 
 async function loadModels() {
   // Show spinner in the model-list-bar while loading
@@ -1053,7 +1097,7 @@ function renderGrid(models) {
       card.innerHTML=`<div id="tw-${model.id}" style="height:90px;display:flex;align-items:center;justify-content:center;background:#111;"><span style="font-size:22px;opacity:0.2">⬡</span></div><div style="padding:6px 8px 8px;font-family:DM Mono,monospace;font-size:10px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${name}<span style="display:block;color:var(--muted);font-size:9px;">${sizeMB}</span></div>`;
       card.onmouseenter=()=>{ card.style.borderColor='rgba(200,245,66,0.4)'; card.style.transform='translateY(-2px)'; };
       card.onmouseleave=()=>{ card.style.borderColor='var(--border)'; card.style.transform=''; };
-      card.onclick=()=>{ document.getElementById('thumb-drawer').style.display='none'; openViewer(model.id,name); };
+      card.onclick=()=>{ closeDrawer(); setTimeout(()=>openViewer(model.id,name),150); };
       drawerGrid.appendChild(card);
       requestAnimationFrame(()=>renderThumb(model.id,name));
     });
@@ -1118,29 +1162,79 @@ async function renderThumb(fileId,name) {
 // ════════════════════════════════════════════════════════════
 //  VIEWER OPEN / CLOSE
 // ════════════════════════════════════════════════════════════
-function openViewer(fileId,name) {
+function openViewer(fileId, name) {
   _saveModelForGhost();
-  // Abort any in-progress load by bumping generation
-  window._viewerGen=(window._viewerGen||0)+1;
-  if(viewerRenderer||loadedModel||viewerScene) {
-    // Hide the overlay while cleanup runs so user sees browser momentarily
-    cleanupViewer();
-    // Wait for GPU resources to fully release before creating new renderer
-    setTimeout(()=>_startViewer(fileId,name), 200);
+  // If a viewer is running, destroy it completely before starting fresh
+  if(window._viewerActive) {
+    _destroyViewer();
+    setTimeout(()=>_launchViewer(fileId,name), 300);
   } else {
-    _startViewer(fileId,name);
+    _launchViewer(fileId, name);
   }
 }
-function _startViewer(fileId,name) {
-  currentFileId=fileId;
-  const bs=document.getElementById('browser-screen'); if(bs) bs.style.display='none';
-  document.getElementById('viewer-overlay').classList.add('active');
-  document.getElementById('viewer-title').textContent=name;
-  // Store filename separately, shown under logo
-  const fn=document.getElementById('viewer-filename'); if(fn) fn.textContent=name;
+function _launchViewer(fileId, name) {
+  window._viewerActive = true;
+  window._loadToken = (window._loadToken||0)+1;
+  const myToken = window._loadToken;
+  currentFileId = fileId;
+  // Hide browser, show viewer
+  document.getElementById('browser-screen').style.display='none';
+  const vo = document.getElementById('viewer-overlay');
+  vo.classList.add('active');
+  document.getElementById('viewer-title').textContent = name;
+  const fn = document.getElementById('viewer-filename'); if(fn) fn.textContent = name;
   document.getElementById('loading-overlay').classList.remove('hidden');
-  document.getElementById('loading-label').textContent='Loading model…';
-  requestAnimationFrame(()=>requestAnimationFrame(()=>initViewer(fileId)));
+  document.getElementById('loading-label').textContent = 'Loading model…';
+  // Double rAF ensures canvas has correct dimensions
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    if(window._loadToken!==myToken) return;
+    _buildViewer(fileId, name, myToken);
+  }));
+}
+function _destroyViewer() {
+  window._viewerActive = false;
+  window._loadToken = (window._loadToken||0)+1; // cancel any pending loads
+  closePinPopup?.(); closeMeasPopup?.(); closeConfirm?.();
+  measLabelDivs.forEach(d=>d.remove()); measLabelDivs.clear();
+  zebraObjects.forEach(o=>viewerScene?.remove(o)); zebraObjects=[];
+  if(zebraGridMesh){viewerScene?.remove(zebraGridMesh);zebraGridMesh=null;}
+  if(zebraTexture){zebraTexture.dispose();zebraTexture=null;}
+  gridOverlayObjects.forEach(o=>viewerScene?.remove(o)); gridOverlayObjects=[];
+  gridOverlayActive=false; gridGroup=null;
+  zebraMode='off'; autoRotate=false; texMode='tex'; allAnnotationsVisible=true;
+  savedMaterials.clear();
+  if(viewerRenderer){
+    if(viewerRenderer.xr?.isPresenting){try{viewerRenderer.xr.getSession()?.end();}catch(e){}}
+    viewerRenderer.setAnimationLoop(null);
+    try{viewerRenderer.dispose();}catch(e){}
+    viewerRenderer=null;
+  }
+  document.getElementById('viewer-canvas-wrap').querySelector('canvas')?.remove();
+  annotations.forEach(a=>{viewerScene?.remove(a.mesh);viewerScene?.remove(a.stem);a.labelDiv?.remove();});
+  annotations=[]; annotCount=0;
+  savedMeasurements=[]; measureCount=0; measMovingId=null; measMovingEndpoint=null;
+  pinMovingId=null; annotationsVisible=true; highlightedPinId=null;
+  if(viewerControls){try{viewerControls.dispose();}catch(e){} viewerControls=null;}
+  viewerScene=null; viewerCamera=null; loadedModel=null; modelRoot=null; sunLight=null;
+  slicerPlane=slicerMesh=slicerGroup=null; slicerActive=false;
+  hSlicePlane=vSlicePlane=null; hSliceActive=vSliceActive=false;
+  hContourLine=vContourLine=null; laserLine=laserDot=null;
+  grabState.left=grabState.right=null;
+  measureState={ptA:null,ptB:null,lineObj:null,sphereA:null,sphereB:null}; measurePhase=0;
+  explodeAmount=0; explodeOrigins.clear();
+  vrMode='grab'; desktopMode='orbit'; currentFileId=null;
+  _missExplodeOrigins.clear();
+  missClearSymmetry?.();
+  // Hide all panels
+  ['left-panel','bottom-bar','top-bar','right-panel','viewer-logo',
+   'meas-submode-popup','vr-hud'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.style.display='none';
+  });
+  ['hslice-tog','vslice-tog'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=false;});
+  hSliceAngle=0; vSliceAngle=0; hSlicePt.set(0,0,0); vSlicePt.set(0,0,0);
+  setDesktopMode('orbit',true);
+  rebuildSidebar?.();
+  measureSubMode='free'; resetMeasSubMode?.();
 }
 
 // Open directly in AR mode — used by the "Open in AR" card button on mobile
@@ -1153,9 +1247,9 @@ function closeViewer() {
   closePinPopup();
   saveSession();
   document.getElementById('viewer-overlay').classList.remove('active');
+  _destroyViewer();
   document.body.classList.add('browser-open');
   const bs=document.getElementById('browser-screen'); if(bs) bs.style.display='flex';
-  cleanupViewer();
 }
 function cleanupViewer() {
   closePinPopup(); closeMeasPopup(); closeConfirm();
@@ -1547,24 +1641,21 @@ function onExplodeSlider(t) {
   const lp=document.getElementById('explode-val-lp'); if(lp) lp.textContent=Math.round(t*100)+'%';
   if(!loadedModel) return;
   if(!_missExplodeOrigins.size) missBuildExplode();
-  if(!_missExplodeOrigins.size) return; // nothing to explode
-  // Compute bounding box centre of entire model in world space
-  const worldBox=new THREE.Box3().setFromObject(loadedModel);
-  const ctr=worldBox.getCenter(new THREE.Vector3());
+  if(!_missExplodeOrigins.size) return;
+  // Compute model-space bounding box centre
+  const box=new THREE.Box3().setFromObject(loadedModel);
+  const ctr=box.getCenter(new THREE.Vector3());
+  loadedModel.worldToLocal(ctr); // convert to modelRoot local space if needed
   loadedModel.traverse(node=>{
     if(!node.isMesh) return;
     const orig=_missExplodeOrigins.get(node.uuid); if(!orig) return;
-    // Direction from centre to original mesh world position
-    const meshWorldOrig=orig.clone(); // already stored in world space
-    const dir=meshWorldOrig.clone().sub(ctr);
+    if(t<=0){ node.position.copy(orig); return; }
+    // Direction in parent's local space
+    const dir=orig.clone().sub(ctr);
     dir.y=Math.max(0,dir.y); // never down
-    const dist=dir.length()||0.001;
-    dir.multiplyScalar(1/dist);
-    // Convert back to local space
-    const newWorldPos=meshWorldOrig.clone().addScaledVector(dir, t*(0.2+dist));
-    const newLocal=node.parent ? node.parent.worldToLocal(newWorldPos.clone()) : newWorldPos;
-    if(t===0){ node.position.copy(orig.localOrig||orig); }
-    else { node.position.copy(newLocal); }
+    if(dir.length()<0.0001) dir.set(0,1,0); // fallback upward
+    dir.normalize();
+    node.position.copy(orig).addScaledVector(dir, t*0.5);
   });
 }
 function makeZebraTexture(h){return null;}
@@ -1959,7 +2050,7 @@ function highlightPin(id) {
 function buildMeasureObjects(scene) {
   measureState.lineObj = new THREE.LineSegments(
     new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(),new THREE.Vector3()]),
-    new THREE.LineDashedMaterial({color:0xf5a142,dashSize:0.04,gapSize:0.025}));
+    new THREE.LineDashedMaterial({color:0xf5a142,dashSize:0.018,gapSize:0.010}));
   measureState.lineObj.visible=false; scene.add(measureState.lineObj);
   const smat=new THREE.MeshBasicMaterial({color:0xf5a142}), sgeo=new THREE.SphereGeometry(0.008,8,8);
   measureState.sphereA=new THREE.Mesh(sgeo,smat.clone()); measureState.sphereA.visible=false;
@@ -1969,17 +2060,26 @@ function buildMeasureObjects(scene) {
 
 // Spawn a finalised measurement — tracks Three.js objects for later deletion/move
 function _makeDimMarker(col) {
-  // Inward-pointing cone (triangle in 3D) — 0.022 radius, 0.04 height
-  const coneGeo=new THREE.ConeGeometry(0.018,0.036,6);
-  return new THREE.Mesh(coneGeo, new THREE.MeshBasicMaterial({color:col,side:THREE.DoubleSide}));
+  // Flat billboard triangle sprite — always faces camera
+  const cv=document.createElement('canvas'); cv.width=cv.height=32;
+  const ctx=cv.getContext('2d');
+  const hexCol='#'+(col).toString(16).padStart(6,'0');
+  ctx.fillStyle=hexCol;
+  // Triangle pointing right (will be rotated toward endpoint)
+  ctx.beginPath(); ctx.moveTo(28,16); ctx.lineTo(4,4); ctx.lineTo(4,28); ctx.closePath();
+  ctx.fill();
+  const tex=new THREE.CanvasTexture(cv);
+  const mat=new THREE.SpriteMaterial({map:tex,sizeAttenuation:false,depthTest:false});
+  const spr=new THREE.Sprite(mat);
+  spr.scale.set(0.045,0.045,0.045);
+  spr.renderOrder=10;
+  return spr;
 }
 function _orientDimMarker(mesh, pos, towards) {
   mesh.position.copy(pos);
-  // Point cone towards the other endpoint
-  const dir=towards.clone().sub(pos).normalize();
-  const up=new THREE.Vector3(0,1,0);
-  if(Math.abs(dir.dot(up))>0.99) up.set(1,0,0);
-  mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0), dir);
+  // Sprites auto-face camera; we encode direction in userData for rendering
+  mesh.userData._dimFrom=pos.clone();
+  mesh.userData._dimTo=towards.clone();
 }
 function _spawnMeasureLine(ptA, ptB, label, id, color) {
   const col = color||MEAS_COL_FREE;
@@ -1988,7 +2088,7 @@ function _spawnMeasureLine(ptA, ptB, label, id, color) {
   const sB=_makeDimMarker(col); _orientDimMarker(sB,ptB,ptA); viewerScene.add(sB);
   // Dashed line using LineDashedMaterial
   const geo=new THREE.BufferGeometry().setFromPoints([ptA.clone(),ptB.clone()]);
-  const line=new THREE.LineSegments(geo,new THREE.LineDashedMaterial({color:col,linewidth:1.5,dashSize:0.04,gapSize:0.025}));
+  const line=new THREE.LineSegments(geo,new THREE.LineDashedMaterial({color:col,linewidth:1,dashSize:0.018,gapSize:0.010}));
   line.computeLineDistances();
   viewerScene.add(line);
   sA.userData.measId=id; sA.userData.endpoint='A';
@@ -2240,7 +2340,7 @@ async function exportPinReport() {
   // Footer
   pdf.setDrawColor(200,200,215); pdf.setLineWidth(0.15); pdf.line(14,PH-8,PW-14,PH-8);
   pdf.setFont('helvetica','normal'); pdf.setFontSize(6); pdf.setTextColor(150,150,170);
-  pdf.text(`VR.browser v0.3.2  ·  Exported ${new Date().toLocaleDateString()}`, 14, PH-3);
+  pdf.text(`VR.browser v0.3.3  ·  Exported ${new Date().toLocaleDateString()}`, 14, PH-3);
 
   pdf.save(`${modelName}-pin-report.pdf`);
 }
@@ -2658,16 +2758,10 @@ const _missExplodeOrigins=new Map();
 function missBuildExplode() {
   _missExplodeOrigins.clear();
   if(!loadedModel) return;
+  // Store each mesh's local position relative to its parent before any explosion
   loadedModel.traverse(node=>{
-    if(!node.isMesh) return;
-    // Store world position as the origin reference
-    node.updateWorldMatrix(true,false);
-    const wp=new THREE.Vector3().setFromMatrixPosition(node.matrixWorld);
-    const entry=wp.clone(); entry.localOrig=node.position.clone();
-    _missExplodeOrigins.set(node.uuid,entry);
+    if(node.isMesh) _missExplodeOrigins.set(node.uuid, node.position.clone());
   });
-  const sl=document.getElementById('explode-sl-lp'); if(sl) sl.value=0;
-  const lp=document.getElementById('explode-val-lp'); if(lp) lp.textContent='0%';
 }
 function missExplode(t) {
   document.getElementById('miss-explode-val').textContent=Math.round(t*100)+'%';
@@ -2684,7 +2778,7 @@ function missExplode(t) {
 }
 function missResetExplode() {
   _missExplodeOrigins.forEach((orig,uuid)=>{
-    loadedModel?.traverse(node=>{ if(node.isMesh&&node.uuid===uuid&&orig.localOrig) node.position.copy(orig.localOrig); });
+    loadedModel?.traverse(node=>{ if(node.isMesh&&node.uuid===uuid) node.position.copy(orig); });
   });
   const sl=document.getElementById('explode-sl-lp'); if(sl) sl.value=0;
   const lp=document.getElementById('explode-val-lp'); if(lp) lp.textContent='0%';
@@ -3323,7 +3417,7 @@ function pollGamepadButtons() {
 // ════════════════════════════════════════════════════════════
 //  INIT VIEWER
 // ════════════════════════════════════════════════════════════
-function initViewer(fileId) {
+function _buildViewer(fileId, name, myToken) { function initViewer(fileId){
   const wrap=document.getElementById('viewer-canvas-wrap');
   const wRect=wrap.getBoundingClientRect();
   const initW=Math.max(wRect.width,100), initH=Math.max(wRect.height,100);
@@ -3334,6 +3428,8 @@ function initViewer(fileId) {
   viewerRenderer.physicallyCorrectLights=true;
   viewerRenderer.toneMapping=THREE.ACESFilmicToneMapping;
   viewerRenderer.toneMappingExposure=1.0;
+  viewerRenderer.shadowMap.enabled=true;
+  viewerRenderer.shadowMap.type=THREE.PCFSoftShadowMap;
   viewerRenderer.xr.enabled=true; viewerRenderer.localClippingEnabled=true;
   wrap.appendChild(viewerRenderer.domElement);
   viewerRenderer.domElement.addEventListener('click',onCanvasClick);
@@ -3346,6 +3442,11 @@ function initViewer(fileId) {
   sunLight=new THREE.DirectionalLight(0xffffff,1.2);
   const az0=lightAz*Math.PI/180, el0=lightEl*Math.PI/180;
   sunLight.position.set(Math.cos(el0)*Math.sin(az0)*8,Math.sin(el0)*8,Math.cos(el0)*Math.cos(az0)*8);
+  sunLight.castShadow=true; sunLight.shadow.mapSize.width=1024; sunLight.shadow.mapSize.height=1024;
+  sunLight.shadow.camera.near=0.1; sunLight.shadow.camera.far=50;
+  sunLight.shadow.camera.left=-3; sunLight.shadow.camera.right=3;
+  sunLight.shadow.camera.top=3; sunLight.shadow.camera.bottom=-3;
+  sunLight.shadow.bias=-0.001;
   viewerScene.add(sunLight);
   const fill=new THREE.DirectionalLight(0x8888ff,0.15); fill.position.set(-4,2,-3); viewerScene.add(fill);
   // Faded floor disc — soft radial grey circle on the floor plane
@@ -3365,51 +3466,54 @@ function initViewer(fileId) {
     disc.renderOrder=-1;
     scene.add(disc);
   })(viewerScene);
-  // ── Floor grid: bright grey vertex-colour fade, 1.5m radius ──
+  // Shadow receiver plane at floor
+  const shadowReceiver=new THREE.Mesh(
+    new THREE.PlaneGeometry(10,10),
+    new THREE.ShadowMaterial({opacity:0.35,transparent:true})
+  );
+  shadowReceiver.rotation.x=-Math.PI/2; shadowReceiver.position.y=0; shadowReceiver.receiveShadow=true;
+  viewerScene.add(shadowReceiver);
+  // ── Floor grid: canvas-texture with radial alpha mask (no vertex-colour bugs) ──
   gridGroup = new THREE.Group();
   (function(grp){
-    const FADE=1.5; // fade stops here
-    const pos=[], col=[];
-    // ln: vertex colour = grey brightness fading linearly with distance / FADE
-    // a=0 means black (invisible on dark bg), a=1 means bright grey
-    function ln(ax,ay,az,bx,by,bz,peakBright){
-      const dA=Math.sqrt(ax*ax+az*az), dB=Math.sqrt(bx*bx+bz*bz);
-      const a=Math.max(0,1-dA/FADE)*peakBright;
-      const b=Math.max(0,1-dB/FADE)*peakBright;
-      pos.push(ax,ay,az, bx,by,bz);
-      col.push(a,a,a,    b,b,b);
+    const SIZE=3.0; // total plane diameter metres
+    const canvas=document.createElement('canvas'); canvas.width=canvas.height=512;
+    const ctx=canvas.getContext('2d');
+    ctx.clearRect(0,0,512,512);
+    const FADE_R=256; // radial fade radius (pixels)
+    // Draw grid lines
+    function drawGrid(spacing, lineWidth, alpha){
+      const cells=SIZE/spacing, px=512/cells;
+      ctx.strokeStyle=`rgba(160,160,168,${alpha})`;
+      ctx.lineWidth=lineWidth;
+      for(let i=0;i<=cells;i++){
+        const p=i*px;
+        ctx.beginPath(); ctx.moveTo(p,0); ctx.lineTo(p,512); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(0,p); ctx.lineTo(512,p); ctx.stroke();
+      }
     }
-    const E=FADE; // extent = fade radius so edges fade to 0
-    // cm grid — very subtle, only central 0.3m area
-    for(let i=-30;i<=30;i++){
-      if(i===0||Math.abs(i)%10===0) continue;
-      const v=i*0.01; if(Math.abs(v)>0.3) continue;
-      ln(-0.3,0,v, 0.3,0,v, 0.20);
-      ln(v,0,-0.3, v,0,0.3, 0.20);
+    // Draw from coarsest to finest so they stack correctly
+    drawGrid(1.0, 1.8, 0.65);  // 1m lines
+    drawGrid(0.1, 1.0, 0.38);  // 10cm lines
+    drawGrid(0.01,0.4, 0.14);  // 1cm lines (only visible close up)
+    // Apply radial alpha mask (centre bright → edge invisible)
+    const imgd=ctx.getImageData(0,0,512,512);
+    const d=imgd.data;
+    for(let y=0;y<512;y++) for(let x=0;x<512;x++){
+      const dx=x-256, dy=y-256;
+      const dist=Math.sqrt(dx*dx+dy*dy);
+      const fade=Math.max(0,1-dist/FADE_R);
+      const i=(y*512+x)*4;
+      d[i+3]=Math.round(d[i+3]*fade); // multiply existing alpha by fade
     }
-    // 10cm grid — medium brightness
-    for(let i=-15;i<=15;i++){
-      if(i===0) continue;
-      const v=i*0.1;
-      ln(-E,0,v, E,0,v, 0.55);
-      ln(v,0,-E, v,0,E, 0.55);
-    }
-    // 1m grid — brighter
-    for(let i=-1;i<=1;i++){
-      if(i===0) continue;
-      const v=i*1.0;
-      ln(-E,0,v, E,0,v, 0.80);
-      ln(v,0,-E, v,0,E, 0.80);
-    }
-    // Centre cross — brightest
-    ln(-E,0,0, E,0,0, 0.90);
-    ln(0,0,-E, 0,0,E, 0.90);
-
-    const geo=new THREE.BufferGeometry();
-    geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(pos),3));
-    geo.setAttribute('color',    new THREE.BufferAttribute(new Float32Array(col),3));
-    grp.add(new THREE.LineSegments(geo,
-      new THREE.LineBasicMaterial({vertexColors:true,transparent:true,opacity:1.0,depthWrite:false})));
+    ctx.putImageData(imgd,0,0);
+    const tex=new THREE.CanvasTexture(canvas);
+    const plane=new THREE.Mesh(
+      new THREE.PlaneGeometry(SIZE,SIZE,1,1),
+      new THREE.MeshBasicMaterial({map:tex,transparent:true,opacity:1,depthWrite:false,side:THREE.DoubleSide})
+    );
+    plane.rotation.x=-Math.PI/2; plane.position.y=0.002;
+    grp.add(plane);
   })(gridGroup);
   viewerScene.add(gridGroup);
 
@@ -3461,6 +3565,7 @@ function initViewer(fileId) {
         model.traverse(c=>{
           if(!c.isMesh||!c.material)return;
           c.material.clippingPlanes=[]; c.material.side=THREE.DoubleSide; c.material.needsUpdate=true;
+          c.castShadow=true; c.receiveShadow=true;
           // Cache original material state immediately so Tex restore always works
           if(!savedMaterials.has(c.uuid)) savedMaterials.set(c.uuid,{
             map:c.material.map, normalMap:c.material.normalMap, bumpMap:c.material.bumpMap,
@@ -3472,12 +3577,16 @@ function initViewer(fileId) {
         });
         modelRoot.add(model); loadedModel=model; modelSize.copy(size);
         cacheExplodeOrigins();
+        missBuildExplode(); // cache explode origins on load
         const ov=document.getElementById('loading-overlay'); if(ov) ov.classList.add('hidden');
         document.getElementById('left-panel').style.display='block';
         const vlogo=document.getElementById('viewer-logo'); if(vlogo) vlogo.style.display='flex';
         initDraggablePanels();
         document.getElementById('bottom-bar').style.display='flex';
         const tbar=document.getElementById('top-bar'); if(tbar) tbar.style.display='flex';
+        // Show drawer tab so user can load other models
+        document.getElementById('browser-screen').style.display='block';
+        closeDrawer();
         drawFloorCone(); initGimbalDrag();
         rebuildSidebar();
         ['hslice-tog','vslice-tog'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=false;});
@@ -3549,11 +3658,13 @@ function initViewer(fileId) {
     if(!viewerRenderer) return;
     const rect=wrap.getBoundingClientRect();
     const w=rect.width, h=rect.height;
-    if(w<1||h<1) return; // skip zero-size frames
+    if(w<1||h<1) return;
     viewerRenderer.setSize(w,h);
     if(viewerCamera){viewerCamera.aspect=w/h;viewerCamera.updateProjectionMatrix();}
   });
-}
+  } // end initViewer
+  initViewer(fileId);
+} // end _buildViewer
 
 // ════════════════════════════════════════════════════════════
 //  XR SESSION — supports both immersive-vr and immersive-ar (MR)
