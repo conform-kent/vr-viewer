@@ -453,6 +453,10 @@ body.browser-open{overflow:auto;}
       <svg viewBox="0 0 24 24"><path d="M9 3h6l1 9H8L9 3z"/><path d="M8 12l-3 6a1 1 0 00.9 1.5h12.2a1 1 0 00.9-1.5l-3-6"/><line x1="9" y1="7" x2="15" y2="7"/></svg>
       <span class="tb-label" style="color:var(--accent);">Lab</span>
     </button>
+    <button class="tb-btn" onclick="toggleMissToolbox()" id="miss-lab-btn" title="Pro tools preview" style="color:var(--accent2);">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/></svg>
+      <span class="tb-label" style="color:var(--accent2);">Pro</span>
+    </button>
     <button class="vr-btn" id="vr-btn" onclick="enterVR()" style="height:32px;margin-left:4px;font-size:9px;padding:4px 10px;">⬡ VR</button>
     <button id="ar-btn" class="vr-btn secondary" onclick="enterAR()" style="display:none;height:32px;font-size:9px;padding:4px 10px;">⬡ AR</button>
   </div>
@@ -482,7 +486,7 @@ body.browser-open{overflow:auto;}
 
   <!-- Experimental Toolbox -->
   <div id="exp-toolbox" style="display:none;position:fixed;bottom:80px;right:14px;z-index:122;width:230px;background:var(--surface);backdrop-filter:var(--blur);border:1px solid rgba(200,245,66,0.25);border-radius:var(--radius);box-shadow:0 8px 32px rgba(0,0,0,0.6);">
-    <div class="lp-head" style="border-bottom:1px solid rgba(200,245,66,0.15);cursor:default;">
+    <div id="exp-toolbox-handle" class="lp-head" style="border-bottom:1px solid rgba(200,245,66,0.15);cursor:grab;user-select:none;">
       <span style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;color:var(--accent);text-transform:uppercase;flex:1;">⚗ Lab · Experimental</span>
       <button class="lp-head-btn" onclick="document.getElementById('exp-toolbox').style.display='none'" title="Close">✕</button>
     </div>
@@ -567,6 +571,116 @@ body.browser-open{overflow:auto;}
       </div>
 
       <div style="font-family:'DM Mono',monospace;font-size:8px;color:var(--muted);border-top:1px solid var(--border);padding-top:8px;line-height:1.6;text-align:center;">Tools marked with ⚗ are prototypes.<br>Results are approximate — not for production use.</div>
+    </div>
+  </div>
+
+  <!-- Missing Tools Toolbox — draggable, pinnable, toggleable -->
+  <div id="miss-toolbox" style="display:none;position:fixed;top:50px;left:50%;transform:translateX(-50%);z-index:122;width:260px;background:var(--surface);backdrop-filter:var(--blur);border:1px solid rgba(66,245,200,0.25);border-radius:var(--radius);box-shadow:0 8px 32px rgba(0,0,0,0.6);">
+    <!-- Drag handle / header -->
+    <div id="miss-toolbox-handle" class="lp-head" style="border-bottom:1px solid rgba(66,245,200,0.15);cursor:grab;user-select:none;">
+      <span style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;color:var(--accent2);text-transform:uppercase;flex:1;">⊞ Pro Tools · Preview</span>
+      <button class="lp-head-btn" id="miss-pin-btn" onclick="togglePanelPin('miss-toolbox','miss-pin-btn')" title="Pin panel">□</button>
+      <button class="lp-head-btn" onclick="toggleMissToolbox()" title="Close">✕</button>
+    </div>
+    <div style="overflow-y:auto;max-height:75vh;padding:10px 12px;display:flex;flex-direction:column;gap:7px;">
+
+      <!-- Explode View -->
+      <div class="exp-tool" style="border-color:rgba(66,245,200,0.15);">
+        <div class="exp-tool-head">
+          <span class="exp-tool-name" style="color:var(--accent2);">Explode View</span>
+          <span id="miss-explode-val" style="font-family:'DM Mono',monospace;font-size:9px;color:var(--accent2);">0%</span>
+        </div>
+        <input type="range" class="lp-slider teal" id="miss-explode-sl" min="0" max="1" step="0.01" value="0" oninput="missExplode(parseFloat(this.value))">
+        <div style="display:flex;gap:5px;margin-top:2px;">
+          <button class="exp-btn" style="border-color:rgba(66,245,200,0.3);color:var(--accent2);" onclick="missBuildExplode()">Build</button>
+          <button class="exp-btn" style="border-color:rgba(66,245,200,0.3);color:var(--accent2);" onclick="missResetExplode()">Reset</button>
+        </div>
+        <span class="exp-tool-desc">Explodes assembly parts outward from the bounding box centre. Hit Build first to cache part origins.</span>
+      </div>
+
+      <!-- Symmetry Check -->
+      <div class="exp-tool" style="border-color:rgba(66,245,200,0.15);">
+        <div class="exp-tool-head">
+          <span class="exp-tool-name" style="color:var(--accent2);">Symmetry Check</span>
+          <div style="display:flex;gap:3px;">
+            <button class="exp-btn" style="border-color:rgba(66,245,200,0.3);color:var(--accent2);" onclick="missSymmetry('x')">X</button>
+            <button class="exp-btn" style="border-color:rgba(66,245,200,0.3);color:var(--accent2);" onclick="missSymmetry('z')">Z</button>
+            <button class="exp-btn" style="border-color:rgba(255,100,100,0.35);color:var(--danger);" onclick="missClearSymmetry()">✕</button>
+          </div>
+        </div>
+        <span class="exp-tool-desc">Mirrors the model across X or Z plane as a ghost to verify design symmetry.</span>
+      </div>
+
+      <!-- Annotation Layers -->
+      <div class="exp-tool" style="border-color:rgba(66,245,200,0.15);">
+        <div class="exp-tool-head">
+          <span class="exp-tool-name" style="color:var(--accent2);">Annotation Layers</span>
+        </div>
+        <div id="miss-layers-list" style="display:flex;flex-direction:column;gap:4px;margin:4px 0;min-height:20px;"></div>
+        <div style="display:flex;gap:5px;align-items:center;">
+          <input id="miss-layer-input" placeholder="Layer name…" style="flex:1;background:rgba(255,255,255,0.05);border:1px solid var(--border-hi);border-radius:4px;color:var(--text);font-family:'DM Mono',monospace;font-size:10px;padding:3px 6px;outline:none;" onkeydown="if(event.key==='Enter')missAddLayer()">
+          <button class="exp-btn" style="border-color:rgba(66,245,200,0.3);color:var(--accent2);" onclick="missAddLayer()">＋</button>
+        </div>
+        <span class="exp-tool-desc">Group pins by topic or reviewer. New pins go to the active layer.</span>
+      </div>
+
+      <!-- Dimension Chain -->
+      <div class="exp-tool" style="border-color:rgba(66,245,200,0.15);">
+        <div class="exp-tool-head">
+          <span class="exp-tool-name" style="color:var(--accent2);">Dimension Chain</span>
+          <button class="exp-btn" style="border-color:rgba(66,245,200,0.3);color:var(--accent2);" onclick="missDimChain()">Start</button>
+        </div>
+        <div id="miss-chain-out" style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);line-height:1.7;min-height:14px;"></div>
+        <span class="exp-tool-desc">Click surface points to build a stacked vertical dimension chain showing cumulative heights.</span>
+      </div>
+
+      <!-- Tolerance Bands -->
+      <div class="exp-tool" style="border-color:rgba(66,245,200,0.15);">
+        <div class="exp-tool-head">
+          <span class="exp-tool-name" style="color:var(--accent2);">Tolerance on Measurement</span>
+          <button class="exp-btn" style="border-color:rgba(66,245,200,0.3);color:var(--accent2);" onclick="missSetTolerance()">Set ±</button>
+        </div>
+        <div style="display:flex;gap:5px;align-items:center;margin:3px 0;">
+          <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);">±</span>
+          <input id="miss-tol-val" type="number" min="0.01" step="0.01" value="0.5" style="width:60px;background:rgba(255,255,255,0.05);border:1px solid var(--border-hi);border-radius:4px;color:var(--text);font-family:'DM Mono',monospace;font-size:10px;padding:2px 5px;outline:none;">
+          <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);">mm</span>
+          <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);">to M</span>
+          <input id="miss-tol-id" type="number" min="1" step="1" value="1" style="width:40px;background:rgba(255,255,255,0.05);border:1px solid var(--border-hi);border-radius:4px;color:var(--text);font-family:'DM Mono',monospace;font-size:10px;padding:2px 5px;outline:none;">
+        </div>
+        <span class="exp-tool-desc">Appends ±Xmm tolerance to the selected measurement label and stores it in the session.</span>
+      </div>
+
+      <!-- Surface Finish Markers -->
+      <div class="exp-tool" style="border-color:rgba(66,245,200,0.15);">
+        <div class="exp-tool-head">
+          <span class="exp-tool-name" style="color:var(--accent2);">Surface Finish Marker</span>
+          <button class="exp-btn" style="border-color:rgba(66,245,200,0.3);color:var(--accent2);" onclick="missSurfaceFinish()">Place</button>
+        </div>
+        <div style="display:flex;gap:5px;align-items:center;margin:3px 0;">
+          <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);">Ra</span>
+          <select id="miss-ra-val" style="background:rgba(255,255,255,0.06);border:1px solid var(--border-hi);border-radius:4px;color:var(--text);font-family:'DM Mono',monospace;font-size:10px;padding:2px 5px;outline:none;">
+            <option>0.4</option><option>0.8</option><option>1.6</option><option>3.2</option><option>6.3</option><option>12.5</option>
+          </select>
+          <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);">μm</span>
+        </div>
+        <span class="exp-tool-desc">Click a surface to place an Ra surface-finish marker pin. Stored as a special annotation.</span>
+      </div>
+
+      <!-- BOM Tagger -->
+      <div class="exp-tool" style="border-color:rgba(66,245,200,0.15);">
+        <div class="exp-tool-head">
+          <span class="exp-tool-name" style="color:var(--accent2);">BOM Part Tag</span>
+          <button class="exp-btn" style="border-color:rgba(66,245,200,0.3);color:var(--accent2);" onclick="missBOMTag()">Tag</button>
+        </div>
+        <div style="display:flex;gap:5px;margin:3px 0;flex-wrap:wrap;">
+          <input id="miss-bom-pn" placeholder="Part No." style="flex:1;min-width:70px;background:rgba(255,255,255,0.05);border:1px solid var(--border-hi);border-radius:4px;color:var(--text);font-family:'DM Mono',monospace;font-size:10px;padding:2px 5px;outline:none;">
+          <input id="miss-bom-desc" placeholder="Description" style="flex:2;min-width:90px;background:rgba(255,255,255,0.05);border:1px solid var(--border-hi);border-radius:4px;color:var(--text);font-family:'DM Mono',monospace;font-size:10px;padding:2px 5px;outline:none;">
+        </div>
+        <button class="exp-btn" style="border-color:rgba(66,245,200,0.3);color:var(--accent2);width:100%;" onclick="missExportBOM()">Export BOM CSV</button>
+        <span class="exp-tool-desc">Click a surface to tag it with a part number. Export BOM generates a CSV of all tagged parts.</span>
+      </div>
+
+      <div style="font-family:'DM Mono',monospace;font-size:8px;color:var(--muted);border-top:1px solid rgba(66,245,200,0.1);padding-top:8px;line-height:1.6;text-align:center;">Preview tools — behaviour may change.<br>Drag header to move · □/■ to pin.</div>
     </div>
   </div>
 
@@ -661,8 +775,9 @@ function togglePanelPin(panelId, btnId) {
   if(btn){btn.textContent=_panelPinned[panelId]?'■':'□';btn.style.opacity=_panelPinned[panelId]?'1':'0.7';}
   if(_panelPinned[panelId]) {
     // Snap back to default pinned position
-    if(panelId==='left-panel'){panel.style.left='14px';panel.style.top='14px';}
-    else{panel.style.right='14px';panel.style.left='auto';panel.style.top='14px';}
+    if(panelId==='left-panel'){panel.style.left='14px';panel.style.top='14px';panel.style.transform='';}
+    else if(panelId==='miss-toolbox'){panel.style.left='50%';panel.style.transform='translateX(-50%)';panel.style.top='50px';panel.style.right='auto';}
+    else{panel.style.right='14px';panel.style.left='auto';panel.style.top='14px';panel.style.transform='';}
   }
 }
 function makeDraggable(panelId, handleId) {
@@ -703,6 +818,8 @@ function makeDraggable(panelId, handleId) {
 function initDraggablePanels() {
   makeDraggable('left-panel','lp-drag-handle');
   makeDraggable('right-panel','rp-drag-handle');
+  makeDraggable('miss-toolbox','miss-toolbox-handle');
+  makeDraggable('exp-toolbox','exp-toolbox-handle');
 }
 
 // ── Panel collapse helpers ────────────────────────────────────
@@ -1255,7 +1372,10 @@ function cleanupViewer() {
   const smp=document.getElementById('meas-submode-popup'); if(smp) smp.style.display='none';
   const etb=document.getElementById('exp-toolbox'); if(etb) etb.style.display='none';
   const elb=document.getElementById('exp-lab-btn'); if(elb) elb.classList.remove('active');
+  const mtb=document.getElementById('miss-toolbox'); if(mtb) mtb.style.display='none';
+  const mlb=document.getElementById('miss-lab-btn'); if(mlb) mlb.classList.remove('active');
   _expHeatMeshes=[]; if(_expSilEdges){_expSilEdges.remove();_expSilEdges=null;} _expGhostMesh=null;
+  missClearSymmetry(); _missExplodeOrigins.clear(); _missChainPts=[]; _missChainActive=false; _missChainObjs=[]; _missBOMMode=false; _missSFMode=false;
   const rp2=document.getElementById('right-panel'); if(rp2) rp2.style.display='none';
   const sb=document.getElementById('sidebar'); if(sb) sb.style.display='none';
   ['hslice-tog','vslice-tog'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=false;});
@@ -2633,6 +2753,204 @@ function expPartingLine() {
 function _saveModelForGhost() {
   if(loadedModel) _expPrevModelData=loadedModel.clone();
 }
+
+// ════════════════════════════════════════════════════════════
+//  PRO TOOLS PREVIEW
+// ════════════════════════════════════════════════════════════
+function toggleMissToolbox() {
+  const box=document.getElementById('miss-toolbox'); if(!box) return;
+  const showing=box.style.display!=='none'&&box.style.display!=='';
+  box.style.display=showing?'none':'block';
+  const btn=document.getElementById('miss-lab-btn');
+  if(btn) btn.classList.toggle('active',!showing);
+}
+
+// ── Explode View ─────────────────────────────────────────────
+const _missExplodeOrigins=new Map();
+function missBuildExplode() {
+  _missExplodeOrigins.clear();
+  if(!loadedModel){alert('Load a model first.');return;}
+  loadedModel.traverse(c=>{if(c.isMesh) _missExplodeOrigins.set(c.uuid,c.position.clone());});
+  document.getElementById('miss-explode-sl').value=0;
+  document.getElementById('miss-explode-val').textContent='0%';
+}
+function missExplode(t) {
+  document.getElementById('miss-explode-val').textContent=Math.round(t*100)+'%';
+  if(!loadedModel||!_missExplodeOrigins.size) return;
+  const worldBox=new THREE.Box3().setFromObject(loadedModel);
+  const worldCtr=worldBox.getCenter(new THREE.Vector3());
+  const localCtr=loadedModel.worldToLocal(worldCtr.clone());
+  loadedModel.traverse(c=>{
+    if(!c.isMesh) return;
+    const orig=_missExplodeOrigins.get(c.uuid); if(!orig) return;
+    const dir=orig.clone().sub(localCtr); const dist=dir.length(); dir.normalize();
+    c.position.copy(orig).addScaledVector(dir, t*(0.3+dist*0.8));
+  });
+}
+function missResetExplode() {
+  _missExplodeOrigins.forEach((orig,uuid)=>{
+    loadedModel?.traverse(c=>{ if(c.isMesh&&c.uuid===uuid) c.position.copy(orig); });
+  });
+  document.getElementById('miss-explode-sl').value=0;
+  document.getElementById('miss-explode-val').textContent='0%';
+}
+
+// ── Symmetry Check ───────────────────────────────────────────
+let _missSymMesh=null;
+function missSymmetry(axis) {
+  missClearSymmetry();
+  if(!loadedModel) return;
+  const ghost=loadedModel.clone();
+  ghost.traverse(c=>{ if(c.isMesh&&c.material){ c.material=c.material.clone(); c.material.transparent=true; c.material.opacity=0.18; c.material.color.set(0x42f5c8); c.material.needsUpdate=true; } });
+  const sc=new THREE.Vector3(axis==='x'?-1:1, 1, axis==='z'?-1:1);
+  ghost.scale.multiply(sc); // mirror
+  viewerScene.add(ghost); _missSymMesh=ghost;
+}
+function missClearSymmetry() { if(_missSymMesh){viewerScene?.remove(_missSymMesh);_missSymMesh=null;} }
+
+// ── Annotation Layers ─────────────────────────────────────────
+let _missLayers=[], _missActiveLayer=null;
+function missRenderLayers() {
+  const list=document.getElementById('miss-layers-list'); if(!list) return;
+  list.innerHTML='';
+  _missLayers.forEach((layer,i)=>{
+    const row=document.createElement('div');
+    row.style.cssText='display:flex;align-items:center;gap:5px;';
+    const dot=document.createElement('span');
+    dot.style.cssText=`width:8px;height:8px;border-radius:2px;background:${layer.color};flex-shrink:0;`;
+    const name=document.createElement('span');
+    name.style.cssText='font-family:DM Mono,monospace;font-size:10px;flex:1;color:var(--text);cursor:pointer;';
+    name.textContent=layer.name; name.title='Set active';
+    name.onclick=()=>{ _missActiveLayer=i; missRenderLayers(); };
+    const count=document.createElement('span');
+    count.style.cssText='font-family:DM Mono,monospace;font-size:9px;color:var(--muted);';
+    count.textContent=annotations.filter(a=>a._layer===i).length;
+    const vis=document.createElement('button');
+    vis.className='lp-head-btn'; vis.textContent=layer.visible?'👁':'—'; vis.title='Toggle visibility';
+    vis.onclick=()=>{ layer.visible=!layer.visible; annotations.forEach(a=>{ if(a._layer===i&&a.labelDiv) a.labelDiv.style.display=layer.visible?'':'none'; }); missRenderLayers(); };
+    row.style.background=_missActiveLayer===i?'rgba(66,245,200,0.08)':'transparent';
+    row.style.borderRadius='4px'; row.style.padding='2px 4px';
+    row.appendChild(dot); row.appendChild(name); row.appendChild(count); row.appendChild(vis);
+    list.appendChild(row);
+  });
+}
+function missAddLayer() {
+  const inp=document.getElementById('miss-layer-input'); if(!inp||!inp.value.trim()) return;
+  const colors=['#c8f542','#42f5c8','#f5a142','#4290f5','#f54290','#42f590'];
+  _missLayers.push({name:inp.value.trim(), color:colors[_missLayers.length%colors.length], visible:true});
+  _missActiveLayer=_missLayers.length-1;
+  inp.value=''; missRenderLayers();
+}
+// Override dropAnnotation to tag with active layer
+const _origDropAnnotation=typeof dropAnnotation==='function'?dropAnnotation:null;
+
+// ── Dimension Chain ───────────────────────────────────────────
+let _missChainPts=[], _missChainActive=false, _missChainObjs=[];
+function missDimChain() {
+  _missChainPts=[]; _missChainActive=!_missChainActive;
+  const btn=document.querySelector('[onclick="missDimChain()"]');
+  if(btn) btn.textContent=_missChainActive?'Stop':'Start';
+  const out=document.getElementById('miss-chain-out');
+  if(!_missChainActive){
+    // Finalise
+    _missChainObjs.forEach(o=>viewerScene?.remove(o)); _missChainObjs=[];
+    if(out) out.textContent='';
+  } else {
+    if(out) out.textContent='Click surface points…';
+    setDesktopMode('measure');
+  }
+}
+function missAddChainPoint(pt) {
+  if(!_missChainActive) return false;
+  _missChainPts.push(pt.clone());
+  if(_missChainPts.length>1) {
+    const a=_missChainPts[_missChainPts.length-2], b=_missChainPts[_missChainPts.length-1];
+    const ptA=new THREE.Vector3(b.x,a.y,b.z), ptB=b.clone();
+    const h=Math.abs(b.y-a.y);
+    const lbl=(h>=1?h.toFixed(3)+' m':(h*100).toFixed(1)+' cm')+' ↕';
+    const rec=_spawnMeasureLine(ptA,ptB,lbl,++measureCount,0x42f5c8);
+    _missChainObjs.push(rec.line,rec.sA,rec.sB);
+    const cum=_missChainPts.reduce((acc,p,i)=>i===0?0:acc+Math.abs(p.y-_missChainPts[i-1].y),0);
+    const out=document.getElementById('miss-chain-out');
+    if(out) out.textContent=`Σ ${_missChainPts.length-1} dims · total ${cum>=1?cum.toFixed(3)+' m':(cum*100).toFixed(1)+' cm'}`;
+  }
+  return true;
+}
+
+// ── Tolerance on Measurement ──────────────────────────────────
+function missSetTolerance() {
+  const tol=parseFloat(document.getElementById('miss-tol-val').value)||0.5;
+  const id=parseInt(document.getElementById('miss-tol-id').value)||1;
+  const m=savedMeasurements.find(r=>r.id===id);
+  if(!m){alert('Measurement M'+String(id).padStart(2,'0')+' not found.');return;}
+  m.customLabel=(m.customLabel||m.label)+' ±'+tol.toFixed(2)+'mm';
+  rebuildMeasTable(); saveSession();
+}
+
+// ── Surface Finish Marker ─────────────────────────────────────
+let _missSFMode=false;
+function missSurfaceFinish() {
+  const ra=document.getElementById('miss-ra-val').value;
+  setDesktopMode('pin');
+  // Override next pin to be a surface finish marker
+  _missSFMode=true; _missSFRa=ra;
+}
+let _missSFRa='1.6';
+
+// ── BOM Tagger ────────────────────────────────────────────────
+const _missBOM=[];
+let _missBOMMode=false;
+function missBOMTag() {
+  setDesktopMode('pin');
+  _missBOMMode=true;
+}
+function missExportBOM() {
+  if(!_missBOM.length){alert('No parts tagged yet. Use "Tag" to click surfaces first.');return;}
+  const rows=['Part No.,Description,X,Y,Z'];
+  _missBOM.forEach(b=>rows.push(`"${b.pn}","${b.desc}",${b.x.toFixed(3)},${b.y.toFixed(3)},${b.z.toFixed(3)}`));
+  const blob=new Blob([rows.join('\n')],{type:'text/csv'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download=(document.getElementById('viewer-title').textContent||'model')+'-bom.csv';
+  a.click();
+}
+
+// Hook into dropAnnotation to handle SF markers and BOM tags
+const _origDrop=dropAnnotation;
+function dropAnnotation(pt) {
+  // Dimension chain takes priority
+  if(_missChainActive&&missAddChainPoint(pt)) return;
+  // Surface finish marker
+  if(_missSFMode) {
+    _missSFMode=false;
+    _origDrop.call(this,pt);
+    const pin=annotations[annotations.length-1];
+    if(pin){ pin.comment='Ra '+_missSFRa+' μm'; pin._isSF=true; rebuildPinTable(); saveSession(); }
+    setDesktopMode('orbit'); return;
+  }
+  // BOM tag
+  if(_missBOMMode) {
+    _missBOMMode=false;
+    const pn=document.getElementById('miss-bom-pn')?.value||'P'+((_missBOM.length)+1);
+    const desc=document.getElementById('miss-bom-desc')?.value||'';
+    _origDrop.call(this,pt);
+    const pin=annotations[annotations.length-1];
+    if(pin){ pin.comment=pn+(desc?' – '+desc:''); pin._bomIdx=_missBOM.length; }
+    _missBOM.push({pn,desc,x:pt.x,y:pt.y,z:pt.z});
+    rebuildPinTable(); saveSession();
+    setDesktopMode('orbit'); return;
+  }
+  // Normal pin
+  if(_missActiveLayer!==null&&_missLayers[_missActiveLayer]) {
+    _origDrop.call(this,pt);
+    const pin=annotations[annotations.length-1];
+    if(pin) pin._layer=_missActiveLayer;
+    return;
+  }
+  _origDrop.call(this,pt);
+}
+
+// Clean up miss-toolbox objects on model switch
+
 
 function resetSlicing() {
   ['hslice-tog','vslice-tog'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=false;});
