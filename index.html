@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CAD INSPECTOR v0.4.4</title>
+<title>CAD INSPECTOR v0.4.5</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230d0d10'/%3E%3Cpolygon points='16,3 28,10 28,22 16,29 4,22 4,10' fill='none' stroke='%23c8f542' stroke-width='2.2' stroke-linejoin='round'/%3E%3Cline x1='10' y1='13' x2='16' y2='21' stroke='%23c8f542' stroke-width='2.2' stroke-linecap='round'/%3E%3Cline x1='22' y1='13' x2='16' y2='21' stroke='%23c8f542' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap');
@@ -251,7 +251,7 @@ body.browser-open{overflow:auto;}
     <div style="display:flex;align-items:center;gap:10px;padding:12px 20px;border-right:1px solid var(--border);flex-shrink:0;">
       <svg width="20" height="20" viewBox="0 0 32 32" fill="none"><polygon points="16,3 28,10 28,22 16,29 4,22 4,10" fill="none" stroke="#c8f542" stroke-width="2.2" stroke-linejoin="round"/><line x1="10" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="22" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="12" y1="13" x2="20" y2="13" stroke="rgba(200,245,66,0.5)" stroke-width="1.2" stroke-linecap="round"/></svg>
       <div>
-        <div style="font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;letter-spacing:.07em;color:#e4e4e0;text-transform:uppercase;">CAD Inspector <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--accent);font-weight:400;letter-spacing:.06em;text-transform:none;">v0.4.4</span></div>
+        <div style="font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;letter-spacing:.07em;color:#e4e4e0;text-transform:uppercase;">CAD Inspector <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--accent);font-weight:400;letter-spacing:.06em;text-transform:none;">v0.4.5</span></div>
         <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-top:1px;">3D CAD Model Review</div>
       </div>
     </div>
@@ -271,13 +271,7 @@ body.browser-open{overflow:auto;}
   <!-- Thumbnail grid -->
   <div style="flex:1;overflow-y:auto;padding:24px 28px;">
     <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:16px;">Select a model to inspect</div>
-    <!-- Folder filter bar -->
-    <div id="folder-bar" style="display:flex;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
-      <button id="folder-all-btn" class="folder-btn active" onclick="setActiveFolder(null)">All</button>
-      <div id="folder-pills"></div>
-      <button onclick="addFolder()" style="font-family:'DM Mono',monospace;font-size:9px;padding:4px 10px;border-radius:20px;border:1px dashed rgba(200,245,66,0.3);background:transparent;color:var(--accent);cursor:pointer;">+ New folder</button>
-    </div>
-    <div id="thumb-drawer-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px;"></div>
+<div id="thumb-drawer-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px;"></div>
   </div>
 </div>
 
@@ -288,7 +282,7 @@ body.browser-open{overflow:auto;}
   <div id="viewer-logo" style="position:fixed;top:0;left:0;z-index:125;display:none;align-items:center;gap:10px;padding:10px 18px 10px 14px;background:rgba(13,13,16,0.7);backdrop-filter:blur(12px);border-bottom-right-radius:12px;border-bottom:1px solid var(--border);border-right:1px solid var(--border);">
     <svg width="18" height="18" viewBox="0 0 32 32" fill="none" style="flex-shrink:0;"><polygon points="16,3 28,10 28,22 16,29 4,22 4,10" fill="none" stroke="#c8f542" stroke-width="2.2" stroke-linejoin="round"/><line x1="10" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="22" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="12" y1="13" x2="20" y2="13" stroke="rgba(200,245,66,0.5)" stroke-width="1.2" stroke-linecap="round"/></svg>
     <div style="display:flex;flex-direction:column;gap:1px;">
-      <span style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;color:#e8e8e4;text-transform:uppercase;">CAD Inspector <span style="font-family:'DM Mono',monospace;font-size:8px;color:var(--accent);font-weight:400;letter-spacing:.06em;">v0.4.4</span></span>
+      <span style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;color:#e8e8e4;text-transform:uppercase;">CAD Inspector <span style="font-family:'DM Mono',monospace;font-size:8px;color:var(--accent);font-weight:400;letter-spacing:.06em;">v0.4.5</span></span>
       <span id="viewer-filename" style="font-family:'DM Mono',monospace;font-size:10px;color:#7a7a8a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px;"></span>
       <span id="size-readout-logo" style="font-family:'DM Mono',monospace;font-size:9px;color:#5a5a66;white-space:nowrap;display:none;"></span>
     </div>
@@ -366,7 +360,7 @@ body.browser-open{overflow:auto;}
       <!-- Surface Analysis -->
       <div class="lp-section">
         <div class="lp-sec-head" onclick="toggleLpSection('lps-1')">
-          <span class="lp-title" style="margin:0;flex:1;">Surface Analysis</span>
+          <span class="lp-title" style="margin:0;flex:1;">Surface Analysis Lines</span>
           <span class="lp-sec-chevron" id="lps-1-ch">▾</span>
         </div>
         <div class="lp-sec-body" id="lps-1">
@@ -381,20 +375,6 @@ body.browser-open{overflow:auto;}
           <input type="range" class="lp-slider" id="zebra-rot-sl" min="-90" max="90" step="1" value="0" oninput="onZebraRotation(this.value)">
         </div>
       </div>
-      <!-- Grid Overlay -->
-      <div class="lp-section">
-        <div class="lp-sec-head" onclick="toggleLpSection('lps-2')">
-          <span class="lp-title" style="margin:0;flex:1;">Grid Overlay</span>
-          <span class="lp-sec-chevron" id="lps-2-ch">▾</span>
-        </div>
-        <div class="lp-sec-body" id="lps-2">
-          <div class="lp-row"><span class="lp-label">Grid overlay</span><label class="tog"><input type="checkbox" id="grid-overlay-tog" onchange="toggleGridOverlay()"><span class="tog-s"></span></label></div>
-          <div id="grid-brightness-row" style="display:none;">
-            <div class="lp-row"><span class="lp-label" style="font-size:9px;">Brightness</span><span class="lp-val" id="grid-bright-val">50%</span></div>
-            <input type="range" class="lp-slider" id="grid-bright-sl" min="0" max="100" step="1" value="50" oninput="onGridBrightnessSlider(this.value)">
-          </div>
-        </div>
-      </div>
       <!-- Display -->
       <div class="lp-section">
         <div class="lp-sec-head" onclick="toggleLpSection('lps-3')">
@@ -406,7 +386,7 @@ body.browser-open{overflow:auto;}
             <button class="tex-btn active" id="tex-btn-tex" onclick="setTexMode('tex')" style="flex:1;min-height:52px;"><span class="ti">🖼</span>Tex</button>
             <button class="tex-btn" id="tex-btn-clay" onclick="setTexMode('clay')" style="flex:1;min-height:52px;"><span class="ti">⬟</span>Clay</button>
             <button class="tex-btn" id="tex-btn-alpha" onclick="setTexMode('alpha')" style="flex:1;min-height:52px;"><span class="ti">◻</span>Alpha</button>
-            <button class="tex-btn" id="tex-btn-grid" onclick="toggleGridOverlayDisplay()" style="flex:1;min-height:52px;"><span class="ti" id="grid-overlay-icon">⊞</span>Grid</button>
+            <button class="tex-btn" id="tex-btn-grid" onclick="toggleGridOverlayDisplay()" style="flex:1;min-height:52px;"><span class="ti" id="grid-overlay-icon">⬡</span>Wire</button>
           </div>
         </div>
       </div>
@@ -1069,74 +1049,17 @@ async function loadModels() {
 let _activeModelPill=null;
 
 
-// ── FOLDER SYSTEM ─────────────────────────────────────────────
-// Folders stored in localStorage as {name: [fileId, ...]}
-let _folders = {};
-let _activeFolder = null; // null = All
+// Folder system removed — stubs for compat
+let _folders={}, _activeFolder=null;
+function _loadFolders(){}
+function _saveFolders(){}
+function setActiveFolder(){}
+function addFolder(){}
+function deleteFolder(){}
+function toggleModelFolder(){}
+function getModelFolders(){ return []; }
+function renderFolderPills(){}
 
-function _loadFolders(){ try{ _folders=JSON.parse(localStorage.getItem('cad_folders')||'{}'); }catch(e){ _folders={}; } }
-function _saveFolders(){ try{ localStorage.setItem('cad_folders',JSON.stringify(_folders)); }catch(e){} }
-
-function setActiveFolder(name){
-  _activeFolder=name;
-  document.getElementById('folder-all-btn')?.classList.toggle('active',!name);
-  document.querySelectorAll('.folder-pill-btn').forEach(b=>{
-    b.classList.toggle('active',b.dataset.folder===name);
-  });
-  renderGrid(currentModels);
-}
-
-function addFolder(){
-  const name=prompt('Folder name (e.g. Final, Parts, Prototypes):');
-  if(!name||!name.trim()) return;
-  const key=name.trim();
-  if(_folders[key]) return;
-  _folders[key]=[]; _saveFolders();
-  renderFolderPills();
-}
-
-function deleteFolder(name){
-  if(!confirm('Delete folder "'+name+'"?')) return;
-  delete _folders[name]; _saveFolders();
-  if(_activeFolder===name) _activeFolder=null;
-  renderFolderPills();
-  renderGrid(currentModels);
-}
-
-function toggleModelFolder(fileId, folderName){
-  if(!_folders[folderName]) _folders[folderName]=[];
-  const idx=_folders[folderName].indexOf(fileId);
-  if(idx===-1) _folders[folderName].push(fileId);
-  else _folders[folderName].splice(idx,1);
-  _saveFolders();
-  renderGrid(currentModels);
-}
-
-function getModelFolders(fileId){
-  return Object.keys(_folders).filter(f=>_folders[f].includes(fileId));
-}
-
-function renderFolderPills(){
-  const container=document.getElementById('folder-pills'); if(!container) return;
-  container.innerHTML='';
-  Object.keys(_folders).forEach(name=>{
-    const pill=document.createElement('div');
-    pill.style.cssText='display:inline-flex;align-items:center;gap:4px;';
-    const btn=document.createElement('button');
-    btn.className='folder-btn folder-pill-btn'+((_activeFolder===name)?' active':'');
-    btn.dataset.folder=name;
-    btn.textContent=name+' ('+(_folders[name]?.length||0)+')';
-    btn.onclick=()=>setActiveFolder(name);
-    const delBtn=document.createElement('button');
-    delBtn.style.cssText='background:none;border:none;color:var(--muted);cursor:pointer;font-size:10px;padding:0 2px;';
-    delBtn.textContent='×'; delBtn.title='Delete folder';
-    delBtn.onclick=(e)=>{ e.stopPropagation(); deleteFolder(name); };
-    pill.appendChild(btn); pill.appendChild(delBtn);
-    container.appendChild(pill);
-  });
-}
-
-_loadFolders();
 
 function renderGrid(models) {
   const bar=document.getElementById('model-list-bar');
@@ -1172,33 +1095,7 @@ function renderGrid(models) {
       card.innerHTML=`<div id="tw-${model.id}" style="height:200px;display:flex;align-items:center;justify-content:center;background:#000;border-radius:8px 8px 0 0;overflow:hidden;"><span style="font-size:30px;opacity:0.15">⬡</span></div><div style="padding:8px 10px 10px;font-family:DM Mono,monospace;font-size:11px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${name}<span style="display:block;color:var(--muted);font-size:9px;margin-top:2px;">${sizeMB}</span></div>`;
       card.onmouseenter=()=>{ card.style.borderColor='rgba(200,245,66,0.4)'; card.style.transform='translateY(-2px)'; };
       card.onmouseleave=()=>{ card.style.borderColor='rgba(255,255,255,0.08)'; card.style.transform=''; };
-      // Folder tags
-      const folders=getModelFolders(model.id);
-      if(folders.length||Object.keys(_folders).length){
-        const tagRow=document.createElement('div');
-        tagRow.style.cssText='display:flex;flex-wrap:wrap;gap:4px;padding:0 8px 8px;';
-        folders.forEach(f=>{
-          const tag=document.createElement('span');
-          tag.style.cssText='font-family:DM Mono,monospace;font-size:8px;padding:1px 6px;border-radius:10px;background:rgba(200,245,66,0.12);color:var(--accent);border:1px solid rgba(200,245,66,0.25);';
-          tag.textContent=f; tagRow.appendChild(tag);
-        });
-        if(Object.keys(_folders).length){
-          const btn=document.createElement('button');
-          btn.style.cssText='font-family:DM Mono,monospace;font-size:8px;padding:1px 6px;border-radius:10px;background:transparent;color:var(--muted);border:1px dashed rgba(255,255,255,0.15);cursor:pointer;';
-          btn.textContent='+ folder'; btn.title='Assign to folder';
-          btn.onclick=(e)=>{
-            e.stopPropagation();
-            const names=Object.keys(_folders);
-            const chosen=prompt('Assign to folder:\n'+names.map((n,i)=>(i+1)+'. '+n+((_folders[n]||[]).includes(model.id)?' ✓':'')).join('\n')+'\n\nType folder name:');
-            if(chosen&&_folders[chosen]!==undefined){ toggleModelFolder(model.id,chosen); }
-          };
-          tagRow.appendChild(btn);
-        }
-        card.appendChild(tagRow);
-      }
-      card.onmouseleave=()=>{ card.style.borderColor='var(--border)'; card.style.transform=''; };
-      card.onclick=()=>{ document.getElementById('browser-screen').style.display='none'; openViewer(model.id,name); };
-      drawerGrid.appendChild(card);
+
       requestAnimationFrame(()=>renderThumb(model.id,name));
     });
   }
@@ -1358,10 +1255,8 @@ function openViewerAR(fileId, name) {
 function closeViewer() {
   closePinPopup();
   saveSession();
-  document.getElementById('viewer-overlay').classList.remove('active');
-  _destroyViewer();
-  document.body.classList.add('browser-open');
-  showBrowser();
+  // Force full page reload to clear all GPU/WebGL state — prevents freeze on 2nd switch
+  location.reload();
 }
 function cleanupViewer() { _destroyViewer(); }
 
@@ -1466,11 +1361,13 @@ function onHSliceToggle(on) {
   if(on){ hSliceActive=true; document.getElementById('hslice-sl').value=0.5; onHSliceSlider(0.5); }
   else  { hSliceActive=false; applyAllClipping(); if(hContourLine) hContourLine.visible=false; }
   if(zebraMode!=='off') setZebraMode(zebraMode); // rebuild zebra with new clip state
+  _rebuildGhostIfActive();
 }
 function onVSliceToggle(on) {
   if(on){ vSliceActive=true; document.getElementById('vslice-sl').value=0.5; onVSliceSlider(0.5); }
   else  { vSliceActive=false; applyAllClipping(); if(vContourLine) vContourLine.visible=false; }
   if(zebraMode!=='off') setZebraMode(zebraMode);
+  _rebuildGhostIfActive();
 }
 
 
@@ -1649,7 +1546,7 @@ function setZebraMode(mode) {
   if(mode!=='off'){ const ab=document.getElementById('zebra-'+mode); if(ab) ab.classList.add('active'); }
   // Disable the other button
   const hb=document.getElementById('zebra-h'), vb=document.getElementById('zebra-v');
-  if(hb) hb.disabled=(mode==='v'); if(vb) vb.disabled=(mode==='h');
+  if(hb) hb.disabled=false; if(vb) vb.disabled=false; // both always clickable — toggle off by clicking active
   ['zebra-off','zebra-h','zebra-v'].forEach(id=>{
     const b=document.getElementById(id); if(!b) return;
     const active=id===`zebra-${mode}`;
@@ -1671,8 +1568,16 @@ function setZebraMode(mode) {
     uniform float rotation;
     void main(){
       float c=cos(rotation), s=sin(rotation);
-      float rx=vWorldPos.x*c-vWorldPos.z*s;
-      float coord=axis==1?vWorldPos.y:rx;
+      // H mode (axis=1): rotate around X axis — tilt stripes forward/back
+      // V mode (axis=0): rotate around Z axis — tilt stripes left/right from above
+      float coord;
+      if(axis==1){
+        // Horizontal: y rotated in YZ plane
+        coord=vWorldPos.y*c-vWorldPos.z*s;
+      } else {
+        // Vertical: x rotated in XZ plane (seen from above)
+        coord=vWorldPos.x*c+vWorldPos.z*s;
+      }
       float stripe=mod(coord*scale,1.0);
       float band=step(0.5,stripe);
       // Dark stripe=0.0 (fully darken), light stripe=1.0 (transparent — shows lit model)
@@ -1774,6 +1679,8 @@ function toggleBoundingBox(on) {
     if(!loadedModel) return;
     if(_bboxHelper){ viewerScene?.remove(_bboxHelper); _bboxHelper=null; }
     const box=new THREE.Box3().setFromObject(loadedModel);
+    // Nudge box 2mm up to avoid floor grid z-fight
+    box.min.y+=0.002;
     _bboxHelper=new THREE.Box3Helper(box, new THREE.Color(0xc8f542));
     _bboxHelper.material.transparent=true; _bboxHelper.material.opacity=0.55;
     viewerScene.add(_bboxHelper);
@@ -1792,34 +1699,31 @@ function _updateBboxLabels(){
   if(!_bboxHelper||!viewerCamera||!viewerRenderer) return;
   const box=_bboxHelper.userData.box;
   const size=box.getSize(new THREE.Vector3());
-  const W=Math.round(size.x*100), H=Math.round(size.y*100), D=Math.round(size.z*100);
-  const mid=box.getCenter(new THREE.Vector3());
-  // Edge midpoints: W along bottom front edge, H along right vertical edge, D along right depth edge
+  const W=Math.round(size.x*100), H=Math.round(size.y*100), L=Math.round(size.z*100);
+  // Place labels at corners matching image: W on front-bottom, H on right-bottom, L on top-right
   const dims=[
-    {edge3d:new THREE.Vector3(mid.x, box.min.y, box.min.z), text:W+' cm', dir:'down'},
-    {edge3d:new THREE.Vector3(box.max.x, mid.y, mid.z),     text:H+' cm', dir:'right'},
-    {edge3d:new THREE.Vector3(mid.x, box.max.y, box.max.z), text:D+' cm', dir:'back'},
+    {pt:new THREE.Vector3(box.min.x, box.min.y, box.min.z), text:'W '+W+' cm', ox:-28, oy:16},
+    {pt:new THREE.Vector3(box.max.x, box.min.y, box.min.z), text:'H '+H+' cm', ox:28,  oy:0},
+    {pt:new THREE.Vector3(box.max.x, box.max.y, box.min.z), text:'L '+L+' cm', ox:28,  oy:-14},
   ];
   const r=viewerRenderer.domElement.getBoundingClientRect();
   const wrap=document.getElementById('viewer-canvas-wrap');
-  dims.forEach(({edge3d,text,dir})=>{
-    const v=edge3d.clone().project(viewerCamera); if(v.z>=1) return;
-    const ex=(v.x*0.5+0.5)*r.width+r.left-r.left;
-    const ey=(-v.y*0.5+0.5)*r.height+r.top-r.top;
-    // Offset label 30px outward based on direction
-    const off=dir==='down'?{dx:0,dy:22}:dir==='right'?{dx:30,dy:0}:{dx:20,dy:-18};
-    const lx=ex+off.dx, ly=ey+off.dy;
-    // Line from edge point to label
+  dims.forEach(({pt,text,ox,oy})=>{
+    const v=pt.clone().project(viewerCamera); if(v.z>=1) return;
+    const px=(v.x*0.5+0.5)*r.width;
+    const py=(-v.y*0.5+0.5)*r.height;
+    const lx=px+ox, ly=py+oy;
+    // Leader line
     const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
-    svg.style.cssText='position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:139;overflow:visible;';
+    svg.style.cssText='position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:139;overflow:visible;';
     const line=document.createElementNS('http://www.w3.org/2000/svg','line');
-    line.setAttribute('x1',ex); line.setAttribute('y1',ey);
+    line.setAttribute('x1',px); line.setAttribute('y1',py);
     line.setAttribute('x2',lx); line.setAttribute('y2',ly);
-    line.setAttribute('stroke','rgba(200,245,66,0.45)'); line.setAttribute('stroke-width','1');
+    line.setAttribute('stroke','rgba(200,245,66,0.5)'); line.setAttribute('stroke-width','1');
     svg.appendChild(line); wrap.appendChild(svg); _bboxLabelDivs.push(svg);
-    // Label div
+    // Label
     const div=document.createElement('div');
-    div.style.cssText='position:absolute;pointer-events:none;z-index:140;font-family:DM Mono,monospace;font-size:10px;color:#c8f542;background:rgba(10,10,14,0.80);border:1px solid rgba(200,245,66,0.35);border-radius:3px;padding:1px 5px;transform:translate(-50%,-50%);white-space:nowrap;';
+    div.style.cssText='position:absolute;pointer-events:none;z-index:140;font-family:DM Mono,monospace;font-size:10px;color:#c8f542;background:rgba(10,10,14,0.82);border:1px solid rgba(200,245,66,0.38);border-radius:3px;padding:2px 6px;transform:translate(-50%,-50%);white-space:nowrap;';
     div.textContent=text; div.style.left=lx+'px'; div.style.top=ly+'px';
     wrap.appendChild(div); _bboxLabelDivs.push(div);
   });
@@ -1841,16 +1745,31 @@ function toggleSliceGhost(on){
   if(!loadedModel) return;
   if(_sliceGhostMesh){viewerScene?.remove(_sliceGhostMesh);_sliceGhostMesh=null;}
   if(!on) return;
+  // Build INVERTED clipping planes so ghost shows only the CUT-AWAY part
+  const invPlanes=[];
+  if(hSliceActive&&hSlicePlane) invPlanes.push(new THREE.Plane().copy(hSlicePlane).negate());
+  if(vSliceActive&&vSlicePlane) invPlanes.push(new THREE.Plane().copy(vSlicePlane).negate());
+  // If no slices active, show nothing (ghost only makes sense with a slice)
+  if(!invPlanes.length) return;
   const ghostGroup=new THREE.Group();
-  loadedModel.traverse(c=>{
-    if(!c.isMesh) return;
-    const mat=new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0.07,depthWrite:false,side:THREE.DoubleSide});
-    const m=new THREE.Mesh(c.geometry,mat);
-    m.matrix.copy(c.matrixWorld); m.matrixAutoUpdate=false;
+  loadedModel.traverse(child=>{
+    if(!child.isMesh) return;
+    const mat=new THREE.MeshBasicMaterial({
+      color:0xffffff,transparent:true,opacity:0.08,
+      depthWrite:false,side:THREE.DoubleSide,
+      clippingPlanes:invPlanes
+    });
+    const m=new THREE.Mesh(child.geometry,mat);
+    m.matrix.copy(child.matrixWorld); m.matrixAutoUpdate=false;
     ghostGroup.add(m);
   });
   _sliceGhostMesh=ghostGroup;
   viewerScene.add(_sliceGhostMesh);
+}
+// Rebuild ghost when slice planes change
+function _rebuildGhostIfActive(){
+  const tog=document.getElementById('slice-ghost-tog');
+  if(tog&&tog.checked) toggleSliceGhost(true);
 }
 function onZebraSize(val){_zebraStripeScale=parseFloat(val); const lbl=document.getElementById('zebra-size-val'); if(lbl)lbl.textContent=val; if(zebraMode!=='off')setZebraMode(zebraMode);} // kept for compat — zebra now uses ShaderMaterial
 
@@ -2240,6 +2159,7 @@ function toggleSectionVisibility(section) {
     _dimsHidden=!_dimsHidden;
     savedMeasurements.forEach(m=>{
       if(m.line) m.line.visible=!_dimsHidden&&!m._hidden;
+      if(m.lineGhost) m.lineGhost.visible=!_dimsHidden&&!m._hidden;
       if(m.sA)   m.sA.visible=!_dimsHidden&&!m._hidden;
       if(m.sB)   m.sB.visible=!_dimsHidden&&!m._hidden;
       const ld=measLabelDivs.get(m.id); if(ld) ld.style.display=(_dimsHidden||m._hidden)?'none':'block';
@@ -2382,13 +2302,11 @@ function _spawnMeasureLine(ptA, ptB, label, id, color) {
   }
   // Dashed line using LineDashedMaterial
   const geo=new THREE.BufferGeometry().setFromPoints([ptA.clone(),ptB.clone()]);
-  // Front line (full opacity, no depth test — always visible)
-  const line=new THREE.LineSegments(geo.clone(),new THREE.LineDashedMaterial({color:col,linewidth:1,dashSize:0.018,gapSize:0.010,depthTest:false,opacity:0.80,transparent:true}));
-  line.renderOrder=11; line.computeLineDistances();
-  // Ghost line behind model (very faint, depth tested — shows line is going through object)
-  const lineGhost=new THREE.LineSegments(geo,new THREE.LineDashedMaterial({color:col,linewidth:1,dashSize:0.025,gapSize:0.04,depthTest:true,opacity:0.08,transparent:true,depthWrite:false}));
-  lineGhost.renderOrder=0; lineGhost.computeLineDistances();
-  viewerScene.add(lineGhost);
+  // Line fully depth-tested — completely hidden by model geometry
+  const line=new THREE.LineSegments(geo.clone(),new THREE.LineDashedMaterial({color:col,linewidth:1.5,dashSize:0.022,gapSize:0.012,depthTest:true,opacity:1.0,transparent:false}));
+  line.renderOrder=5; line.computeLineDistances();
+  // No ghost line
+  const lineGhost=null;
   line.computeLineDistances();
   viewerScene.add(line);
   sA.userData.measId=id; sA.userData.endpoint='A';
@@ -2416,7 +2334,7 @@ function updateMeasEndpoint(id, endpoint, newPt) {
   m.line.geometry.setFromPoints([m.ptA.clone(),m.ptB.clone()]);
   m.line.geometry.computeBoundingSphere();
   m.line.computeLineDistances();
-  if(m.lineGhost){m.lineGhost.geometry.setFromPoints([m.ptA.clone(),m.ptB.clone()]);m.lineGhost.geometry.computeBoundingSphere();m.lineGhost.computeLineDistances();}
+  // lineGhost removed
   if(m.color===MEAS_COL_HEIGHT){
     m.sA.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),new THREE.Vector3(0,-1,0));
     m.sB.quaternion.identity();
@@ -2645,7 +2563,7 @@ async function exportPinReport() {
   // Footer
   pdf.setDrawColor(200,200,215); pdf.setLineWidth(0.15); pdf.line(14,PH-8,PW-14,PH-8);
   pdf.setFont('helvetica','normal'); pdf.setFontSize(6); pdf.setTextColor(150,150,170);
-  pdf.text(`CAD Inspector v0.4.4  ·  Exported ${new Date().toLocaleDateString()}`, 14, PH-3);
+  pdf.text(`CAD Inspector v0.4.5  ·  Exported ${new Date().toLocaleDateString()}`, 14, PH-3);
 
   pdf.save(`${modelName}-pin-report.pdf`);
 }
@@ -3901,7 +3819,7 @@ function _buildViewer(fileId, name, myToken) { function initViewer(fileId){
         // ~35° right offset, 30° elevation, closer than before
         viewerCamera.position.set(maxDim*1.15, maxDim*0.65, maxDim*0.95);
         viewerCamera.lookAt(cent2); viewerControls.target.copy(cent2); viewerControls.update();
-        const sizeStr=`${(size.x*100).toFixed(0)} × ${(size.y*100).toFixed(0)} × ${(size.z*100).toFixed(0)} cm`;
+        const sizeStr=`W ${(size.x*100).toFixed(0)} · H ${(size.y*100).toFixed(0)} · L ${(size.z*100).toFixed(0)} cm`;
         const sr=document.getElementById('size-readout'); if(sr) sr.textContent=sizeStr;
         // Size shown in Bounding Box section only
         const srl=document.getElementById('size-readout-logo'); if(srl) srl.style.display='none';
