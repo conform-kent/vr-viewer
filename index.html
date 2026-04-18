@@ -59,7 +59,7 @@ body.browser-open{overflow:auto;}
 
 /* ── LEFT floating control panel ── */
 #left-panel{
-  position:fixed;top:52px;left:14px;z-index:150;
+  position:fixed;top:56px;left:28px;z-index:150;
   width:210px;display:none;
   background:var(--surface);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);
   border:1px solid var(--border);border-radius:var(--radius);
@@ -113,7 +113,7 @@ body.browser-open{overflow:auto;}
 
 /* ── RIGHT floating annotation panel ── */
 #right-panel{
-  position:fixed;top:52px;right:14px;z-index:150;
+  position:fixed;top:56px;right:28px;z-index:150;
   width:256px;display:none;
   background:var(--surface);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);
   border:1px solid var(--border);border-radius:var(--radius);
@@ -245,14 +245,16 @@ body.browser-open{overflow:auto;}
     <div style="display:flex;align-items:center;gap:10px;padding:12px 20px;border-right:1px solid var(--border);flex-shrink:0;">
       <svg width="20" height="20" viewBox="0 0 32 32" fill="none"><polygon points="16,3 28,10 28,22 16,29 4,22 4,10" fill="none" stroke="#c8f542" stroke-width="2.2" stroke-linejoin="round"/><line x1="10" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="22" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="12" y1="13" x2="20" y2="13" stroke="rgba(200,245,66,0.5)" stroke-width="1.2" stroke-linecap="round"/></svg>
       <div>
-        <div style="font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;letter-spacing:.07em;color:#e4e4e0;text-transform:uppercase;">CAD Inspector <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--accent);font-weight:400;letter-spacing:.06em;text-transform:none;">v0.4</span></div>
+        <div style="font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;letter-spacing:.07em;color:#e4e4e0;text-transform:uppercase;">CAD Inspector <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--accent);font-weight:400;letter-spacing:.06em;text-transform:none;">v0.4.2</span></div>
         <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-top:1px;">3D CAD Model Review</div>
       </div>
     </div>
-    <!-- Model name pills -->
-    <div id="model-list-bar" style="flex:1;display:flex;align-items:center;overflow-x:auto;gap:4px;padding:8px 14px;scrollbar-width:none;">
-      <span id="model-list-empty" style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);">Loading…</span>
+    <!-- Model list pills (hidden — kept for JS compat) -->
+    <div id="model-list-bar" style="display:none;">
+      <span id="model-list-empty"></span>
     </div>
+    <!-- Count shown in header -->
+    <div style="flex:1;"></div>
     <!-- Actions -->
     <div style="display:flex;align-items:center;gap:8px;padding:0 16px;flex-shrink:0;border-left:1px solid var(--border);">
       <span class="count-badge" id="count-badge">—</span>
@@ -263,7 +265,7 @@ body.browser-open{overflow:auto;}
   <!-- Thumbnail grid -->
   <div style="flex:1;overflow-y:auto;padding:24px 28px;">
     <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:16px;">Select a model to inspect</div>
-    <div id="thumb-drawer-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:14px;"></div>
+    <div id="thumb-drawer-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px;"></div>
   </div>
 </div>
 
@@ -274,7 +276,7 @@ body.browser-open{overflow:auto;}
   <div id="viewer-logo" style="position:fixed;top:0;left:0;z-index:125;display:none;align-items:center;gap:10px;padding:10px 18px 10px 14px;background:rgba(13,13,16,0.7);backdrop-filter:blur(12px);border-bottom-right-radius:12px;border-bottom:1px solid var(--border);border-right:1px solid var(--border);">
     <svg width="18" height="18" viewBox="0 0 32 32" fill="none" style="flex-shrink:0;"><polygon points="16,3 28,10 28,22 16,29 4,22 4,10" fill="none" stroke="#c8f542" stroke-width="2.2" stroke-linejoin="round"/><line x1="10" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="22" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="12" y1="13" x2="20" y2="13" stroke="rgba(200,245,66,0.5)" stroke-width="1.2" stroke-linecap="round"/></svg>
     <div style="display:flex;flex-direction:column;gap:1px;">
-      <span style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;color:#e8e8e4;text-transform:uppercase;">CAD Inspector <span style="font-family:'DM Mono',monospace;font-size:8px;color:var(--accent);font-weight:400;letter-spacing:.06em;">v0.4</span></span>
+      <span style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;color:#e8e8e4;text-transform:uppercase;">CAD Inspector <span style="font-family:'DM Mono',monospace;font-size:8px;color:var(--accent);font-weight:400;letter-spacing:.06em;">v0.4.2</span></span>
       <span id="viewer-filename" style="font-family:'DM Mono',monospace;font-size:10px;color:#7a7a8a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px;"></span>
       <span id="size-readout-logo" style="font-family:'DM Mono',monospace;font-size:9px;color:#5a5a66;white-space:nowrap;display:none;"></span>
     </div>
@@ -283,6 +285,10 @@ body.browser-open{overflow:auto;}
   <!-- Full-screen canvas -->
   <div id="viewer-canvas-wrap">
     <div class="loading-overlay" id="loading-overlay">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:10px;margin-bottom:20px;">
+        <svg width="36" height="36" viewBox="0 0 32 32" fill="none"><polygon points="16,3 28,10 28,22 16,29 4,22 4,10" fill="none" stroke="#c8f542" stroke-width="2.2" stroke-linejoin="round"/><line x1="10" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="22" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="12" y1="13" x2="20" y2="13" stroke="rgba(200,245,66,0.5)" stroke-width="1.2" stroke-linecap="round"/></svg>
+        <span style="font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;letter-spacing:.1em;color:#e8e8e4;text-transform:uppercase;">CAD Inspector</span>
+      </div>
       <div class="spinner"></div>
       <span class="loading-label" id="loading-label">Loading model…</span>
     </div>
@@ -401,6 +407,17 @@ body.browser-open{overflow:auto;}
             <button class="bg-btn" onclick="missSymmetry('z')">Mirror Z</button>
             <button class="bg-btn" style="color:var(--danger);" onclick="missClearSymmetry()">Clear</button>
           </div>
+        </div>
+      </div>
+      <!-- Bounding Box -->
+      <div class="lp-section">
+        <div class="lp-sec-head" onclick="toggleLpSection('lps-5')">
+          <span class="lp-title" style="margin:0;flex:1;">Bounding Box</span>
+          <span class="lp-sec-chevron" id="lps-5-ch">▾</span>
+        </div>
+        <div class="lp-sec-body" id="lps-5">
+          <div class="lp-row"><span class="lp-label">Show box</span><label class="tog"><input type="checkbox" id="bbox-tog" onchange="toggleBoundingBox(this.checked)"><span class="tog-s"></span></label></div>
+          <div id="size-readout" style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text);margin-top:4px;">—</div>
         </div>
       </div>
     </div>
@@ -601,9 +618,9 @@ function togglePanelPin(panelId, btnId) {
   if(btn){btn.textContent=_panelPinned[panelId]?'◧':'◨';btn.title=_panelPinned[panelId]?'Snapped — drag to move':'Snap to side';}
   if(_panelPinned[panelId]) {
     panel.style.transition='left 0.2s,top 0.2s,right 0.2s';
-    if(panelId==='left-panel'){panel.style.left='14px';panel.style.top='52px';panel.style.right='auto';panel.style.transform='';}
+    if(panelId==='left-panel'){panel.style.left='28px';panel.style.top='56px';panel.style.right='auto';panel.style.transform='';}
     else if(panelId==='miss-toolbox'){panel.style.left='50%';panel.style.transform='translateX(-50%)';panel.style.top='50px';panel.style.right='auto';}
-    else{panel.style.right='14px';panel.style.left='auto';panel.style.top='52px';panel.style.transform='';}
+    else{panel.style.right='28px';panel.style.left='auto';panel.style.top='56px';panel.style.transform='';}
     setTimeout(()=>panel.style.transition='',220);
   }
 }
@@ -660,10 +677,19 @@ function toggleLeftPanel() {
 function toggleRightPanel() {
   const ptb=document.getElementById('pin-table-body');
   const ms=document.getElementById('meas-section');
-  // toggle visibility of bodies
-  const hidden=ptb&&ptb.style.display==='none';
-  if(ptb) ptb.style.display=hidden?'':'none';
-  if(ms&&ms.style.display!=='none') ms.style.display=hidden?'block':'none';
+  // Use a data attribute so we know the intended state
+  const rp=document.getElementById('right-panel');
+  const collapsed=rp?.dataset.collapsed==='1';
+  if(collapsed){
+    if(rp) rp.dataset.collapsed='0';
+    if(ptb) ptb.style.display='';
+    // Restore meas-section if it has content
+    if(ms&&savedMeasurements.length) ms.style.display='block';
+  } else {
+    if(rp) rp.dataset.collapsed='1';
+    if(ptb) ptb.style.display='none';
+    if(ms) ms.style.display='none';
+  }
 }
 
 // ── Draw fake floor cone on canvas overlay ────────────────────
@@ -758,7 +784,7 @@ const explodeOrigins = new Map();
 
 // ── Auto-rotate ───────────────────────────────────────────────
 let autoRotate = false;
-let autoRotateSpeed = 0.005;
+let autoRotateSpeed = 0.0045;
 
 // ── Grid group (follows model Y rotation) ────────────────────
 let gridGroup = null;
@@ -1054,8 +1080,8 @@ function renderGrid(models) {
       const name=model.name.replace(/\.glb$/i,'');
       const sizeMB=model.size?(model.size/1024/1024).toFixed(1)+' MB':'—';
       const card=document.createElement('div');
-      card.style.cssText='border-radius:8px;overflow:hidden;background:rgba(18,18,22,1);border:1px solid var(--border);cursor:pointer;transition:all 0.15s;';
-      card.innerHTML=`<div id="tw-${model.id}" style="height:90px;display:flex;align-items:center;justify-content:center;background:#111;"><span style="font-size:22px;opacity:0.2">⬡</span></div><div style="padding:6px 8px 8px;font-family:DM Mono,monospace;font-size:10px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${name}<span style="display:block;color:var(--muted);font-size:9px;">${sizeMB}</span></div>`;
+      card.style.cssText='border-radius:8px;overflow:hidden;background:rgba(18,18,24,0.4);border:1px solid var(--border);cursor:pointer;transition:all 0.15s;backdrop-filter:blur(4px);';
+      card.innerHTML=`<div id="tw-${model.id}" style="height:200px;display:flex;align-items:center;justify-content:center;background:transparent;border-radius:8px 8px 0 0;overflow:hidden;"><span style="font-size:30px;opacity:0.15">⬡</span></div><div style="padding:8px 10px 10px;font-family:DM Mono,monospace;font-size:11px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${name}<span style="display:block;color:var(--muted);font-size:9px;margin-top:2px;">${sizeMB}</span></div>`;
       card.onmouseenter=()=>{ card.style.borderColor='rgba(200,245,66,0.4)'; card.style.transform='translateY(-2px)'; };
       card.onmouseleave=()=>{ card.style.borderColor='var(--border)'; card.style.transform=''; };
       card.onclick=()=>{ document.getElementById('browser-screen').style.display='none'; openViewer(model.id,name); };
@@ -1111,7 +1137,7 @@ function openViewer(fileId, name) {
   // If a viewer is running, destroy it completely before starting fresh
   if(window._viewerActive) {
     _destroyViewer();
-    setTimeout(()=>_launchViewer(fileId,name), 300);
+    setTimeout(()=>_launchViewer(fileId,name), 400);
   } else {
     _launchViewer(fileId, name);
   }
@@ -1146,6 +1172,10 @@ function _destroyViewer() {
   gridOverlayObjects.forEach(o=>viewerScene?.remove(o)); gridOverlayObjects=[];
   gridOverlayActive=false; gridGroup=null;
   zebraMode='off'; autoRotate=false; texMode='tex'; allAnnotationsVisible=true;
+  // Reset showcase mode visuals so new model loads clean
+  ['left-panel','right-panel','bottom-bar','top-bar','viewer-logo'].forEach(id=>{
+    const el=document.getElementById(id); if(el){el.style.opacity='1';el.style.pointerEvents='';el.style.transition='';}
+  });
   savedMaterials.clear();
   if(viewerRenderer){
     if(viewerRenderer.xr?.isPresenting){try{viewerRenderer.xr.getSession()?.end();}catch(e){}}
@@ -1169,6 +1199,7 @@ function _destroyViewer() {
   vrMode='grab'; desktopMode='orbit'; currentFileId=null;
   _missExplodeOrigins.clear();
   missClearSymmetry?.();
+  if(_bboxHelper){viewerScene?.remove(_bboxHelper);_bboxHelper=null;} _bboxVisible=false;
   // Hide all panels
   ['left-panel','bottom-bar','top-bar','right-panel','viewer-logo',
    'meas-submode-popup','vr-hud'].forEach(id=>{
@@ -1583,6 +1614,25 @@ function toggleFloorGrid(){
   if(btn) btn.classList.toggle('active', !gridGroup.visible);
   if(cross) cross.style.display=gridGroup.visible?'none':'';
 }
+
+// ── Bounding Box Helper ───────────────────────────────────────
+let _bboxHelper=null, _bboxVisible=false;
+function toggleBoundingBox(on) {
+  _bboxVisible=on;
+  if(on){
+    if(!loadedModel) return;
+    if(_bboxHelper){ viewerScene?.remove(_bboxHelper); _bboxHelper=null; }
+    const box=new THREE.Box3().setFromObject(loadedModel);
+    _bboxHelper=new THREE.Box3Helper(box, new THREE.Color(0xc8f542));
+    _bboxHelper.material.transparent=true; _bboxHelper.material.opacity=0.6;
+    viewerScene.add(_bboxHelper);
+    // Align grid to model bbox min (upper left corner = min X, min Z in world)
+    if(gridGroup) gridGroup.position.set(box.min.x, 0, box.min.z);
+  } else {
+    if(_bboxHelper){ viewerScene?.remove(_bboxHelper); _bboxHelper=null; }
+    if(gridGroup) gridGroup.position.set(0,0,0);
+  }
+}
 function onZebraSize(val){_zebraStripeScale=parseFloat(val); const lbl=document.getElementById('zebra-size-val'); if(lbl)lbl.textContent=val; if(zebraMode!=='off')setZebraMode(zebraMode);} // kept for compat — zebra now uses ShaderMaterial
 
 // ════════════════════════════════════════════════════════════
@@ -1685,6 +1735,11 @@ function toggleAutoRotate() {
   autoRotate=!autoRotate;
   const b=document.getElementById('autorot-btn');
   if(b) b.classList.toggle('active',autoRotate);
+  // Re-enable orbit controls so click works after showcase
+  if(!autoRotate&&viewerControls){
+    viewerControls.enabled=true;
+    viewerControls.mouseButtons={LEFT:THREE.MOUSE.ROTATE,MIDDLE:THREE.MOUSE.ROTATE,RIGHT:THREE.MOUSE.PAN};
+  }
   _applyShowcaseMode(autoRotate);
 }
 let _showcasePrevGridVisible=true;
@@ -1713,6 +1768,24 @@ function _applyShowcaseMode(on) {
   // Logo
   const vl=document.getElementById('viewer-logo');
   if(vl) vl.style.opacity=on?'0.15':'1';
+  // Bottom bar (the 3 mode buttons)
+  const bb=document.getElementById('bottom-bar');
+  if(bb) { bb.style.opacity=on?'0':'1'; bb.style.pointerEvents=on?'none':''; }
+  // Measurement labels
+  measLabelDivs.forEach(div=>{ div.style.display=on?'none':div.dataset.wasDisplay||'block'; });
+  if(!on) measLabelDivs.forEach(div=>{ div.style.display=div.dataset.wasDisplay||'block'; });
+  // Measurement 3D objects
+  savedMeasurements.forEach(m=>{
+    if(m.line) m.line.visible=!on&&!m._hidden;
+    if(m.sA) m.sA.visible=!on&&!m._hidden;
+    if(m.sB) m.sB.visible=!on&&!m._hidden;
+  });
+  // Pin 3D objects
+  annotations.forEach(a=>{
+    if(a.mesh) a.mesh.visible=!on&&!a._hidden;
+    if(a.stem) a.stem.visible=!on&&!a._hidden;
+    if(a.labelDiv) a.labelDiv.style.display=on?'none':(a._hidden?'none':'');
+  });
   // Close any open popups
   if(on){
     const lpp=document.getElementById('light-popup'); if(lpp) lpp.style.display='none';
@@ -1987,7 +2060,13 @@ function rebuildMeasTable() {
     };
     const del=document.createElement('button'); del.className='ann-btn del'; del.textContent='✕';
     del.onclick=()=>{deleteMeasurement(m.id); rebuildMeasTable();};
-    card.appendChild(badge); card.appendChild(idSpan); card.appendChild(lbl); card.appendChild(del);
+    const eyeM=document.createElement('button'); eyeM.className='ann-btn'; eyeM.style.fontSize='11px';
+    eyeM.textContent=m._hidden?'○':'●'; eyeM.title='Toggle visibility';
+    eyeM.onclick=()=>{m._hidden=!m._hidden; if(m.line)m.line.visible=!m._hidden;
+      if(m.sA)m.sA.visible=!m._hidden; if(m.sB)m.sB.visible=!m._hidden;
+      const ld=measLabelDivs.get(m.id); if(ld)ld.style.display=m._hidden?'none':'block';
+      rebuildMeasTable();};
+    card.appendChild(badge); card.appendChild(idSpan); card.appendChild(lbl); card.appendChild(eyeM); card.appendChild(del);
     body.appendChild(card);
   });
   // Also update right panel visibility
@@ -2009,7 +2088,8 @@ function highlightPin(id) {
 function buildMeasureObjects(scene) {
   measureState.lineObj = new THREE.LineSegments(
     new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(),new THREE.Vector3()]),
-    new THREE.LineDashedMaterial({color:0xf5a142,dashSize:0.018,gapSize:0.010}));
+    new THREE.LineDashedMaterial({color:0xf5a142,dashSize:0.018,gapSize:0.010,depthTest:false,opacity:0.5,transparent:true}));
+  measureState.lineObj.renderOrder=10;
   measureState.lineObj.visible=false; scene.add(measureState.lineObj);
   const smat=new THREE.MeshBasicMaterial({color:0xf5a142}), sgeo=new THREE.SphereGeometry(0.008,8,8);
   measureState.sphereA=new THREE.Mesh(sgeo,smat.clone()); measureState.sphereA.visible=false;
@@ -2054,7 +2134,8 @@ function _spawnMeasureLine(ptA, ptB, label, id, color) {
   }
   // Dashed line using LineDashedMaterial
   const geo=new THREE.BufferGeometry().setFromPoints([ptA.clone(),ptB.clone()]);
-  const line=new THREE.LineSegments(geo,new THREE.LineDashedMaterial({color:col,linewidth:1,dashSize:0.018,gapSize:0.010}));
+  const line=new THREE.LineSegments(geo,new THREE.LineDashedMaterial({color:col,linewidth:1,dashSize:0.018,gapSize:0.010,depthTest:false,opacity:0.5,transparent:true}));
+  line.renderOrder=10;
   line.computeLineDistances();
   viewerScene.add(line);
   sA.userData.measId=id; sA.userData.endpoint='A';
@@ -2310,7 +2391,7 @@ async function exportPinReport() {
   // Footer
   pdf.setDrawColor(200,200,215); pdf.setLineWidth(0.15); pdf.line(14,PH-8,PW-14,PH-8);
   pdf.setFont('helvetica','normal'); pdf.setFontSize(6); pdf.setTextColor(150,150,170);
-  pdf.text(`CAD Inspector v0.4  ·  Exported ${new Date().toLocaleDateString()}`, 14, PH-3);
+  pdf.text(`CAD Inspector v0.4.2  ·  Exported ${new Date().toLocaleDateString()}`, 14, PH-3);
 
   pdf.save(`${modelName}-pin-report.pdf`);
 }
@@ -3410,8 +3491,8 @@ function _buildViewer(fileId, name, myToken) { function initViewer(fileId){
     const cv=document.createElement('canvas'); cv.width=cv.height=256;
     const ctx=cv.getContext('2d');
     const grad=ctx.createRadialGradient(128,128,0,128,128,128);
-    grad.addColorStop(0,'rgba(170,170,185,0.30)');
-    grad.addColorStop(0.45,'rgba(110,110,125,0.12)');
+    grad.addColorStop(0,'rgba(140,140,155,0.16)');
+    grad.addColorStop(0.4,'rgba(90,90,105,0.06)');
     grad.addColorStop(1,'rgba(0,0,0,0)');
     ctx.fillStyle=grad; ctx.fillRect(0,0,256,256);
     const tex=new THREE.CanvasTexture(cv);
@@ -3419,12 +3500,12 @@ function _buildViewer(fileId, name, myToken) { function initViewer(fileId){
     const disc=new THREE.Mesh(geo,mat); disc.rotation.x=-Math.PI/2; disc.position.y=0.002;
     disc.renderOrder=-1; scene.add(disc);
   })(viewerScene);
-  // Shadow receiver plane at floor
+  // Shadow receiver — very subtle shadow only, no glow
   const shadowReceiver=new THREE.Mesh(
-    new THREE.PlaneGeometry(10,10),
-    new THREE.ShadowMaterial({opacity:0.35,transparent:true})
+    new THREE.PlaneGeometry(12,12),
+    new THREE.ShadowMaterial({opacity:0.18,transparent:true})
   );
-  shadowReceiver.rotation.x=-Math.PI/2; shadowReceiver.position.y=0; shadowReceiver.receiveShadow=true;
+  shadowReceiver.rotation.x=-Math.PI/2; shadowReceiver.position.y=0.0005; shadowReceiver.receiveShadow=true;
   viewerScene.add(shadowReceiver);
   // ── Floor grid: grey, 1:1 scale, cm/10cm/1m, radial fade ──
   gridGroup = new THREE.Group();
@@ -3447,17 +3528,17 @@ function _buildViewer(fileId, name, myToken) { function initViewer(fileId){
       }
       ctx.stroke();
     }
-    drawGrid(0.01,0.4,130,0.20); // 1cm
-    drawGrid(0.10,0.7,155,0.38); // 10cm
-    drawGrid(1.00,1.4,190,0.65); // 1m
+    drawGrid(0.01,0.3,110,0.14); // 1cm — very subtle
+    drawGrid(0.10,0.6,140,0.28); // 10cm
+    drawGrid(1.00,1.2,175,0.50); // 1m
     // Radial alpha fade
     const imgd=ctx.getImageData(0,0,RES,RES);
-    const d=imgd.data, R=RES/2;
+    const d=imgd.data, R=RES/2, FADE_R=RES*1.5/6.0; // 1.5m fade radius
     for(let y=0;y<RES;y++) for(let x=0;x<RES;x++){
       const dist=Math.sqrt((x-R)*(x-R)+(y-R)*(y-R));
-      const fade=Math.max(0,1-dist/R);
+      const fade=Math.max(0,1-dist/FADE_R);
       const f=fade*fade*(3-2*fade);
-      d[(y*RES+x)*4+3]=Math.round(d[(y*RES+x)*4+3]*f*0.75);
+      d[(y*RES+x)*4+3]=Math.round(d[(y*RES+x)*4+3]*f*0.72);
     }
     ctx.putImageData(imgd,0,0);
     const tex=new THREE.CanvasTexture(canvas);
@@ -3564,6 +3645,7 @@ function _buildViewer(fileId, name, myToken) { function initViewer(fileId){
         const sizeStr=`${(size.x*100).toFixed(0)} × ${(size.y*100).toFixed(0)} × ${(size.z*100).toFixed(0)} cm`;
         const sr=document.getElementById('size-readout'); if(sr) sr.textContent=sizeStr;
         const srl=document.getElementById('size-readout-logo'); if(srl){srl.textContent=sizeStr;srl.style.display='block';}
+        const srd=document.getElementById('size-readout'); if(srd) srd.textContent=sizeStr;
         checkXRSupport();
         setTimeout(()=>{ if(viewerRenderer&&currentFileId===loadFileId) loadSessionMerged(loadFileId).then(s=>restoreSession(s)); }, 80);
       } catch(innerErr) {
