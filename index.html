@@ -211,13 +211,25 @@ body.browser-open{overflow:auto;}
 .exp-btn:hover{background:rgba(200,245,66,0.15);border-color:rgba(200,245,66,0.5);}
 .c-orbit{cursor:grab;} .c-pin{cursor:crosshair;} .c-meas{cursor:cell;}
 #vr-hud{display:none;position:fixed;inset:0;pointer-events:none;z-index:200;}
-/* Mobile: stack panels compactly */
+/* Mobile: top-bar moves to left side, compact layout */
 @media(max-width:600px){
-  #left-panel{width:calc(100vw - 28px);max-height:40vh;overflow-y:auto;}
-  #right-panel{width:calc(100vw - 28px);top:auto;bottom:80px;right:14px;max-height:35vh;}
-  #bottom-bar{width:calc(100vw - 28px);overflow-x:auto;border-radius:14px;}
-  .tb-btn{min-width:36px;padding:6px 7px;}
+  #top-bar{
+    left:0!important;top:50%!important;transform:translateY(-50%)!important;
+    flex-direction:column!important;border-radius:0 10px 10px 0!important;
+    border-left:none!important;border-bottom-left-radius:0!important;border-top-left-radius:0!important;
+    padding:6px 4px!important;max-height:80vh;overflow-y:auto;
+  }
+  #top-bar .tb-sep{width:20px;height:1px!important;margin:2px 0!important;}
+  #left-panel{width:160px;max-height:70vh;overflow-y:auto;}
+  #left-panel .lp-pin-btn, #left-panel .lp-head-btn[title*="snap"], #left-panel .lp-head-btn[title*="Snap"]{display:none!important;}
+  #left-panel{pointer-events:auto;touch-action:auto;} /* never draggable on mobile */
+  #right-panel{width:160px;max-height:50vh;}
+  #bottom-bar{overflow-x:auto;border-radius:14px;}
+  .tb-btn{min-width:34px;padding:5px 6px;}
   .tb-btn .tb-label{display:none;}
+  /* Auto-collapse lp sections on mobile */
+  .lp-sec-body{display:none;}
+  .lp-sec-body.sec-mobile-open{display:block;}
 }
 </style>
 </head>
@@ -232,7 +244,7 @@ body.browser-open{overflow:auto;}
     <div style="display:flex;align-items:center;gap:10px;padding:12px 20px;border-right:1px solid var(--border);flex-shrink:0;">
       <svg width="20" height="20" viewBox="0 0 32 32" fill="none"><polygon points="16,3 28,10 28,22 16,29 4,22 4,10" fill="none" stroke="#c8f542" stroke-width="2.2" stroke-linejoin="round"/><line x1="10" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="22" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="12" y1="13" x2="20" y2="13" stroke="rgba(200,245,66,0.5)" stroke-width="1.2" stroke-linecap="round"/></svg>
       <div>
-        <div style="font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;letter-spacing:.07em;color:#e4e4e0;text-transform:uppercase;">CAD Inspector <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--accent);font-weight:400;letter-spacing:.06em;text-transform:none;">v0.3.5</span></div>
+        <div style="font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;letter-spacing:.07em;color:#e4e4e0;text-transform:uppercase;">CAD Inspector <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--accent);font-weight:400;letter-spacing:.06em;text-transform:none;">v0.4</span></div>
         <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-top:1px;">3D CAD Model Review</div>
       </div>
     </div>
@@ -261,8 +273,9 @@ body.browser-open{overflow:auto;}
   <div id="viewer-logo" style="position:fixed;top:0;left:0;z-index:125;display:none;align-items:center;gap:10px;padding:10px 18px 10px 14px;background:rgba(13,13,16,0.7);backdrop-filter:blur(12px);border-bottom-right-radius:12px;border-bottom:1px solid var(--border);border-right:1px solid var(--border);">
     <svg width="18" height="18" viewBox="0 0 32 32" fill="none" style="flex-shrink:0;"><polygon points="16,3 28,10 28,22 16,29 4,22 4,10" fill="none" stroke="#c8f542" stroke-width="2.2" stroke-linejoin="round"/><line x1="10" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="22" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="12" y1="13" x2="20" y2="13" stroke="rgba(200,245,66,0.5)" stroke-width="1.2" stroke-linecap="round"/></svg>
     <div style="display:flex;flex-direction:column;gap:1px;">
-      <span style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;color:#e8e8e4;text-transform:uppercase;">CAD Inspector <span style="font-family:'DM Mono',monospace;font-size:8px;color:var(--accent);font-weight:400;letter-spacing:.06em;">v0.3.5</span></span>
+      <span style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;color:#e8e8e4;text-transform:uppercase;">CAD Inspector <span style="font-family:'DM Mono',monospace;font-size:8px;color:var(--accent);font-weight:400;letter-spacing:.06em;">v0.4</span></span>
       <span id="viewer-filename" style="font-family:'DM Mono',monospace;font-size:10px;color:#7a7a8a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px;"></span>
+      <span id="size-readout-logo" style="font-family:'DM Mono',monospace;font-size:9px;color:#5a5a66;white-space:nowrap;display:none;"></span>
     </div>
   </div>
 
@@ -373,16 +386,8 @@ body.browser-open{overflow:auto;}
           </div>
         </div>
       </div>
-      <!-- Bounding Box -->
-      <div class="lp-section">
-        <div class="lp-sec-head" onclick="toggleLpSection('lps-5')">
-          <span class="lp-title" style="margin:0;flex:1;">Bounding Box</span>
-          <span class="lp-sec-chevron" id="lps-5-ch">▾</span>
-        </div>
-        <div class="lp-sec-body" id="lps-5">
-          <div id="size-readout" style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text);">—</div>
-        </div>
-      </div>
+      <div id="lps-4" style="display:none;"></div>
+      <div id="lps-6" style="display:none;"><div id="explode-val-lp" style="display:none;"></div><input id="explode-sl-lp" type="range" style="display:none;" min="0" max="1" step="0.01" value="0"></div>
       <!-- Symmetry -->
       <div class="lp-section">
         <div class="lp-sec-head" onclick="toggleLpSection('lps-7')">
@@ -447,8 +452,8 @@ body.browser-open{overflow:auto;}
       <span class="tb-label">Light</span>
     </button>
     <div class="tb-sep"></div>
-    <button class="tb-btn" id="grid-toggle-btn" onclick="toggleFloorGrid()" title="Toggle floor grid">
-      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="1"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
+    <button class="tb-btn active" id="grid-toggle-btn" onclick="toggleFloorGrid()" title="Toggle floor grid" style="position:relative;">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="1"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/><line id="grid-cross" x1="3" y1="3" x2="21" y2="21" stroke-width="2.5" style="display:none;"/></svg>
       <span class="tb-label">Grid</span>
     </button>
     <div class="tb-sep"></div>
@@ -1291,10 +1296,12 @@ function toggleSliceControls(axis, on) {
 function onHSliceToggle(on) {
   if(on){ hSliceActive=true; document.getElementById('hslice-sl').value=0.5; onHSliceSlider(0.5); }
   else  { hSliceActive=false; applyAllClipping(); if(hContourLine) hContourLine.visible=false; }
+  if(zebraMode!=='off') setZebraMode(zebraMode); // rebuild zebra with new clip state
 }
 function onVSliceToggle(on) {
   if(on){ vSliceActive=true; document.getElementById('vslice-sl').value=0.5; onVSliceSlider(0.5); }
   else  { vSliceActive=false; applyAllClipping(); if(vContourLine) vContourLine.visible=false; }
+  if(zebraMode!=='off') setZebraMode(zebraMode);
 }
 
 
@@ -1322,7 +1329,7 @@ function onHSliceOriginSlider(val) {
   const {minY,maxY}=getModelBounds();
   const posT=parseFloat(document.getElementById('hslice-sl')?.value??0.5);
   const planeY=minY+posT*(maxY-minY+0.05);
-  const zOffset=(t-0.5)*depth*0.6; // forward/back offset on Z
+  const zOffset=(t-0.5)*depth*0.99; // forward/back offset on Z
   hSlicePt.set(0, planeY, zOffset);
   _applyHSliceWithAngle(); applyAllClipping(); computeContour(hSlicePlane,hContourLine);
 }
@@ -1337,7 +1344,7 @@ function onVSliceOriginSlider(val) {
   const {minX,maxX}=getModelBounds();
   const posT=parseFloat(document.getElementById('vslice-sl')?.value??0.5);
   const planeX=minX+posT*(maxX-minX);
-  const zOffset=(t-0.5)*depth*0.6;
+  const zOffset=(t-0.5)*depth*0.99;
   vSlicePt.set(planeX, 0, zOffset);
   _applyVSliceWithAngle(); applyAllClipping(); computeContour(vSlicePlane,vContourLine);
 }
@@ -1434,15 +1441,7 @@ function onLightSlider() {
 // ════════════════════════════════════════════════════════════
 //  AUTO-ROTATE
 // ════════════════════════════════════════════════════════════
-function toggleAutoRotate() {
-  autoRotate = !autoRotate;
-  const btn=document.getElementById('autorot-btn');
-  if(btn){
-    btn.style.background = autoRotate ? 'rgba(200,245,66,0.15)' : 'transparent';
-    btn.style.borderColor = autoRotate ? 'rgba(200,245,66,0.4)' : 'rgba(255,255,255,0.12)';
-    btn.style.color = autoRotate ? '#c8f542' : '#6b6b72';
-  }
-}
+// toggleAutoRotate defined below
 
 // ════════════════════════════════════════════════════════════
 //  ZEBRA / SURFACE ANALYSIS
@@ -1488,38 +1487,45 @@ function setZebraMode(mode) {
   // Create a ShaderMaterial overlay that samples world-space Y (H) or X (V)
   // stripes continuously across all mesh surfaces
   const axis=mode==='h'?1:0; // 1=Y for horizontal stripes, 0=X for vertical
-  const zebraVert=`
-    varying vec3 vWorldPos;
-    void main(){
-      vWorldPos=(modelMatrix*vec4(position,1.0)).xyz;
-      gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);
-    }`;
+  // Zebra: multiply dark stripes over lit surface — preserves shading
   const zebraFrag=`
     varying vec3 vWorldPos;
+    varying vec3 vNormal;
     uniform int axis;
     uniform float scale;
     void main(){
       float coord=axis==1?vWorldPos.y:vWorldPos.x;
       float stripe=mod(coord*scale,1.0);
       float band=step(0.5,stripe);
-      // Dark grey (0.18) and medium grey (0.58) — no z-fight black
-      float g=mix(0.18,0.58,band);
-      gl_FragColor=vec4(g,g,g,0.96);
+      // Dark stripe=0.0 (fully darken), light stripe=1.0 (transparent — shows lit model)
+      float alpha=mix(0.82,0.0,band); // dark band = 82% grey mask, light band = transparent
+      gl_FragColor=vec4(0.0,0.0,0.0,alpha);
     }`;
-  viewerScene&&viewerScene.traverse(o=>{if(o.isAmbientLight) o.intensity=0.12;});
+  const zebraVertN=`
+    varying vec3 vWorldPos;
+    varying vec3 vNormal;
+    void main(){
+      vWorldPos=(modelMatrix*vec4(position,1.0)).xyz;
+      vNormal=normalize(normalMatrix*normal);
+      gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);
+    }`;
+  viewerScene&&viewerScene.traverse(o=>{if(o.isAmbientLight) o.intensity=0.5;});
   loadedModel.traverse(child=>{
     if(!child.isMesh) return;
     const mat=new THREE.ShaderMaterial({
-      vertexShader:zebraVert, fragmentShader:zebraFrag,
+      vertexShader:zebraVertN, fragmentShader:zebraFrag,
       uniforms:{axis:{value:axis},scale:{value:_zebraStripeScale}},
       transparent:true, depthWrite:false, depthTest:true,
       polygonOffset:true, polygonOffsetFactor:-1, polygonOffsetUnits:-1,
-      side:THREE.DoubleSide
+      side:THREE.DoubleSide, blending:THREE.NormalBlending
     });
     child.updateWorldMatrix(true,false);
     const m=new THREE.Mesh(child.geometry,mat);
     m.matrix.copy(child.matrixWorld); m.matrixAutoUpdate=false;
     m.renderOrder=1;
+    // Apply current clipping planes so zebra respects active slices
+    if(hSliceActive&&hSlicePlane) mat.clippingPlanes=[...(vSliceActive&&vSlicePlane?[vSlicePlane]:[]),hSlicePlane];
+    else if(vSliceActive&&vSlicePlane) mat.clippingPlanes=[vSlicePlane];
     viewerScene.add(m); _zebraOverlayMeshes.push(m);
   });
 }
@@ -1555,9 +1561,12 @@ function toggleLightPopup(){
 }
 function toggleFloorGrid(){
   if(!gridGroup) return;
+  // Button starts active (grid visible by default)
   gridGroup.visible=!gridGroup.visible;
   const btn=document.getElementById('grid-toggle-btn');
-  if(btn) btn.classList.toggle('active',gridGroup.visible);
+  const cross=document.getElementById('grid-cross');
+  if(btn) btn.classList.toggle('active', gridGroup.visible);
+  if(cross) cross.style.display=gridGroup.visible?'none':'';
 }
 function onZebraSize(val){_zebraStripeScale=parseFloat(val); const lbl=document.getElementById('zebra-size-val'); if(lbl)lbl.textContent=val; if(zebraMode!=='off')setZebraMode(zebraMode);} // kept for compat — zebra now uses ShaderMaterial
 
@@ -1581,7 +1590,7 @@ function _buildGridOverlay() {
     if(!c.isMesh) return;
     const wf=new THREE.LineSegments(
       new THREE.WireframeGeometry(c.geometry),
-      new THREE.LineBasicMaterial({color:0xc8f542,transparent:true,opacity:gridOverlayOpacity}));
+      new THREE.LineBasicMaterial({color:0x8cb020,transparent:true,opacity:gridOverlayOpacity}));
     c.updateWorldMatrix(true,false); wf.matrix.copy(c.matrixWorld); wf.matrixAutoUpdate=false;
     viewerScene.add(wf); gridOverlayObjects.push(wf);
   });
@@ -1589,13 +1598,13 @@ function _buildGridOverlay() {
 
 function onGridBrightnessSlider(val) {
   const v=parseInt(val);
-  // 0=black, 100=white — straight greyscale ramp
   const lum=v/100;
-  const col=new THREE.Color(lum,lum,lum);
+  // Lime colour ramp — dark lime to bright lime
+  const limeCol=new THREE.Color(0.22+0.56*lum, 0.30+0.60*lum, 0.02+0.03*lum);
   gridOverlayOpacity=0.08+lum*0.85;
   const lbl=document.getElementById('grid-bright-val');
   if(lbl) lbl.textContent=v+'%';
-  gridOverlayObjects.forEach(o=>{ if(o.material){o.material.color.copy(col);o.material.opacity=gridOverlayOpacity;o.material.needsUpdate=true;} });
+  gridOverlayObjects.forEach(o=>{ if(o.material){o.material.color.copy(limeCol);o.material.opacity=gridOverlayOpacity;o.material.needsUpdate=true;} });
 }
 
 function setTexMode(next) {
@@ -1960,20 +1969,24 @@ function buildMeasureObjects(scene) {
 
 // Spawn a finalised measurement — tracks Three.js objects for later deletion/move
 function _makeDimMarker(col) {
-  // Small cone — points along +Y, will be rotated to face inward
-  const geo=new THREE.ConeGeometry(0.012, 0.032, 12, 1);
+  // Cone with tip offset so tip sits exactly at position (touches model surface)
+  // ConeGeometry: tip at local +Y*(h/2), base at -Y*(h/2)
+  // We translate the geometry so the TIP is at local origin (y=0)
+  const h=0.030, r=0.010;
+  const geo=new THREE.ConeGeometry(r, h, 14, 1);
+  geo.translate(0, -h/2, 0); // tip now at local y=0
   const mat=new THREE.MeshBasicMaterial({color:col, depthTest:true, depthWrite:true});
   const mesh=new THREE.Mesh(geo, mat);
   mesh.renderOrder=5;
   return mesh;
 }
 function _orientDimMarker(mesh, pos, towards) {
+  // Place at pos, rotate so local +Y points from pos toward towards
   mesh.position.copy(pos);
   const dir=towards.clone().sub(pos).normalize();
   const up=new THREE.Vector3(0,1,0);
   if(Math.abs(dir.dot(up))>0.9999) up.set(1,0,0);
-  const quat=new THREE.Quaternion().setFromUnitVectors(up, dir);
-  mesh.quaternion.copy(quat);
+  mesh.quaternion.setFromUnitVectors(up, dir);
 }
 function _spawnMeasureLine(ptA, ptB, label, id, color) {
   const col = color||MEAS_COL_FREE;
@@ -2233,38 +2246,18 @@ async function exportPinReport() {
   // Footer
   pdf.setDrawColor(200,200,215); pdf.setLineWidth(0.15); pdf.line(14,PH-8,PW-14,PH-8);
   pdf.setFont('helvetica','normal'); pdf.setFontSize(6); pdf.setTextColor(150,150,170);
-  pdf.text(`VR.browser v0.3.5  ·  Exported ${new Date().toLocaleDateString()}`, 14, PH-3);
+  pdf.text(`CAD Inspector v0.4  ·  Exported ${new Date().toLocaleDateString()}`, 14, PH-3);
 
   pdf.save(`${modelName}-pin-report.pdf`);
 }
 
-// ════════════════════════════════════════════════════════════
-//  EXPLODE
-// ════════════════════════════════════════════════════════════
-function cacheExplodeOrigins() {} // removed — explode disabled
+// cacheExplodeOrigins / applyExplode stubs kept for compat
+function cacheExplodeOrigins() {}
 function applyExplode(t) {}
-function onExplodeSlider(val){}
 
 // ════════════════════════════════════════════════════════════
 //  DESKTOP INTERACTION
 // ════════════════════════════════════════════════════════════
-function toggleLeftPanel() {
-  const body=document.getElementById('lp-body');
-  const icon=document.getElementById('lp-chevron');
-  if(!body) return;
-  const wasOpen=body.style.display!=='none';
-  body.style.display=wasOpen?'none':'block';
-  if(icon) icon.textContent=wasOpen?'▸':'▾';
-}
-function toggleRightPanel() {
-  const ptb=document.getElementById('pin-table-body');
-  const ms=document.getElementById('meas-section');
-  const rh=document.getElementById('rp-head-extra');
-  const wasOpen=ptb&&ptb.style.display!=='none';
-  if(ptb) ptb.style.display=wasOpen?'none':'';
-  if(ms&&savedMeasurements.length) ms.style.display=wasOpen?'none':'block';
-}
-
 function toggleMeasSubMode(sub) {
   if(measureSubMode===sub) {
     // Already active — deactivate back to free
@@ -2310,13 +2303,25 @@ function setDesktopMode(mode, silent) {
   if(mode!=='measure') resetMeasSubMode();
 }
 
-function getCanvasHit(e) {
+// Reusable invisible floor plane for distance-to-floor measurements
+let _floorHitPlane=null;
+function getFloorHitPlane(){
+  if(!_floorHitPlane){
+    const geo=new THREE.PlaneGeometry(100,100);
+    const mat=new THREE.MeshBasicMaterial({side:THREE.DoubleSide,visible:false});
+    _floorHitPlane=new THREE.Mesh(geo,mat);
+    _floorHitPlane.rotation.x=-Math.PI/2; _floorHitPlane.position.y=0;
+  }
+  return _floorHitPlane;
+}
+function getCanvasHit(e, includeFloor) {
   if(!viewerCamera||!viewerRenderer||!loadedModel) return null;
   const cv=viewerRenderer.domElement, rect=cv.getBoundingClientRect();
   mouseNDC.x=((e.clientX-rect.left)/rect.width)*2-1;
   mouseNDC.y=-((e.clientY-rect.top)/rect.height)*2+1;
   raycaster.setFromCamera(mouseNDC,viewerCamera);
   const ms=[]; loadedModel.traverse(c=>{if(c.isMesh)ms.push(c);});
+  if(includeFloor) ms.push(getFloorHitPlane());
   const hits=raycaster.intersectObjects(ms,false);
   return hits.length ? hits[0].point : null;
 }
@@ -2824,54 +2829,23 @@ function missExportBOM() {
 
 // Hook into dropAnnotation to handle SF markers and BOM tags
 const _origDrop=dropAnnotation;
-function dropAnnotation(pt) {
-  // Dimension chain takes priority
-  if(_missChainActive&&missAddChainPoint(pt)) return;
-  // Surface finish marker
-  if(_missSFMode) {
-    _missSFMode=false;
-    _origDrop.call(this,pt);
-    const pin=annotations[annotations.length-1];
-    if(pin){ pin.comment='Ra '+_missSFRa+' μm'; pin._isSF=true; rebuildPinTable(); saveSession(); }
-    setDesktopMode('orbit'); return;
-  }
-  // BOM tag
-  if(_missBOMMode) {
-    _missBOMMode=false;
-    const pn=document.getElementById('miss-bom-pn')?.value||'P'+((_missBOM.length)+1);
-    const desc=document.getElementById('miss-bom-desc')?.value||'';
-    _origDrop.call(this,pt);
-    const pin=annotations[annotations.length-1];
-    if(pin){ pin.comment=pn+(desc?' – '+desc:''); pin._bomIdx=_missBOM.length; }
-    _missBOM.push({pn,desc,x:pt.x,y:pt.y,z:pt.z});
-    rebuildPinTable(); saveSession();
-    setDesktopMode('orbit'); return;
-  }
-  // Normal pin
-  if(_missActiveLayer!==null&&_missLayers[_missActiveLayer]) {
-    _origDrop.call(this,pt);
-    const pin=annotations[annotations.length-1];
-    if(pin) pin._layer=_missActiveLayer;
-    return;
-  }
-  _origDrop.call(this,pt);
-}
+// dropAnnotation hook (pro tools removed)
 
 // Clean up miss-toolbox objects on model switch
 
 
 function resetSlicing() {
-  ['hslice-tog','vslice-tog'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=false;});
-  onHSliceToggle(false); onVSliceToggle(false);
-  ['hslice-sl','vslice-sl'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=0.5;});
-  ['hslice-ang','vslice-ang','hslice-orig','vslice-orig'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=0.5;});
-  const horl=document.getElementById('hslice-orig-val'); if(horl) horl.textContent='50%';
-  const vorl=document.getElementById('vslice-orig-val'); if(vorl) vorl.textContent='50%';
-  hSliceAngle=0; vSliceAngle=0; hSlicePt.set(0,0,0); vSlicePt.set(0,0,0);
+  // Reset sliders only — keep slices active
+  ['hslice-sl','vslice-sl'].forEach(id=>{const el=document.getElementById(id);if(el){el.value=0.5;if(el.id==='hslice-sl')onHSliceSlider(0.5);else onVSliceSlider(0.5);}});
   ['hslice-ang','vslice-ang'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=0;});
+  ['hslice-orig','vslice-orig'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=0.5;});
+  const horl=document.getElementById('hslice-orig-val'); if(horl) horl.textContent='+0%';
+  const vorl=document.getElementById('vslice-orig-val'); if(vorl) vorl.textContent='+0%';
+  hSliceAngle=0; vSliceAngle=0;
   const hav=document.getElementById('hslice-ang-val'); if(hav) hav.textContent='0°';
   const vav=document.getElementById('vslice-ang-val'); if(vav) vav.textContent='0°';
-  document.getElementById('slice-gimbals').style.display='none';
+  if(hSlicePlane&&hSliceActive) _applyHSliceWithAngle();
+  if(vSlicePlane&&vSliceActive) _applyVSliceWithAngle();
 }
 function resetLight() {
   const els={light_az:45, light_el:40, light_str:1.2, light_amb:0.5};
@@ -3010,7 +2984,7 @@ function onResetTransform() {
     const cent=box.getCenter(new THREE.Vector3());
     const maxDim=Math.max(size.x,size.y,size.z);
     viewerControls.target.copy(cent);
-    viewerCamera.position.set(cent.x+maxDim*1.35,cent.y+maxDim*0.75,cent.z+maxDim*1.35);
+    viewerCamera.position.set(cent.x+maxDim*1.15,cent.y+maxDim*0.65,cent.z+maxDim*0.95);
     viewerCamera.lookAt(cent); viewerControls.update();
   }
   // Reset all sliders to default values
@@ -3043,17 +3017,14 @@ function onResetTransform() {
   clearMeasure();
   resetMeasSubMode();
 }
-function onResetRotation() {
-  // Reset camera orbit to front view without moving target
-  if(!viewerCamera||!viewerControls) return;
-  const t=viewerControls.target.clone();
-  const dist=viewerCamera.position.distanceTo(t);
-  viewerCamera.position.set(t.x, t.y+dist*0.4, t.z+dist*0.9);
-  viewerCamera.lookAt(t); viewerControls.update();
-}
+// onResetRotation defined above
 function onSnapshot() {
   if(!viewerRenderer||!viewerScene||!viewerCamera) return;
+  // Hide grid for clean snapshot
+  const _gridWasVisible=gridGroup?gridGroup.visible:false;
+  if(gridGroup) gridGroup.visible=false;
   viewerRenderer.render(viewerScene,viewerCamera);
+  if(gridGroup) gridGroup.visible=_gridWasVisible;
   const canvas=viewerRenderer.domElement;
   const name=document.getElementById('viewer-title').textContent||'model';
   if(!allAnnotationsVisible){
@@ -3199,7 +3170,7 @@ function arAction(action){
       const fwd=new THREE.Vector3(0,0,-1).applyQuaternion(viewerCamera.quaternion);
       fwd.y=0; if(fwd.length()>0.001) fwd.normalize(); else fwd.set(0,0,-1);
       const y=modelRoot.position.y;
-      modelRoot.position.copy(viewerCamera.position).addScaledVector(fwd,1.5);
+      modelRoot.position.copy(viewerCamera.position).addScaledVector(fwd,2.5);
       modelRoot.position.y=y;
     } else { modelRoot.position.set(0,modelRoot.position.y,0); }
   }
@@ -3369,23 +3340,7 @@ function _buildViewer(fileId, name, myToken) { function initViewer(fileId){
   sunLight.shadow.bias=-0.001;
   viewerScene.add(sunLight);
   const fill=new THREE.DirectionalLight(0x8888ff,0.15); fill.position.set(-4,2,-3); viewerScene.add(fill);
-  // Faded floor disc — soft radial grey circle on the floor plane
-  (function buildFloorDisc(scene){
-    const geo=new THREE.CircleGeometry(1.2,64);
-    const canvas=document.createElement('canvas'); canvas.width=canvas.height=256;
-    const ctx=canvas.getContext('2d');
-    const grad=ctx.createRadialGradient(128,128,0,128,128,128);
-    grad.addColorStop(0,'rgba(180,180,190,0.32)');
-    grad.addColorStop(0.5,'rgba(120,120,130,0.14)');
-    grad.addColorStop(1,'rgba(0,0,0,0)');
-    ctx.fillStyle=grad; ctx.fillRect(0,0,256,256);
-    const tex=new THREE.CanvasTexture(canvas);
-    const mat=new THREE.MeshBasicMaterial({map:tex,transparent:true,depthWrite:false,side:THREE.DoubleSide});
-    const disc=new THREE.Mesh(geo,mat);
-    disc.rotation.x=-Math.PI/2; disc.position.y=0.001;
-    disc.renderOrder=-1;
-    scene.add(disc);
-  })(viewerScene);
+  // Floor disc removed (was causing light halo artefact on model)
   // Shadow receiver plane at floor
   const shadowReceiver=new THREE.Mesh(
     new THREE.PlaneGeometry(10,10),
@@ -3393,43 +3348,48 @@ function _buildViewer(fileId, name, myToken) { function initViewer(fileId){
   );
   shadowReceiver.rotation.x=-Math.PI/2; shadowReceiver.position.y=0; shadowReceiver.receiveShadow=true;
   viewerScene.add(shadowReceiver);
-  // ── Floor grid: high-res canvas texture, radial alpha fade, anchored at 0,0,0 ──
+  // ── Floor grid: true-scale lime canvas texture, 2048px, radial fade ──
   gridGroup = new THREE.Group();
   (function(grp){
-    const RES=1024, SIZE=4.0; // metres across entire plane
+    // SIZE = physical size in metres. 1 metre = exactly 1 grid unit.
+    // We draw lines every 0.1m (10cm) and every 1m.
+    const SIZE=6.0;  // total plane size in metres (visible before fade)
+    const RES=2048;  // texture resolution
+    const PX=RES/SIZE; // pixels per metre
     const canvas=document.createElement('canvas'); canvas.width=canvas.height=RES;
     const ctx=canvas.getContext('2d');
     ctx.clearRect(0,0,RES,RES);
-    // Draw grid lines: 10cm then 1m on top
-    function drawLines(spacingM, lw, alpha){
-      const n=SIZE/spacingM;
-      const px=RES/n;
-      ctx.strokeStyle=`rgba(180,180,185,${alpha})`;
+
+    // cm grid — very fine
+    function drawGrid(spacingM, lw, r,g,b, alpha){
+      ctx.strokeStyle=`rgba(${r},${g},${b},${alpha})`;
       ctx.lineWidth=lw;
       ctx.beginPath();
+      const n=Math.ceil(SIZE/spacingM)+1;
       for(let i=0;i<=n;i++){
-        const p=i*px;
+        const p=i*spacingM*PX;
         ctx.moveTo(p,0); ctx.lineTo(p,RES);
         ctx.moveTo(0,p); ctx.lineTo(RES,p);
       }
       ctx.stroke();
     }
-    drawLines(0.1, 1.0, 0.40);  // 10cm
-    drawLines(1.0, 2.0, 0.70);  // 1m
-    // Radial alpha mask — centre at pixel (RES/2, RES/2), fade to 0 at edge
+    drawGrid(0.01, 0.5, 100,130, 0, 0.18); // cm — lime dark
+    drawGrid(0.10, 0.8, 140,185,50, 0.35); // 10cm — lime medium
+    drawGrid(1.00, 1.5, 180,230,80, 0.65); // 1m — lime bright
+
+    // Radial alpha mask
     const imgd=ctx.getImageData(0,0,RES,RES);
     const d=imgd.data, R=RES/2;
     for(let y=0;y<RES;y++) for(let x=0;x<RES;x++){
       const dist=Math.sqrt((x-R)*(x-R)+(y-R)*(y-R));
       const fade=Math.max(0,1-dist/R);
-      // smooth fade: ease out
-      const f=fade*fade*(3-2*fade);
-      const i=(y*RES+x)*4;
-      d[i+3]=Math.round(d[i+3]*f);
+      const f=fade*fade*(3-2*fade); // smoothstep
+      d[(y*RES+x)*4+3]=Math.round(d[(y*RES+x)*4+3]*f*0.75); // 75% max opacity
     }
     ctx.putImageData(imgd,0,0);
+
     const tex=new THREE.CanvasTexture(canvas);
-    tex.needsUpdate=true;
+    tex.anisotropy=16; tex.needsUpdate=true;
     const plane=new THREE.Mesh(
       new THREE.PlaneGeometry(SIZE,SIZE,1,1),
       new THREE.MeshBasicMaterial({map:tex,transparent:true,opacity:1.0,depthWrite:false,side:THREE.DoubleSide})
@@ -3439,6 +3399,7 @@ function _buildViewer(fileId, name, myToken) { function initViewer(fileId){
   })(gridGroup);
   gridGroup.position.set(0,0,0); // anchor at world origin
   viewerScene.add(gridGroup);
+
 
   viewerControls=new THREE.OrbitControls(viewerCamera,viewerRenderer.domElement);
   viewerControls.enableDamping=true; viewerControls.dampingFactor=0.07; viewerControls.target.set(0,0.8,0);
@@ -3524,12 +3485,13 @@ function _buildViewer(fileId, name, myToken) { function initViewer(fileId){
         if(vContourLine) vContourLine.visible=false;
         setDesktopMode('orbit');
         const maxDim=Math.max(size.x,size.y,size.z);
-        const cent2=new THREE.Vector3(0,size.y*0.45,0);
-        // 45° azimuth front-right, ~35° elevation — matches reference image
-        viewerCamera.position.set(maxDim*1.35, maxDim*0.75, maxDim*1.35);
+        const cent2=new THREE.Vector3(0,size.y*0.42,0);
+        // ~35° right offset, 30° elevation, closer than before
+        viewerCamera.position.set(maxDim*1.15, maxDim*0.65, maxDim*0.95);
         viewerCamera.lookAt(cent2); viewerControls.target.copy(cent2); viewerControls.update();
-        const sr=document.getElementById('size-readout');
-        if(sr) sr.textContent=`${(size.x*100).toFixed(0)} × ${(size.y*100).toFixed(0)} × ${(size.z*100).toFixed(0)} cm`;
+        const sizeStr=`${(size.x*100).toFixed(0)} × ${(size.y*100).toFixed(0)} × ${(size.z*100).toFixed(0)} cm`;
+        const sr=document.getElementById('size-readout'); if(sr) sr.textContent=sizeStr;
+        const srl=document.getElementById('size-readout-logo'); if(srl){srl.textContent=sizeStr;srl.style.display='block';}
         checkXRSupport();
         setTimeout(()=>{ if(viewerRenderer&&currentFileId===loadFileId) loadSessionMerged(loadFileId).then(s=>restoreSession(s)); }, 80);
       } catch(innerErr) {
