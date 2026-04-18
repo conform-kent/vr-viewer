@@ -9,7 +9,7 @@
 :root{
   --bg:#0d0d10;--surface:rgba(14,14,18,0.92);--surface2:rgba(22,22,28,0.97);
   --border:rgba(255,255,255,0.09);--border-hi:rgba(255,255,255,0.18);
-  --text:#e4e4e0;--muted:#5a5a66;--accent:#c8f542;--accent2:#42f5c8;
+  --text:#e4e4e0;--muted:#888894;--accent:#c8f542;--accent2:#42f5c8;
   --danger:#f54242;--warn:#f5a142;--blue:#4290f5;
   --blur:blur(20px);--radius:12px;
 }
@@ -58,7 +58,7 @@ body.browser-open{overflow:auto;}
 
 /* ── LEFT floating control panel ── */
 #left-panel{
-  position:fixed;top:14px;left:14px;z-index:120;
+  position:fixed;top:52px;left:14px;z-index:150;
   width:210px;display:none;
   background:var(--surface);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);
   border:1px solid var(--border);border-radius:var(--radius);
@@ -112,7 +112,7 @@ body.browser-open{overflow:auto;}
 
 /* ── RIGHT floating annotation panel ── */
 #right-panel{
-  position:fixed;top:14px;right:14px;z-index:120;
+  position:fixed;top:52px;right:14px;z-index:150;
   width:256px;display:none;
   background:var(--surface);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);
   border:1px solid var(--border);border-radius:var(--radius);
@@ -230,7 +230,7 @@ body.browser-open{overflow:auto;}
     <!-- Logo -->
     <div style="display:flex;align-items:center;gap:10px;padding:12px 20px;border-right:1px solid var(--border);flex-shrink:0;">
       <svg width="20" height="20" viewBox="0 0 32 32" fill="none"><polygon points="16,3 28,10 28,22 16,29 4,22 4,10" fill="none" stroke="#c8f542" stroke-width="2.2" stroke-linejoin="round"/><line x1="10" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="22" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="12" y1="13" x2="20" y2="13" stroke="rgba(200,245,66,0.5)" stroke-width="1.2" stroke-linecap="round"/></svg>
-      <span style="font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;letter-spacing:.07em;color:#e8e8e4;text-transform:uppercase;">CAD Inspector <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--accent);font-weight:400;letter-spacing:.06em;text-transform:none;">v0.3</span></span>
+      <span style="font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;letter-spacing:.07em;color:#e8e8e4;text-transform:uppercase;">CAD Inspector <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--accent);font-weight:400;letter-spacing:.06em;text-transform:none;">v0.3.1</span></span>
     </div>
     <!-- Model list pills -->
     <div id="model-list-bar" style="flex:1;display:flex;align-items:center;overflow-x:auto;gap:3px;padding:7px 12px;scrollbar-width:none;-webkit-overflow-scrolling:touch;">
@@ -254,7 +254,10 @@ body.browser-open{overflow:auto;}
   <!-- Top-left logo bar — always visible in viewer -->
   <div id="viewer-logo" style="position:fixed;top:0;left:0;z-index:125;display:none;align-items:center;gap:10px;padding:10px 18px 10px 14px;background:rgba(13,13,16,0.7);backdrop-filter:blur(12px);border-bottom-right-radius:12px;border-bottom:1px solid var(--border);border-right:1px solid var(--border);">
     <svg width="18" height="18" viewBox="0 0 32 32" fill="none" style="flex-shrink:0;"><polygon points="16,3 28,10 28,22 16,29 4,22 4,10" fill="none" stroke="#c8f542" stroke-width="2.2" stroke-linejoin="round"/><line x1="10" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="22" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="12" y1="13" x2="20" y2="13" stroke="rgba(200,245,66,0.5)" stroke-width="1.2" stroke-linecap="round"/></svg>
-    <span style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;color:#e8e8e4;text-transform:uppercase;">CAD Inspector</span>
+    <div style="display:flex;flex-direction:column;gap:1px;">
+      <span style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;color:#e8e8e4;text-transform:uppercase;">CAD Inspector</span>
+      <span id="viewer-filename" style="font-family:'DM Mono',monospace;font-size:10px;color:#7a7a8a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px;"></span>
+    </div>
   </div>
 
   <!-- Full-screen canvas -->
@@ -290,7 +293,7 @@ body.browser-open{overflow:auto;}
   <div id="left-panel">
     <div class="lp-head" id="lp-drag-handle">
       <span class="lp-head-title" onclick="toggleLeftPanel()" style="flex:1;cursor:pointer;">Controls</span>
-      <button class="lp-head-btn" id="lp-pin-btn" onclick="togglePanelPin('left-panel','lp-pin-btn')" title="Pin to side">□</button>
+      <button class="lp-head-btn" id="lp-pin-btn" onclick="togglePanelPin('left-panel','lp-pin-btn')" title="Snap to side">◨</button>
       <span class="lp-head-icon open" id="lp-chevron" onclick="toggleLeftPanel()" style="cursor:pointer;">▾</span>
     </div>
     <div class="lp-body" id="lp-body">
@@ -328,6 +331,8 @@ body.browser-open{overflow:auto;}
             <button class="bg-btn" id="zebra-h" onclick="setZebraMode('h')">≡ H</button>
             <button class="bg-btn" id="zebra-v" onclick="setZebraMode('v')">⫶ V</button>
           </div>
+          <div class="lp-row" style="margin-top:6px;"><span class="lp-label" style="font-size:9px;color:var(--muted)">Stripe density</span><span class="lp-val" id="zebra-size-val">12</span></div>
+          <input type="range" class="lp-slider" id="zebra-size-sl" min="3" max="40" step="1" value="12" oninput="onZebraSize(this.value)">
         </div>
       </div>
       <!-- Grid Overlay -->
@@ -386,6 +391,32 @@ body.browser-open{overflow:auto;}
           <div id="size-readout" style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text);">—</div>
         </div>
       </div>
+      <!-- Explode -->
+      <div class="lp-section">
+        <div class="lp-sec-head">
+          <span class="lp-title" style="margin:0;flex:1;cursor:pointer;" onclick="toggleLpSection('lps-6')">Explode</span>
+          <button class="lp-head-btn" onclick="missResetExplode()" title="Reset explode"><svg width="10" height="10" viewBox="0 0 16 16" fill="none" style="stroke:var(--accent);stroke-width:2;stroke-linecap:round;"><path d="M14 8a6 6 0 11-2-4.5"/><polyline points="10,1 14,3.5 11.5,7"/></svg></button>
+          <span class="lp-sec-chevron" id="lps-6-ch" onclick="toggleLpSection('lps-6')" style="cursor:pointer;">▾</span>
+        </div>
+        <div class="lp-sec-body" id="lps-6">
+          <div class="lp-row"><span class="lp-val" id="explode-val-lp">0%</span></div>
+          <input type="range" class="lp-slider" id="explode-sl-lp" min="0" max="1" step="0.01" value="0" oninput="onExplodeSlider(parseFloat(this.value))">
+        </div>
+      </div>
+      <!-- Symmetry -->
+      <div class="lp-section">
+        <div class="lp-sec-head" onclick="toggleLpSection('lps-7')">
+          <span class="lp-title" style="margin:0;flex:1;">Symmetry Check</span>
+          <span class="lp-sec-chevron" id="lps-7-ch">▾</span>
+        </div>
+        <div class="lp-sec-body" id="lps-7">
+          <div class="btn-group">
+            <button class="bg-btn" onclick="missSymmetry('x')">Mirror X</button>
+            <button class="bg-btn" onclick="missSymmetry('z')">Mirror Z</button>
+            <button class="bg-btn" style="color:var(--danger);" onclick="missClearSymmetry()">Clear</button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -394,7 +425,7 @@ body.browser-open{overflow:auto;}
     <div class="rp-head" id="rp-drag-handle">
       <span class="rp-title" style="cursor:pointer;" onclick="toggleRightPanel()">Annotations &amp; Pins</span>
       <span id="annot-count" style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-right:4px;">0</span>
-      <button class="lp-head-btn" id="rp-pin-btn" onclick="togglePanelPin('right-panel','rp-pin-btn')" title="Pin to side">□</button>
+      <button class="lp-head-btn" id="rp-pin-btn" onclick="togglePanelPin('right-panel','rp-pin-btn')" title="Snap to side">◨</button>
     </div>
     <div id="pin-table-body"></div>
     <div id="meas-section" style="display:none;">
@@ -421,17 +452,14 @@ body.browser-open{overflow:auto;}
       <svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 11-9-9"/><polyline points="21 3 21 9 15 9"/></svg>
       <span class="tb-label">Auto</span>
     </button>
-    <button class="tb-btn" onclick="onResetRotation()" title="Reset camera angle">
-      <svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 109-9"/><polyline points="3 3 3 9 9 9"/></svg>
-      <span class="tb-label">Cam</span>
-    </button>
+
     <button class="tb-btn" onclick="onResetTransform()" title="Reset all">
       <svg viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
       <span class="tb-label">Reset</span>
     </button>
     <div class="tb-sep"></div>
-    <button class="tb-btn" id="hide-all-btn" onclick="toggleAllAnnotations()" title="Hide/show all annotations">
-      <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+    <button class="tb-btn" id="hide-all-btn" onclick="toggleAllAnnotations()" title="Hide/show all annotations" style="position:relative;">
+      <svg id="hide-all-icon" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/><line id="hide-all-cross" x1="3" y1="3" x2="21" y2="21" stroke-width="2.5" style="display:none;"/></svg>
       <span class="tb-label">All</span>
     </button>
     <div class="tb-sep"></div>
@@ -465,8 +493,8 @@ body.browser-open{overflow:auto;}
   <div id="bottom-bar" style="display:none;position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:122;align-items:center;gap:2px;padding:6px 10px;background:var(--surface);backdrop-filter:var(--blur);border:1px solid var(--border);border-radius:100px;box-shadow:0 8px 32px rgba(0,0,0,0.6);">
     <!-- Title area -->
     <div style="display:flex;flex-direction:column;padding:0 10px;min-width:90px;max-width:180px;border-right:1px solid var(--border);margin-right:4px;">
-      <span id="viewer-title" style="font-family:'DM Mono',monospace;font-size:11px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:170px;">—</span>
-      <span style="font-family:'DM Mono',monospace;font-size:8px;color:var(--accent);letter-spacing:.06em;font-weight:500;">v0.3</span>
+      <span id="viewer-title" style="display:none;position:absolute;pointer-events:none;" aria-hidden="true">—</span>
+      <span style="font-family:'DM Mono',monospace;font-size:8px;color:var(--accent);letter-spacing:.06em;font-weight:500;">v0.3.1</span>
     </div>
     <!-- 3 inspection mode buttons -->
     <button class="tb-btn active" id="dm-orbit" onclick="setDesktopMode('orbit')" title="Orbit (O)" style="padding:8px 14px;">
@@ -485,7 +513,7 @@ body.browser-open{overflow:auto;}
 </div>
 
   <!-- Experimental Toolbox -->
-  <div id="exp-toolbox" style="display:none;position:fixed;bottom:80px;right:14px;z-index:122;width:230px;background:var(--surface);backdrop-filter:var(--blur);border:1px solid rgba(200,245,66,0.25);border-radius:var(--radius);box-shadow:0 8px 32px rgba(0,0,0,0.6);">
+  <div id="exp-toolbox" style="display:none;position:fixed;bottom:80px;right:14px;z-index:151;width:230px;background:var(--surface);backdrop-filter:var(--blur);border:1px solid rgba(200,245,66,0.25);border-radius:var(--radius);box-shadow:0 8px 32px rgba(0,0,0,0.6);">
     <div id="exp-toolbox-handle" class="lp-head" style="border-bottom:1px solid rgba(200,245,66,0.15);cursor:grab;user-select:none;">
       <span style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;color:var(--accent);text-transform:uppercase;flex:1;">⚗ Lab · Experimental</span>
       <button class="lp-head-btn" onclick="document.getElementById('exp-toolbox').style.display='none'" title="Close">✕</button>
@@ -575,11 +603,11 @@ body.browser-open{overflow:auto;}
   </div>
 
   <!-- Missing Tools Toolbox — draggable, pinnable, toggleable -->
-  <div id="miss-toolbox" style="display:none;position:fixed;top:50px;left:50%;transform:translateX(-50%);z-index:122;width:260px;background:var(--surface);backdrop-filter:var(--blur);border:1px solid rgba(66,245,200,0.25);border-radius:var(--radius);box-shadow:0 8px 32px rgba(0,0,0,0.6);">
+  <div id="miss-toolbox" style="display:none;position:fixed;top:50px;left:50%;transform:translateX(-50%);z-index:151;width:260px;background:var(--surface);backdrop-filter:var(--blur);border:1px solid rgba(66,245,200,0.25);border-radius:var(--radius);box-shadow:0 8px 32px rgba(0,0,0,0.6);">
     <!-- Drag handle / header -->
     <div id="miss-toolbox-handle" class="lp-head" style="border-bottom:1px solid rgba(66,245,200,0.15);cursor:grab;user-select:none;">
       <span style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;color:var(--accent2);text-transform:uppercase;flex:1;">⊞ Pro Tools · Preview</span>
-      <button class="lp-head-btn" id="miss-pin-btn" onclick="togglePanelPin('miss-toolbox','miss-pin-btn')" title="Pin panel">□</button>
+      <button class="lp-head-btn" id="miss-pin-btn" onclick="togglePanelPin('miss-toolbox','miss-pin-btn')" title="Snap to side">◨</button>
       <button class="lp-head-btn" onclick="toggleMissToolbox()" title="Close">✕</button>
     </div>
     <div style="overflow-y:auto;max-height:75vh;padding:10px 12px;display:flex;flex-direction:column;gap:7px;">
@@ -771,13 +799,14 @@ function togglePanelPin(panelId, btnId) {
   const btn=document.getElementById(btnId);
   if(!panel) return;
   _panelPinned[panelId]=!_panelPinned[panelId];
-  panel.classList.toggle('pinned',_panelPinned[panelId]);
-  if(btn){btn.textContent=_panelPinned[panelId]?'■':'□';btn.style.opacity=_panelPinned[panelId]?'1':'0.7';}
+  // Snap to default wall position; always stays draggable
+  if(btn){btn.textContent=_panelPinned[panelId]?'◧':'◨';btn.title=_panelPinned[panelId]?'Snapped — drag to move':'Snap to side';}
   if(_panelPinned[panelId]) {
-    // Snap back to default pinned position
-    if(panelId==='left-panel'){panel.style.left='14px';panel.style.top='14px';panel.style.transform='';}
+    panel.style.transition='left 0.2s,top 0.2s,right 0.2s';
+    if(panelId==='left-panel'){panel.style.left='14px';panel.style.top='52px';panel.style.right='auto';panel.style.transform='';}
     else if(panelId==='miss-toolbox'){panel.style.left='50%';panel.style.transform='translateX(-50%)';panel.style.top='50px';panel.style.right='auto';}
-    else{panel.style.right='14px';panel.style.left='auto';panel.style.top='14px';panel.style.transform='';}
+    else{panel.style.right='14px';panel.style.left='auto';panel.style.top='52px';panel.style.transform='';}
+    setTimeout(()=>panel.style.transition='',220);
   }
 }
 function makeDraggable(panelId, handleId) {
@@ -786,7 +815,7 @@ function makeDraggable(panelId, handleId) {
   if(!panel||!handle) return;
   let startX=0,startY=0,origLeft=0,origTop=0,isDragging=false;
   handle.addEventListener('mousedown',e=>{
-    if(_panelPinned[panelId]||e.target.tagName==='BUTTON') return;
+    if(e.target.tagName==='BUTTON') return; // always draggable
     startX=e.clientX; startY=e.clientY;
     const r=panel.getBoundingClientRect();
     origLeft=r.left; origTop=r.top;
@@ -1296,6 +1325,8 @@ async function renderThumb(fileId,name) {
 // ════════════════════════════════════════════════════════════
 function openViewer(fileId,name) {
   _saveModelForGhost();
+  // Abort any in-progress load by bumping generation
+  window._viewerGen=(window._viewerGen||0)+1;
   if(viewerRenderer||loadedModel||viewerScene) {
     // Hide the overlay while cleanup runs so user sees browser momentarily
     cleanupViewer();
@@ -1307,10 +1338,11 @@ function openViewer(fileId,name) {
 }
 function _startViewer(fileId,name) {
   currentFileId=fileId;
-  // Hide browser overlay before showing viewer
   const bs=document.getElementById('browser-screen'); if(bs) bs.style.display='none';
   document.getElementById('viewer-overlay').classList.add('active');
   document.getElementById('viewer-title').textContent=name;
+  // Store filename separately, shown under logo
+  const fn=document.getElementById('viewer-filename'); if(fn) fn.textContent=name;
   document.getElementById('loading-overlay').classList.remove('hidden');
   document.getElementById('loading-label').textContent='Loading model…';
   requestAnimationFrame(()=>requestAnimationFrame(()=>initViewer(fileId)));
@@ -1379,8 +1411,11 @@ function cleanupViewer() {
   const rp2=document.getElementById('right-panel'); if(rp2) rp2.style.display='none';
   const sb=document.getElementById('sidebar'); if(sb) sb.style.display='none';
   ['hslice-tog','vslice-tog'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=false;});
+  ['hslice-ang','vslice-ang','hslice-orig','vslice-orig'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=0.5;});
+  const horl=document.getElementById('hslice-orig-val'); if(horl) horl.textContent='50%';
+  const vorl=document.getElementById('vslice-orig-val'); if(vorl) vorl.textContent='50%';
+  hSliceAngle=0; vSliceAngle=0; hSlicePt.set(0,0,0); vSlicePt.set(0,0,0);
   ['hslice-ang','vslice-ang'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=0;});
-  hSliceAngle=0; vSliceAngle=0;
   const hav=document.getElementById('hslice-ang-val'); if(hav) hav.textContent='0°';
   const vav=document.getElementById('vslice-ang-val'); if(vav) vav.textContent='0°';
   ['hslice-sl','vslice-sl'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=0.5;});
@@ -1645,27 +1680,16 @@ function toggleAutoRotate() {
 //  ZEBRA STRIPES — canvas texture applied as emissive map
 //  Real zebra = alternating black/white bands painted onto model surface
 // ════════════════════════════════════════════════════════════
-function makeZebraTexture(horizontal, stripes=12) {
-  const size=256, band=size/stripes;
-  const canvas=document.createElement('canvas'); canvas.width=canvas.height=size;
-  const ctx=canvas.getContext('2d');
-  ctx.fillStyle='#000'; ctx.fillRect(0,0,size,size);
-  ctx.fillStyle='#fff';
-  for(let i=0;i<stripes;i+=2){
-    if(horizontal){ ctx.fillRect(0,i*band,size,band); }
-    else           { ctx.fillRect(i*band,0,band,size); }
-  }
-  const tex=new THREE.CanvasTexture(canvas);
-  tex.wrapS=tex.wrapT=THREE.RepeatWrapping;
-  tex.repeat.set(1,1);
-  return tex;
-}
+// World-space zebra — uses ShaderMaterial overlay meshes so stripes are continuous across all parts
+let _zebraOverlayMeshes=[];
+let _zebraStripeScale=12; // stripes per metre
 
 function setZebraMode(mode) {
-  // Clean up previous zebra state
-  zebraObjects.forEach(o=>viewerScene&&viewerScene.remove(o)); zebraObjects=[];
+  // Remove previous overlay meshes
+  _zebraOverlayMeshes.forEach(m=>{viewerScene?.remove(m);m.geometry.dispose();m.material.dispose();});
+  _zebraOverlayMeshes=[];
   if(zebraTexture){zebraTexture.dispose();zebraTexture=null;}
-  // Restore materials — fully clear emissive
+  // Restore original emissive on any previously zebra-cloned materials
   if(loadedModel) loadedModel.traverse(c=>{
     if(!c.isMesh||!c.material) return;
     if(c.material._zebraCloned){
@@ -1676,9 +1700,7 @@ function setZebraMode(mode) {
     }
   });
   viewerScene&&viewerScene.traverse(o=>{if(o.isAmbientLight) o.intensity=0.6;});
-
   zebraMode=mode;
-  // Update button states
   ['zebra-off','zebra-h','zebra-v'].forEach(id=>{
     const b=document.getElementById(id); if(!b) return;
     const active=id===`zebra-${mode}`;
@@ -1686,25 +1708,62 @@ function setZebraMode(mode) {
     b.style.borderColor=active?'rgba(200,245,66,0.4)':'rgba(255,255,255,0.12)';
     b.style.color=active?'#c8f542':'#6b6b72';
   });
-  if(mode==='off') return;
+  if(mode==='off'||!loadedModel) return;
 
-  // Create stripe texture and apply as emissive so it's lighting-independent
-  const tex=makeZebraTexture(mode==='h');
-  zebraTexture=tex;
-  viewerScene&&viewerScene.traverse(o=>{if(o.isAmbientLight) o.intensity=0.15;});
-  if(loadedModel) loadedModel.traverse(c=>{
-    if(!c.isMesh||!c.material) return;
-    // Clone material if not already cloned to avoid affecting other instances
-    if(!c.material._zebraCloned){
-      c.material=c.material.clone();
-      c.material._zebraCloned=true;
-    }
-    c.material.emissiveMap=tex;
-    c.material.emissive=new THREE.Color(1,1,1);
-    c.material.emissiveIntensity=0.9;
-    c.material.needsUpdate=true;
+  // Create a ShaderMaterial overlay that samples world-space Y (H) or X (V)
+  // stripes continuously across all mesh surfaces
+  const axis=mode==='h'?1:0; // 1=Y for horizontal stripes, 0=X for vertical
+  const zebraVert=`
+    varying vec3 vWorldPos;
+    void main(){
+      vWorldPos=(modelMatrix*vec4(position,1.0)).xyz;
+      gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);
+    }`;
+  const zebraFrag=`
+    varying vec3 vWorldPos;
+    uniform int axis;
+    uniform float scale;
+    void main(){
+      float coord=axis==1?vWorldPos.y:vWorldPos.x;
+      float stripe=mod(coord*scale,1.0);
+      float band=step(0.5,stripe);
+      // Black and white stripes, slight alpha so underlying shading shows
+      gl_FragColor=vec4(vec3(band),0.92);
+    }`;
+  viewerScene&&viewerScene.traverse(o=>{if(o.isAmbientLight) o.intensity=0.12;});
+  loadedModel.traverse(child=>{
+    if(!child.isMesh) return;
+    const mat=new THREE.ShaderMaterial({
+      vertexShader:zebraVert, fragmentShader:zebraFrag,
+      uniforms:{axis:{value:axis},scale:{value:_zebraStripeScale}},
+      transparent:true, depthWrite:false, side:THREE.DoubleSide
+    });
+    const m=new THREE.Mesh(child.geometry,mat);
+    m.matrix.copy(child.matrixWorld); m.matrixAutoUpdate=false;
+    viewerScene.add(m); _zebraOverlayMeshes.push(m);
   });
 }
+function onExplodeSlider(t) {
+  document.getElementById('explode-val-lp') && (document.getElementById('explode-val-lp').textContent=Math.round(t*100)+'%');
+  document.getElementById('miss-explode-val') && (document.getElementById('miss-explode-val').textContent=Math.round(t*100)+'%');
+  if(!loadedModel){ missBuildExplode(); } // auto-build if needed
+  if(!_missExplodeOrigins.size) missBuildExplode();
+  if(!loadedModel) return;
+  const worldBox=new THREE.Box3().setFromObject(loadedModel);
+  const worldCtr=worldBox.getCenter(new THREE.Vector3());
+  const localCtr=loadedModel.worldToLocal(worldCtr.clone());
+  loadedModel.traverse(c=>{
+    if(!c.isMesh) return;
+    const orig=_missExplodeOrigins.get(c.uuid); if(!orig) return;
+    const dir=orig.clone().sub(localCtr);
+    // Never explode downward — clamp Y component to >= 0
+    dir.y=Math.max(0,dir.y);
+    const dist=dir.length(); dir.normalize();
+    c.position.copy(orig).addScaledVector(dir, t*(0.3+dist*0.8));
+  });
+}
+function makeZebraTexture(h){return null;}
+function onZebraSize(val){_zebraStripeScale=parseFloat(val); const lbl=document.getElementById('zebra-size-val'); if(lbl)lbl.textContent=val; if(zebraMode!=='off')setZebraMode(zebraMode);} // kept for compat — zebra now uses ShaderMaterial
 
 // ════════════════════════════════════════════════════════════
 //  WIREFRAME GRID OVERLAY (separate toggle)
@@ -1835,22 +1894,20 @@ let allAnnotationsVisible = true;
 function toggleAllAnnotations() {
   allAnnotationsVisible = !allAnnotationsVisible;
   const btn=document.getElementById('hide-all-btn');
-  if(btn){
-    btn.textContent=allAnnotationsVisible?'👁 All':'🙈 All';
-    btn.style.color=allAnnotationsVisible?'#6b6b72':'#c8f542';
-    btn.style.borderColor=allAnnotationsVisible?'rgba(255,255,255,0.1)':'rgba(200,245,66,0.3)';
-  }
+  const cross=document.getElementById('hide-all-cross');
+  if(btn){ btn.classList.toggle('active',!allAnnotationsVisible); }
+  if(cross) cross.style.display=allAnnotationsVisible?'none':'';
   annotationsVisible=allAnnotationsVisible;
   annotations.forEach(a=>{
-    a.mesh.visible=allAnnotationsVisible; a.stem.visible=allAnnotationsVisible;
-    a.labelDiv.style.display=allAnnotationsVisible?'':'none';
+    if(a.mesh) a.mesh.visible=allAnnotationsVisible;
+    if(a.stem) a.stem.visible=allAnnotationsVisible;
+    if(a.labelDiv) a.labelDiv.style.display=allAnnotationsVisible?'':'none';
   });
   const avb=document.getElementById('annot-vis-btn'); if(avb) avb.textContent=allAnnotationsVisible?'👁':'🙈';
-  // Hide/show measurement lines, spheres, and floating labels
   savedMeasurements.forEach(m=>{
-    m.line.visible=allAnnotationsVisible;
-    m.sA.visible=allAnnotationsVisible;
-    m.sB.visible=allAnnotationsVisible;
+    if(m.line) m.line.visible=allAnnotationsVisible;
+    if(m.sA) m.sA.visible=allAnnotationsVisible;
+    if(m.sB) m.sB.visible=allAnnotationsVisible;
   });
   measLabelDivs.forEach(div=>{div.style.display=allAnnotationsVisible?'block':'none';});
 }
@@ -2354,7 +2411,7 @@ async function exportPinReport() {
   // Footer
   pdf.setDrawColor(200,200,215); pdf.setLineWidth(0.15); pdf.line(14,PH-8,PW-14,PH-8);
   pdf.setFont('helvetica','normal'); pdf.setFontSize(6); pdf.setTextColor(150,150,170);
-  pdf.text(`VR.browser v0.3  ·  Exported ${new Date().toLocaleDateString()}`, 14, PH-3);
+  pdf.text(`VR.browser v0.3.1  ·  Exported ${new Date().toLocaleDateString()}`, 14, PH-3);
 
   pdf.save(`${modelName}-pin-report.pdf`);
 }
@@ -2956,8 +3013,11 @@ function resetSlicing() {
   ['hslice-tog','vslice-tog'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=false;});
   onHSliceToggle(false); onVSliceToggle(false);
   ['hslice-sl','vslice-sl'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=0.5;});
+  ['hslice-ang','vslice-ang','hslice-orig','vslice-orig'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=0.5;});
+  const horl=document.getElementById('hslice-orig-val'); if(horl) horl.textContent='50%';
+  const vorl=document.getElementById('vslice-orig-val'); if(vorl) vorl.textContent='50%';
+  hSliceAngle=0; vSliceAngle=0; hSlicePt.set(0,0,0); vSlicePt.set(0,0,0);
   ['hslice-ang','vslice-ang'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=0;});
-  hSliceAngle=0; vSliceAngle=0;
   const hav=document.getElementById('hslice-ang-val'); if(hav) hav.textContent='0°';
   const vav=document.getElementById('vslice-ang-val'); if(vav) vav.textContent='0°';
   document.getElementById('slice-gimbals').style.display='none';
@@ -3098,15 +3158,19 @@ function onResetTransform() {
     const size=box.getSize(new THREE.Vector3());
     const cent=box.getCenter(new THREE.Vector3());
     const maxDim=Math.max(size.x,size.y,size.z);
-    viewerControls.target.copy(cent);
-    viewerCamera.position.set(cent.x+maxDim*1.4,cent.y+maxDim*0.7,cent.z+maxDim*1.4);
-    viewerCamera.lookAt(cent); viewerControls.update();
+    const cent2r=new THREE.Vector3(cent.x,cent.y-size.y*0.05,cent.z);
+    viewerControls.target.copy(cent2r);
+    viewerCamera.position.set(cent2r.x+maxDim*1.35,cent2r.y+maxDim*0.75,cent2r.z+maxDim*1.35);
+    viewerCamera.lookAt(cent2r); viewerControls.update();
   }
   // Reset all sliders to default values
   ['hslice-sl','vslice-sl'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=0.5;});
   ['hslice-tog','vslice-tog'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=false;});
+  ['hslice-ang','vslice-ang','hslice-orig','vslice-orig'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=0.5;});
+  const horl=document.getElementById('hslice-orig-val'); if(horl) horl.textContent='50%';
+  const vorl=document.getElementById('vslice-orig-val'); if(vorl) vorl.textContent='50%';
+  hSliceAngle=0; vSliceAngle=0; hSlicePt.set(0,0,0); vSlicePt.set(0,0,0);
   ['hslice-ang','vslice-ang'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=0;});
-  hSliceAngle=0; vSliceAngle=0;
   const hav=document.getElementById('hslice-ang-val'); if(hav) hav.textContent='0°';
   const vav=document.getElementById('vslice-ang-val'); if(vav) vav.textContent='0°';
   ['hslice-sl','vslice-sl'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=0.5;});
@@ -3438,43 +3502,37 @@ function initViewer(fileId) {
     disc.renderOrder=-1;
     scene.add(disc);
   })(viewerScene);
-  // ── Floor grid: multi-resolution infinite-feeling with radial fade ──
+  // ── Floor grid: grey-only, 1.5m radial fade, multi-resolution ──
   gridGroup = new THREE.Group();
   (function(grp){
-    // Three layers: 1cm (very faint), 10cm, 1m (brightest centre lines)
-    const FADE=2.4; // fade radius in metres
+    const FADE=1.5; // fade radius metres
     const pos=[], col=[];
     function ln(ax,ay,az,bx,by,bz,bright){
       const dA=Math.sqrt(ax*ax+az*az)/FADE, dB=Math.sqrt(bx*bx+bz*bz)/FADE;
-      const a=Math.max(0,1-dA)*bright, b=Math.max(0,1-dB)*bright;
+      // Fade from 70% opaque (centre) to 0% at FADE radius
+      const a=Math.max(0,(1-dA)*0.7)*bright, b=Math.max(0,(1-dB)*0.7)*bright;
       pos.push(ax,ay,az, bx,by,bz);
       col.push(a,a,a,    b,b,b);
     }
-    const EXTENT=2.4; // half-extent
-    // 1cm grid (very faint, fine detail near centre only)
-    const CM_FADE=0.4, CM_BRIGHT=0.12;
-    for(let i=-40;i<=40;i++){
-      const v=i*0.01; if(v%0.1===0||Math.abs(v)>CM_FADE) continue;
-      ln(-CM_FADE,0,v, CM_FADE,0,v, CM_BRIGHT);
-      ln(v,0,-CM_FADE, v,0,CM_FADE, CM_BRIGHT);
+    // 1cm grid — subtle, close to centre only (0.3m radius)
+    const EXTENT_CM=0.3;
+    for(let i=-30;i<=30;i++){
+      const v=i*0.01; if(Math.abs(i)%10===0) continue; // skip 10cm lines
+      if(Math.abs(v)>EXTENT_CM) continue;
+      ln(-EXTENT_CM,0,v, EXTENT_CM,0,v, 0.28);
+      ln(v,0,-EXTENT_CM, v,0,EXTENT_CM, 0.28);
     }
-    // 10cm grid (medium brightness)
-    for(let i=-24;i<=24;i++){
-      if(i===0) continue; // skip centre — drawn by 1m grid
-      const v=i*0.1;
-      ln(-EXTENT,0,v, EXTENT,0,v, 0.38);
-      ln(v,0,-EXTENT, v,0,EXTENT, 0.38);
-    }
-    // 1m grid (brighter)
-    for(let i=-2;i<=2;i++){
+    // 10cm grid — main grid, full FADE extent
+    const EXTENT=FADE*1.05;
+    for(let i=Math.ceil(-EXTENT/0.1);i<=Math.floor(EXTENT/0.1);i++){
       if(i===0) continue;
-      const v=i*1.0;
-      ln(-EXTENT,0,v, EXTENT,0,v, 0.65);
-      ln(v,0,-EXTENT, v,0,EXTENT, 0.65);
+      const v=i*0.1;
+      ln(-EXTENT,0,v, EXTENT,0,v, i%10===0?0.62:0.38);
+      ln(v,0,-EXTENT, v,0,EXTENT, i%10===0?0.62:0.38);
     }
-    // Centre cross (strongest)
-    ln(-EXTENT,0,0, EXTENT,0,0, 0.85);
-    ln(0,0,-EXTENT, 0,0,EXTENT, 0.85);
+    // Centre cross
+    ln(-EXTENT,0,0, EXTENT,0,0, 0.75);
+    ln(0,0,-EXTENT, 0,0,EXTENT, 0.75);
 
     const geo=new THREE.BufferGeometry();
     geo.setAttribute('position',new THREE.BufferAttribute(new Float32Array(pos),3));
@@ -3552,8 +3610,11 @@ function initViewer(fileId) {
         drawFloorCone(); initGimbalDrag();
         rebuildSidebar();
         ['hslice-tog','vslice-tog'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=false;});
+  ['hslice-ang','vslice-ang','hslice-orig','vslice-orig'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=0.5;});
+  const horl=document.getElementById('hslice-orig-val'); if(horl) horl.textContent='50%';
+  const vorl=document.getElementById('vslice-orig-val'); if(vorl) vorl.textContent='50%';
+  hSliceAngle=0; vSliceAngle=0; hSlicePt.set(0,0,0); vSlicePt.set(0,0,0);
   ['hslice-ang','vslice-ang'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=0;});
-  hSliceAngle=0; vSliceAngle=0;
   const hav=document.getElementById('hslice-ang-val'); if(hav) hav.textContent='0°';
   const vav=document.getElementById('vslice-ang-val'); if(vav) vav.textContent='0°';
   ['hslice-sl','vslice-sl'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=0.5;});
@@ -3562,8 +3623,10 @@ function initViewer(fileId) {
         if(vContourLine) vContourLine.visible=false;
         setDesktopMode('orbit');
         const maxDim=Math.max(size.x,size.y,size.z);
-        viewerCamera.position.set(maxDim*1.5,maxDim*0.8,maxDim*1.5);
-        viewerCamera.lookAt(0,size.y/2,0); viewerControls.target.set(0,size.y/2,0); viewerControls.update();
+        const cent2=new THREE.Vector3(0,size.y*0.45,0);
+        // 45° azimuth front-right, ~35° elevation — matches reference image
+        viewerCamera.position.set(maxDim*1.35, maxDim*0.75, maxDim*1.35);
+        viewerCamera.lookAt(cent2); viewerControls.target.copy(cent2); viewerControls.update();
         const sr=document.getElementById('size-readout');
         if(sr) sr.textContent=`${(size.x*100).toFixed(0)} × ${(size.y*100).toFixed(0)} × ${(size.z*100).toFixed(0)} cm`;
         checkXRSupport();
