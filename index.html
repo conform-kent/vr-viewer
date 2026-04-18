@@ -232,7 +232,7 @@ body.browser-open{overflow:auto;}
     <div style="display:flex;align-items:center;gap:10px;padding:12px 20px;border-right:1px solid var(--border);flex-shrink:0;">
       <svg width="20" height="20" viewBox="0 0 32 32" fill="none"><polygon points="16,3 28,10 28,22 16,29 4,22 4,10" fill="none" stroke="#c8f542" stroke-width="2.2" stroke-linejoin="round"/><line x1="10" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="22" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="12" y1="13" x2="20" y2="13" stroke="rgba(200,245,66,0.5)" stroke-width="1.2" stroke-linecap="round"/></svg>
       <div>
-        <div style="font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;letter-spacing:.07em;color:#e4e4e0;text-transform:uppercase;">CAD Inspector <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--accent);font-weight:400;letter-spacing:.06em;text-transform:none;">v0.3.4</span></div>
+        <div style="font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;letter-spacing:.07em;color:#e4e4e0;text-transform:uppercase;">CAD Inspector <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--accent);font-weight:400;letter-spacing:.06em;text-transform:none;">v0.3.5</span></div>
         <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-top:1px;">3D CAD Model Review</div>
       </div>
     </div>
@@ -261,7 +261,7 @@ body.browser-open{overflow:auto;}
   <div id="viewer-logo" style="position:fixed;top:0;left:0;z-index:125;display:none;align-items:center;gap:10px;padding:10px 18px 10px 14px;background:rgba(13,13,16,0.7);backdrop-filter:blur(12px);border-bottom-right-radius:12px;border-bottom:1px solid var(--border);border-right:1px solid var(--border);">
     <svg width="18" height="18" viewBox="0 0 32 32" fill="none" style="flex-shrink:0;"><polygon points="16,3 28,10 28,22 16,29 4,22 4,10" fill="none" stroke="#c8f542" stroke-width="2.2" stroke-linejoin="round"/><line x1="10" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="22" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="12" y1="13" x2="20" y2="13" stroke="rgba(200,245,66,0.5)" stroke-width="1.2" stroke-linecap="round"/></svg>
     <div style="display:flex;flex-direction:column;gap:1px;">
-      <span style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;color:#e8e8e4;text-transform:uppercase;">CAD Inspector <span style="font-family:'DM Mono',monospace;font-size:8px;color:var(--accent);font-weight:400;letter-spacing:.06em;">v0.3.4</span></span>
+      <span style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;color:#e8e8e4;text-transform:uppercase;">CAD Inspector <span style="font-family:'DM Mono',monospace;font-size:8px;color:var(--accent);font-weight:400;letter-spacing:.06em;">v0.3.5</span></span>
       <span id="viewer-filename" style="font-family:'DM Mono',monospace;font-size:10px;color:#7a7a8a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px;"></span>
     </div>
   </div>
@@ -373,24 +373,6 @@ body.browser-open{overflow:auto;}
           </div>
         </div>
       </div>
-      <!-- Light -->
-      <div class="lp-section">
-        <div class="lp-sec-head">
-          <span class="lp-title" style="margin:0;flex:1;cursor:pointer;" onclick="toggleLpSection('lps-4')">Light</span>
-          <button class="lp-head-btn" onclick="resetLight()" title="Reset light"><svg width="10" height="10" viewBox="0 0 16 16" fill="none" style="stroke:var(--accent);stroke-width:2;stroke-linecap:round;"><path d="M14 8a6 6 0 11-2-4.5"/><polyline points="10,1 14,3.5 11.5,7"/></svg></button>
-          <span class="lp-sec-chevron" id="lps-4-ch" onclick="toggleLpSection('lps-4')" style="cursor:pointer;">▾</span>
-        </div>
-        <div class="lp-sec-body" id="lps-4">
-          <div class="lp-row"><span class="lp-label">Sun Strength</span><span class="lp-val" id="light-str-val">1.2</span></div>
-          <input type="range" class="lp-slider warn" id="light-str" min="0" max="3" step="0.05" value="1.2" oninput="onLightSlider()">
-          <div class="lp-row"><span class="lp-label">Ambient</span><span class="lp-val" id="light-amb-val">0.5</span></div>
-          <input type="range" class="lp-slider" id="light-amb" min="0" max="2" step="0.05" value="0.5" oninput="onLightSlider()">
-          <div class="lp-row"><span class="lp-label">Azimuth</span><span class="lp-val" id="light-az-val">45°</span></div>
-          <input type="range" class="lp-slider warn" id="light-az" min="0" max="360" step="1" value="45" oninput="onLightSlider()">
-          <div class="lp-row"><span class="lp-label">Elevation</span><span class="lp-val" id="light-el-val">40°</span></div>
-          <input type="range" class="lp-slider warn" id="light-el" min="5" max="85" step="1" value="40" oninput="onLightSlider()">
-        </div>
-      </div>
       <!-- Bounding Box -->
       <div class="lp-section">
         <div class="lp-sec-head" onclick="toggleLpSection('lps-5')">
@@ -399,18 +381,6 @@ body.browser-open{overflow:auto;}
         </div>
         <div class="lp-sec-body" id="lps-5">
           <div id="size-readout" style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text);">—</div>
-        </div>
-      </div>
-      <!-- Explode -->
-      <div class="lp-section">
-        <div class="lp-sec-head">
-          <span class="lp-title" style="margin:0;flex:1;cursor:pointer;" onclick="toggleLpSection('lps-6')">Explode</span>
-          <button class="lp-head-btn" onclick="missResetExplode()" title="Reset explode"><svg width="10" height="10" viewBox="0 0 16 16" fill="none" style="stroke:var(--accent);stroke-width:2;stroke-linecap:round;"><path d="M14 8a6 6 0 11-2-4.5"/><polyline points="10,1 14,3.5 11.5,7"/></svg></button>
-          <span class="lp-sec-chevron" id="lps-6-ch" onclick="toggleLpSection('lps-6')" style="cursor:pointer;">▾</span>
-        </div>
-        <div class="lp-sec-body" id="lps-6">
-          <div class="lp-row"><span class="lp-val" id="explode-val-lp">0%</span></div>
-          <input type="range" class="lp-slider" id="explode-sl-lp" min="0" max="1" step="0.01" value="0" oninput="onExplodeSlider(parseFloat(this.value))">
         </div>
       </div>
       <!-- Symmetry -->
@@ -472,6 +442,15 @@ body.browser-open{overflow:auto;}
       <svg id="hide-all-icon" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/><line id="hide-all-cross" x1="3" y1="3" x2="21" y2="21" stroke-width="2.5" style="display:none;"/></svg>
       <span class="tb-label">All</span>
     </button>
+    <button class="tb-btn" id="light-btn" onclick="toggleLightPopup()" title="Light settings">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/><line x1="4.22" y1="19.78" x2="6.34" y2="17.66"/><line x1="17.66" y1="6.34" x2="19.78" y2="4.22"/></svg>
+      <span class="tb-label">Light</span>
+    </button>
+    <div class="tb-sep"></div>
+    <button class="tb-btn" id="grid-toggle-btn" onclick="toggleFloorGrid()" title="Toggle floor grid">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="1"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
+      <span class="tb-label">Grid</span>
+    </button>
     <div class="tb-sep"></div>
     <button class="tb-btn" onclick="exportPinReport()" title="Export PDF">
       <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
@@ -511,6 +490,19 @@ body.browser-open{overflow:auto;}
   </div>
 </div>
 
+
+  <!-- Light popup panel — shown when sun button active -->
+  <div id="light-popup" style="display:none;position:fixed;top:44px;left:50%;transform:translateX(-50%);z-index:200;background:var(--surface);backdrop-filter:var(--blur);border:1px solid var(--border);border-top:none;border-radius:0 0 10px 10px;padding:12px 14px;width:220px;box-shadow:0 8px 24px rgba(0,0,0,0.5);">
+    <div class="lp-row"><span class="lp-label">Sun Strength</span><span class="lp-val" id="light-str-val">1.2</span></div>
+    <input type="range" class="lp-slider warn" id="light-str" min="0" max="3" step="0.05" value="1.2" oninput="onLightSlider()">
+    <div class="lp-row"><span class="lp-label">Ambient</span><span class="lp-val" id="light-amb-val">0.5</span></div>
+    <input type="range" class="lp-slider" id="light-amb" min="0" max="2" step="0.05" value="0.5" oninput="onLightSlider()">
+    <div class="lp-row"><span class="lp-label">Azimuth</span><span class="lp-val" id="light-az-val">45°</span></div>
+    <input type="range" class="lp-slider warn" id="light-az" min="0" max="360" step="1" value="45" oninput="onLightSlider()">
+    <div class="lp-row"><span class="lp-label">Elevation</span><span class="lp-val" id="light-el-val">40°</span></div>
+    <input type="range" class="lp-slider warn" id="light-el" min="5" max="85" step="1" value="40" oninput="onLightSlider()">
+    <button onclick="resetLight()" style="width:100%;margin-top:6px;font-family:'DM Mono',monospace;font-size:9px;padding:4px 0;border-radius:5px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;">↺ Reset light</button>
+  </div>
 
 <!-- VR/AR HUD -->
 <div id="vr-hud" style="display:none;position:fixed;inset:0;pointer-events:none;z-index:200;">
@@ -978,9 +970,9 @@ function updateMeasLabels() {
     div.style.display='block';
     div.style.left=(v.x*0.5+0.5)*r.width+r.left+'px';
     div.style.top=(-v.y*0.5+0.5)*r.height+r.top+'px';
-    // Name above, number below
-    if(m.customLabel){div.innerHTML='<span style="display:block;font-size:9px;opacity:0.75;">'+m.customLabel+'</span><span>'+m.label+'</span>';}
-    else{div.textContent=m.label;}
+    // Always: name/id above (small), dimension below (main)
+    const nameStr=m.customLabel||('M'+String(m.id).padStart(2,'0'));
+    div.innerHTML='<span style="display:block;font-size:9px;opacity:0.7;letter-spacing:.04em;">'+nameStr+'</span><span>'+m.label+'</span>';
     // Apply measurement type colour to label
     if(m.color){
       const h='#'+m.color.toString(16).padStart(6,'0');
@@ -1320,30 +1312,33 @@ function onVSliceAngle(val) {
 }
 
 function onHSliceOriginSlider(val) {
-  // Moves the rotation pivot Y offset independently of the cut position
-  // val: 0=bottom of model, 0.5=cut centre, 1=top of model
+  // Moves the rotation PIVOT forward/back (Z axis) around the cut plane
   const t=parseFloat(val);
-  const pct=Math.round((t-0.5)*200); // show as -100 to +100
+  const pct=Math.round((t-0.5)*200);
   const lbl=document.getElementById('hslice-orig-val'); if(lbl) lbl.textContent=(pct>=0?'+':'')+pct+'%';
   if(!hSlicePlane||!hSliceActive||!loadedModel) return;
+  const box=new THREE.Box3().setFromObject(loadedModel);
+  const depth=box.max.z-box.min.z;
   const {minY,maxY}=getModelBounds();
   const posT=parseFloat(document.getElementById('hslice-sl')?.value??0.5);
   const planeY=minY+posT*(maxY-minY+0.05);
-  // Offset pivot along Y by ±half model height
-  const offset=(t-0.5)*(maxY-minY)*0.5;
-  hSlicePt.set(0, planeY+offset, 0);
+  const zOffset=(t-0.5)*depth*0.6; // forward/back offset on Z
+  hSlicePt.set(0, planeY, zOffset);
   _applyHSliceWithAngle(); applyAllClipping(); computeContour(hSlicePlane,hContourLine);
 }
 function onVSliceOriginSlider(val) {
+  // Moves the rotation PIVOT forward/back (Z axis) around the vertical cut
   const t=parseFloat(val);
   const pct=Math.round((t-0.5)*200);
   const lbl=document.getElementById('vslice-orig-val'); if(lbl) lbl.textContent=(pct>=0?'+':'')+pct+'%';
   if(!vSlicePlane||!vSliceActive||!loadedModel) return;
+  const box=new THREE.Box3().setFromObject(loadedModel);
+  const depth=box.max.z-box.min.z;
   const {minX,maxX}=getModelBounds();
   const posT=parseFloat(document.getElementById('vslice-sl')?.value??0.5);
   const planeX=minX+posT*(maxX-minX);
-  const offset=(t-0.5)*(maxX-minX)*0.5;
-  vSlicePt.set(planeX+offset, 0, 0);
+  const zOffset=(t-0.5)*depth*0.6;
+  vSlicePt.set(planeX, 0, zOffset);
   _applyVSliceWithAngle(); applyAllClipping(); computeContour(vSlicePlane,vContourLine);
 }
 
@@ -1507,8 +1502,9 @@ function setZebraMode(mode) {
       float coord=axis==1?vWorldPos.y:vWorldPos.x;
       float stripe=mod(coord*scale,1.0);
       float band=step(0.5,stripe);
-      // Black and white stripes, slight alpha so underlying shading shows
-      gl_FragColor=vec4(vec3(band),0.92);
+      // Dark grey (0.18) and medium grey (0.58) — no z-fight black
+      float g=mix(0.18,0.58,band);
+      gl_FragColor=vec4(g,g,g,0.96);
     }`;
   viewerScene&&viewerScene.traverse(o=>{if(o.isAmbientLight) o.intensity=0.12;});
   loadedModel.traverse(child=>{
@@ -1516,10 +1512,14 @@ function setZebraMode(mode) {
     const mat=new THREE.ShaderMaterial({
       vertexShader:zebraVert, fragmentShader:zebraFrag,
       uniforms:{axis:{value:axis},scale:{value:_zebraStripeScale}},
-      transparent:true, depthWrite:false, side:THREE.DoubleSide
+      transparent:true, depthWrite:false, depthTest:true,
+      polygonOffset:true, polygonOffsetFactor:-1, polygonOffsetUnits:-1,
+      side:THREE.DoubleSide
     });
+    child.updateWorldMatrix(true,false);
     const m=new THREE.Mesh(child.geometry,mat);
     m.matrix.copy(child.matrixWorld); m.matrixAutoUpdate=false;
+    m.renderOrder=1;
     viewerScene.add(m); _zebraOverlayMeshes.push(m);
   });
 }
@@ -1545,6 +1545,20 @@ function onExplodeSlider(t) {
   });
 }
 function makeZebraTexture(h){return null;}
+function toggleLightPopup(){
+  const p=document.getElementById('light-popup');
+  const b=document.getElementById('light-btn');
+  if(!p) return;
+  const show=p.style.display==='none'||!p.style.display;
+  p.style.display=show?'block':'none';
+  if(b) b.classList.toggle('active',show);
+}
+function toggleFloorGrid(){
+  if(!gridGroup) return;
+  gridGroup.visible=!gridGroup.visible;
+  const btn=document.getElementById('grid-toggle-btn');
+  if(btn) btn.classList.toggle('active',gridGroup.visible);
+}
 function onZebraSize(val){_zebraStripeScale=parseFloat(val); const lbl=document.getElementById('zebra-size-val'); if(lbl)lbl.textContent=val; if(zebraMode!=='off')setZebraMode(zebraMode);} // kept for compat — zebra now uses ShaderMaterial
 
 // ════════════════════════════════════════════════════════════
@@ -1946,26 +1960,20 @@ function buildMeasureObjects(scene) {
 
 // Spawn a finalised measurement — tracks Three.js objects for later deletion/move
 function _makeDimMarker(col) {
-  // Flat billboard triangle sprite — always faces camera
-  const cv=document.createElement('canvas'); cv.width=cv.height=32;
-  const ctx=cv.getContext('2d');
-  const hexCol='#'+(col).toString(16).padStart(6,'0');
-  ctx.fillStyle=hexCol;
-  // Triangle pointing right (will be rotated toward endpoint)
-  ctx.beginPath(); ctx.moveTo(28,16); ctx.lineTo(4,4); ctx.lineTo(4,28); ctx.closePath();
-  ctx.fill();
-  const tex=new THREE.CanvasTexture(cv);
-  const mat=new THREE.SpriteMaterial({map:tex,sizeAttenuation:false,depthTest:false});
-  const spr=new THREE.Sprite(mat);
-  spr.scale.set(0.045,0.045,0.045);
-  spr.renderOrder=10;
-  return spr;
+  // Small cone — points along +Y, will be rotated to face inward
+  const geo=new THREE.ConeGeometry(0.012, 0.032, 12, 1);
+  const mat=new THREE.MeshBasicMaterial({color:col, depthTest:true, depthWrite:true});
+  const mesh=new THREE.Mesh(geo, mat);
+  mesh.renderOrder=5;
+  return mesh;
 }
 function _orientDimMarker(mesh, pos, towards) {
   mesh.position.copy(pos);
-  // Sprites auto-face camera; we encode direction in userData for rendering
-  mesh.userData._dimFrom=pos.clone();
-  mesh.userData._dimTo=towards.clone();
+  const dir=towards.clone().sub(pos).normalize();
+  const up=new THREE.Vector3(0,1,0);
+  if(Math.abs(dir.dot(up))>0.9999) up.set(1,0,0);
+  const quat=new THREE.Quaternion().setFromUnitVectors(up, dir);
+  mesh.quaternion.copy(quat);
 }
 function _spawnMeasureLine(ptA, ptB, label, id, color) {
   const col = color||MEAS_COL_FREE;
@@ -2002,7 +2010,6 @@ function updateMeasEndpoint(id, endpoint, newPt) {
   m.line.geometry.setFromPoints([m.ptA.clone(),m.ptB.clone()]);
   m.line.geometry.computeBoundingSphere();
   m.line.computeLineDistances();
-  // Re-orient cone markers to point toward each other
   _orientDimMarker(m.sA,m.ptA,m.ptB); _orientDimMarker(m.sB,m.ptB,m.ptA);
   saveSession();
 }
@@ -2226,7 +2233,7 @@ async function exportPinReport() {
   // Footer
   pdf.setDrawColor(200,200,215); pdf.setLineWidth(0.15); pdf.line(14,PH-8,PW-14,PH-8);
   pdf.setFont('helvetica','normal'); pdf.setFontSize(6); pdf.setTextColor(150,150,170);
-  pdf.text(`VR.browser v0.3.4  ·  Exported ${new Date().toLocaleDateString()}`, 14, PH-3);
+  pdf.text(`VR.browser v0.3.5  ·  Exported ${new Date().toLocaleDateString()}`, 14, PH-3);
 
   pdf.save(`${modelName}-pin-report.pdf`);
 }
@@ -2315,6 +2322,28 @@ function getCanvasHit(e) {
 }
 
 // Try to hit a measurement endpoint sphere at the current mouse position
+
+function onCanvasMouseMove(e) {
+  if(!viewerCamera||!viewerRenderer) return;
+  const cw=document.getElementById('viewer-canvas-wrap'); if(!cw) return;
+  // Check if hovering a measurement endpoint or a pin
+  const sphere=getMeasSphereHit(e);
+  if(sphere) { cw.style.cursor='grab'; return; }
+  // Check pins
+  if(viewerCamera&&viewerRenderer&&annotations.length){
+    const cv=viewerRenderer.domElement, rect=cv.getBoundingClientRect();
+    const nx=((e.clientX-rect.left)/rect.width)*2-1;
+    const ny=-((e.clientY-rect.top)/rect.height)*2+1;
+    const ray=new THREE.Raycaster(); ray.setFromCamera({x:nx,y:ny},viewerCamera);
+    const pinMeshes=annotations.map(a=>a.mesh).filter(Boolean);
+    if(pinMeshes.length&&ray.intersectObjects(pinMeshes,false).length){
+      cw.style.cursor='pointer'; return;
+    }
+  }
+  // Default for current mode
+  const mode=desktopMode||'orbit';
+  cw.style.cursor=mode==='pin'?'crosshair':mode==='measure'?'cell':'grab';
+}
 function getMeasSphereHit(e) {
   if(!viewerCamera||!viewerRenderer||!savedMeasurements.length) return null;
   const cv=viewerRenderer.domElement, rect=cv.getBoundingClientRect();
@@ -2324,7 +2353,10 @@ function getMeasSphereHit(e) {
   tmpRay.setFromCamera({x:nx,y:ny},viewerCamera);
   tmpRay.params.Mesh={};  // default mesh threshold
   const spheres=[];
-  savedMeasurements.forEach(m=>{if(m.sA)spheres.push(m.sA);if(m.sB)spheres.push(m.sB);});
+  savedMeasurements.forEach(m=>{
+    if(m.sA&&!m.sA.userData.floorFixed) spheres.push(m.sA);
+    if(m.sB&&!m.sB.userData.floorFixed) spheres.push(m.sB);
+  });
   if(!spheres.length) return null;
   const hits=tmpRay.intersectObjects(spheres,false);
   return hits.length ? hits[0].object : null;
@@ -2381,7 +2413,8 @@ function onCanvasClick(e) {
       const ptBot=new THREE.Vector3(pt.x, 0, pt.z); // floor (Y=0)
       const h=ptTop.y;
       const lbl=(h>=1?h.toFixed(3)+' m':(h*100).toFixed(1)+' cm')+' ↕';
-      _spawnMeasureLine(ptTop, ptBot, lbl, ++measureCount, MEAS_COL_HEIGHT);
+      const hRec=_spawnMeasureLine(ptTop, ptBot, lbl, ++measureCount, MEAS_COL_HEIGHT);
+      hRec.sB.userData.floorFixed=true; // floor endpoint — not movable
       rebuildMeasTable(); saveSession(); return;
     }
     // --- WIDTH sub-mode: one click, mirror to mid-plane (X=0) ---
@@ -3319,6 +3352,7 @@ function _buildViewer(fileId, name, myToken) { function initViewer(fileId){
   viewerRenderer.xr.enabled=true; viewerRenderer.localClippingEnabled=true;
   wrap.appendChild(viewerRenderer.domElement);
   viewerRenderer.domElement.addEventListener('click',onCanvasClick);
+  viewerRenderer.domElement.addEventListener('mousemove',onCanvasMouseMove);
   viewerRenderer.domElement.addEventListener('contextmenu',onCanvasRightClick);
 
   viewerScene=new THREE.Scene(); viewerScene.background=new THREE.Color(0x1a1a1e);
@@ -3359,48 +3393,51 @@ function _buildViewer(fileId, name, myToken) { function initViewer(fileId){
   );
   shadowReceiver.rotation.x=-Math.PI/2; shadowReceiver.position.y=0; shadowReceiver.receiveShadow=true;
   viewerScene.add(shadowReceiver);
-  // ── Floor grid: canvas-texture with radial alpha mask (no vertex-colour bugs) ──
+  // ── Floor grid: high-res canvas texture, radial alpha fade, anchored at 0,0,0 ──
   gridGroup = new THREE.Group();
   (function(grp){
-    const SIZE=3.0; // total plane diameter metres
-    const canvas=document.createElement('canvas'); canvas.width=canvas.height=512;
+    const RES=1024, SIZE=4.0; // metres across entire plane
+    const canvas=document.createElement('canvas'); canvas.width=canvas.height=RES;
     const ctx=canvas.getContext('2d');
-    ctx.clearRect(0,0,512,512);
-    const FADE_R=256; // radial fade radius (pixels)
-    // Draw grid lines
-    function drawGrid(spacing, lineWidth, alpha){
-      const cells=SIZE/spacing, px=512/cells;
-      ctx.strokeStyle=`rgba(160,160,168,${alpha})`;
-      ctx.lineWidth=lineWidth;
-      for(let i=0;i<=cells;i++){
+    ctx.clearRect(0,0,RES,RES);
+    // Draw grid lines: 10cm then 1m on top
+    function drawLines(spacingM, lw, alpha){
+      const n=SIZE/spacingM;
+      const px=RES/n;
+      ctx.strokeStyle=`rgba(180,180,185,${alpha})`;
+      ctx.lineWidth=lw;
+      ctx.beginPath();
+      for(let i=0;i<=n;i++){
         const p=i*px;
-        ctx.beginPath(); ctx.moveTo(p,0); ctx.lineTo(p,512); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(0,p); ctx.lineTo(512,p); ctx.stroke();
+        ctx.moveTo(p,0); ctx.lineTo(p,RES);
+        ctx.moveTo(0,p); ctx.lineTo(RES,p);
       }
+      ctx.stroke();
     }
-    // Draw from coarsest to finest so they stack correctly
-    drawGrid(1.0, 1.8, 0.65);  // 1m lines
-    drawGrid(0.1, 1.0, 0.38);  // 10cm lines
-    drawGrid(0.01,0.4, 0.14);  // 1cm lines (only visible close up)
-    // Apply radial alpha mask (centre bright → edge invisible)
-    const imgd=ctx.getImageData(0,0,512,512);
-    const d=imgd.data;
-    for(let y=0;y<512;y++) for(let x=0;x<512;x++){
-      const dx=x-256, dy=y-256;
-      const dist=Math.sqrt(dx*dx+dy*dy);
-      const fade=Math.max(0,1-dist/FADE_R);
-      const i=(y*512+x)*4;
-      d[i+3]=Math.round(d[i+3]*fade); // multiply existing alpha by fade
+    drawLines(0.1, 1.0, 0.40);  // 10cm
+    drawLines(1.0, 2.0, 0.70);  // 1m
+    // Radial alpha mask — centre at pixel (RES/2, RES/2), fade to 0 at edge
+    const imgd=ctx.getImageData(0,0,RES,RES);
+    const d=imgd.data, R=RES/2;
+    for(let y=0;y<RES;y++) for(let x=0;x<RES;x++){
+      const dist=Math.sqrt((x-R)*(x-R)+(y-R)*(y-R));
+      const fade=Math.max(0,1-dist/R);
+      // smooth fade: ease out
+      const f=fade*fade*(3-2*fade);
+      const i=(y*RES+x)*4;
+      d[i+3]=Math.round(d[i+3]*f);
     }
     ctx.putImageData(imgd,0,0);
     const tex=new THREE.CanvasTexture(canvas);
+    tex.needsUpdate=true;
     const plane=new THREE.Mesh(
       new THREE.PlaneGeometry(SIZE,SIZE,1,1),
-      new THREE.MeshBasicMaterial({map:tex,transparent:true,opacity:1,depthWrite:false,side:THREE.DoubleSide})
+      new THREE.MeshBasicMaterial({map:tex,transparent:true,opacity:1.0,depthWrite:false,side:THREE.DoubleSide})
     );
-    plane.rotation.x=-Math.PI/2; plane.position.y=0.002;
+    plane.rotation.x=-Math.PI/2; plane.position.set(0,0.001,0);
     grp.add(plane);
   })(gridGroup);
+  gridGroup.position.set(0,0,0); // anchor at world origin
   viewerScene.add(gridGroup);
 
   viewerControls=new THREE.OrbitControls(viewerCamera,viewerRenderer.domElement);
