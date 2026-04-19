@@ -1177,32 +1177,29 @@ function shareModel(){
 }
 
 // On load: check for ?model= param (shared link)
-(function checkSharedLink(){
-  const params=new URLSearchParams(location.search);
-  const modelId=params.get('model');
-  const modelName=params.get('name')||'Model';
-  if(modelId){
-    // Remove params from URL without reload
-    history.replaceState({},'',location.pathname);
-    // Wait for page to init then open the model
-    window.addEventListener('DOMContentLoaded',()=>{
-      setTimeout(()=>_launchViewer(modelId,modelName), 100);
-    },{once:true});
-  }
-})();
-
-// On page load, check for a pending model from a reload-switch
+// Single DOMContentLoaded: check URL param → sessionStorage → browser
 window.addEventListener('DOMContentLoaded', ()=>{
+  // 1. Shared link: ?model=<fileId>&name=<name>
+  try{
+    const params=new URLSearchParams(location.search);
+    const sharedModel=params.get('model');
+    if(sharedModel){
+      history.replaceState({},'',location.pathname);
+      setTimeout(()=>_launchViewer(sharedModel, params.get('name')||'Model'), 100);
+      return;
+    }
+  }catch(e){}
+  // 2. Pending model from reload-switch
   try{
     const pending=sessionStorage.getItem('_pendingModel');
     if(pending){
       sessionStorage.removeItem('_pendingModel');
       const {fileId,name}=JSON.parse(pending);
-      // Short delay so the page is fully initialised
       setTimeout(()=>_launchViewer(fileId,name), 80);
-      return; // Don't show browser
+      return;
     }
   }catch(e){}
+  // 3. Default: show browser
   showBrowser();
 });
 function _launchViewer(fileId, name) {
@@ -1258,7 +1255,7 @@ function _destroyViewer() {
   savedMeasurements=[]; measureCount=0; measMovingId=null; measMovingEndpoint=null;
   pinMovingId=null; annotationsVisible=true; highlightedPinId=null;
   if(viewerControls){try{viewerControls.dispose();}catch(e){} viewerControls=null;}
-  viewerScene=null; viewerCamera=null; loadedModel=null; modelRoot=null; sunLight=null;
+  viewerScene=null; viewerCamera=null; loadedModel=null; modelRoot=null; sunLight=null; viewerShadowReceiver=null;
   slicerPlane=slicerMesh=slicerGroup=null; slicerActive=false;
   hSlicePlane=vSlicePlane=null; hSliceActive=vSliceActive=false;
   hContourLine=vContourLine=null; laserLine=laserDot=null;
@@ -1807,6 +1804,7 @@ function toggleSliceGhost(on){
 }
 // Rebuild ghost when slice planes change
 function _rebuildGhostIfActive(){
+  if(!loadedModel) return; // guard: no model yet
   const tog=document.getElementById('slice-ghost-tog');
   if(tog&&tog.checked) toggleSliceGhost(true);
 }
@@ -1838,6 +1836,7 @@ function initEditableSliders(){
 }
 var _gimbalHideTimer=null;
 function showGimbalBriefly(){
+  if(!loadedModel) return; // only show when model is loaded
   var sg=document.getElementById("slice-gimbals");if(sg)sg.style.display="block";
   clearTimeout(_gimbalHideTimer);
   _gimbalHideTimer=setTimeout(function(){var sg2=document.getElementById("slice-gimbals");if(sg2)sg2.style.display="none";},1500);
@@ -1882,8 +1881,8 @@ function updatePinCommentPositions(){
     var wp=new THREE.Vector3();pin.mesh.getWorldPosition(wp);
     var v=wp.clone().project(viewerCamera);
     if(v.z>=1){div.style.display="none";if(div._line)div._line.style.display="none";return;}
-    var pinX=(v.x*0.5+0.5)*r.width+r.left-wrapR.left;
-    var pinY=(-v.y*0.5+0.5)*r.height+r.top-wrapR.top;
+    var pinX=(v.x*0.5+0.5)*r.width+(r.left-wrapR.left);
+    var pinY=(-v.y*0.5+0.5)*r.height+(r.top-wrapR.top);
     // Offset comment box 55px above-right of pin
     var offX=52, offY=-52;
     var boxX=pinX+offX, boxY=pinY+offY;
@@ -2767,7 +2766,7 @@ function setDesktopMode(mode, silent) {
     viewerControls.enabled=true;
     // enableRotate handled above via mouseButtons
     // Middle mouse = ORBIT always; scroll = zoom; left = orbit only in orbit mode
-    viewerControls.mouseButtons={LEFT:mode==='orbit'||mode!=='pin'&&mode!=='measure'?THREE.MOUSE.ROTATE:null, MIDDLE:THREE.MOUSE.PAN, RIGHT:null};
+    viewerControls.mouseButtons={LEFT:(mode!=='measure'&&mode!=='pin')?THREE.MOUSE.ROTATE:null, MIDDLE:THREE.MOUSE.PAN, RIGHT:null};
     viewerControls.enableRotate=true; // always allow middle-mouse orbit
   }
   const cw=document.getElementById('viewer-canvas-wrap');
@@ -3841,8 +3840,8 @@ function _buildViewer(fileId, name, myToken) { function initViewer(fileId){
     const disc=new THREE.Mesh(geo,mat); disc.rotation.x=-Math.PI/2; disc.position.y=0.002;
     disc.renderOrder=-1; scene.add(disc);
   })(viewerScene);
-  // Shadow receiver — very subtle shadow only, no glow
-  const shadowReceiver=new THREE.Mesh(
+  // Shadow receiver — assign to global so render loop can access it
+  viewerShadowReceiver = new THREE.Mesh(
     new THREE.PlaneGeometry(12,12),
     new THREE.ShadowMaterial({opacity:0.18,transparent:true})
   );
@@ -4139,10 +4138,11 @@ async function enterVR() {
     });
     const _isAR2=sessionMode==='immersive-ar';
     if(viewerScene) viewerScene.background = _isAR2 ? null : new THREE.Color(0x1a1a1e);
-    if(_isAR2){ if(gridGroup)gridGroup.visible=false; if(viewerShadowReceiver)viewerShadowReceiver.visible=false; }
     viewerRenderer.xr.setSession(session);
+    // Hide floor in AR/passthrough mode
+    if(_isAR2){ if(gridGroup) gridGroup.visible=false; if(viewerShadowReceiver) viewerShadowReceiver.visible=false; }
     session.addEventListener('end',()=>{
-    if(_isAR2){ if(gridGroup)gridGroup.visible=true; if(viewerShadowReceiver)viewerShadowReceiver.visible=true; }
+      if(_isAR2){ if(gridGroup) gridGroup.visible=true; if(viewerShadowReceiver) viewerShadowReceiver.visible=true; }
       document.getElementById('vr-btn').textContent='⬡ Enter VR';
       if(viewerScene) viewerScene.background=new THREE.Color(0x1a1a1e);
       if(slicerActive){slicerActive=false;slicerMesh&&(slicerMesh.visible=false);setClipping(false);}
