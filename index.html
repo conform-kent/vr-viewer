@@ -142,7 +142,7 @@ input[type=range].lp-slider::-moz-range-thumb{width:12px;height:12px;}
 .ann-card:last-child{border-bottom:none;}
 .ann-card:hover{background:rgba(255,255,255,0.02);}
 .ann-card.highlighted{background:rgba(200,245,66,0.04);border-left:2px solid var(--accent);}
-.ann-card-top{display:flex;align-items:center;gap:6px;margin-bottom:4px;}
+.ann-card-top{display:flex;align-items:center;gap:4px;margin-bottom:2px;}
 .ann-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
 .ann-id{font-family:'DM Mono',monospace;font-size:10px;font-weight:500;}
 .ann-actions{margin-left:auto;display:flex;gap:0;}
@@ -1897,10 +1897,12 @@ function updatePinCommentPositions(){
     div.style.display=hidden?"none":"block";
     if(div._line){
       div._line.style.display=hidden?"none":"block";
-      // Line from pin centre to bottom-left corner of box
-      var boxH=div.getBoundingClientRect().height||44;
+      // Line from pin centre to bottom-left corner, compensating for border-radius (8px)
+      var bRect=div.getBoundingClientRect();
+      var boxH=bRect.height||44;
+      var radius=8; // border-radius of comment box
       div._lineEl.setAttribute("x1",pinX);div._lineEl.setAttribute("y1",pinY);
-      div._lineEl.setAttribute("x2",boxX);div._lineEl.setAttribute("y2",boxY+boxH);
+      div._lineEl.setAttribute("x2",boxX+radius);div._lineEl.setAttribute("y2",boxY+boxH-radius);
     }
   });
   _pinCommentDivs.forEach(function(div,id){if(!annotations.find(function(a){return a.id===id;})){if(div._line)div._line.remove();div.remove();_pinCommentDivs.delete(id);}});
@@ -2202,7 +2204,7 @@ function _spawnPin(worldPos, colorIdx, id, comment) {
   // DOM label — circular badge with number
   const contrastColor = _pinContrastColor(col);
   const div = document.createElement('div');
-  div.style.cssText=`position:fixed;background:${hexC};color:#fff;font-family:'DM Mono',monospace;font-size:10px;font-weight:700;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;text-align:center;line-height:20px;pointer-events:auto;cursor:pointer;z-index:150;box-shadow:0 2px 8px rgba(0,0,0,0.6);user-select:none;border:2px solid rgba(255,255,255,0.3);transform:translate(-50%,-50%);`;
+  div.style.cssText=`position:fixed;background:#0d0d10;color:#fff;font-family:'DM Mono',monospace;font-size:10px;font-weight:700;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;text-align:center;line-height:20px;pointer-events:auto;cursor:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2216%22 height=%2216%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22white%22 stroke-width=%222.5%22><path d=%22M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7%22/><path d=%22M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z%22/></svg>') 0 16, text;z-index:150;box-shadow:0 2px 8px rgba(0,0,0,0.7);user-select:none;border:2.5px solid ${hexC};transform:translate(-50%,-50%);`;
   div.textContent=String(id);
   div.title = comment ? `${id}: ${comment}` : `Pin ${id}`;
   div.addEventListener('click', e => {
@@ -2322,13 +2324,17 @@ function toggleSectionVisibility(section) {
 function rebuildPinTable() {
   const body=document.getElementById('pin-table-body'); if(!body) return;
   body.innerHTML='';
-  annotations.forEach(pin=>{
+  annotations.forEach((pin,idx)=>{
+    // Renumber: display index is always 1-based position in current array
+    const displayNum = idx + 1;
+    // Keep stored pin.id stable for session/lookup; update badge text
+    if(pin.labelDiv) pin.labelDiv.textContent = String(displayNum);
     const hx=getPinHex(pin.colorIdx);
     const card=document.createElement('div');
     card.className='ann-card'+(pin.id===highlightedPinId?' highlighted':'');
-    // Header row
+    // Header row — show sequential display number
     const top=document.createElement('div'); top.className='ann-card-top';
-    top.innerHTML=`<span class="ann-dot" style="background:${hx}"></span><span class="ann-id" style="color:${hx}">P${String(pin.id).padStart(2,'0')}</span>`;
+    top.innerHTML=`<span class="ann-dot" style="background:${hx}"></span><span class="ann-id" style="color:${hx}">P${String(displayNum).padStart(2,'0')}</span>`;
     const acts=document.createElement('div'); acts.className='ann-actions';
     const locBtn=document.createElement('button'); locBtn.className='ann-btn'; locBtn.textContent='⊕'; locBtn.title='Locate';
     locBtn.onclick=e=>{e.stopPropagation();highlightPin(pin.id);};
@@ -2343,11 +2349,20 @@ function rebuildPinTable() {
       ta.onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();ta.blur();}};
       card.appendChild(ta); requestAnimationFrame(()=>ta.focus());
     } else {
-      const cm=document.createElement('div');
-      cm.className='ann-comment'+(pin.comment?'':' empty');
-      cm.textContent=pin.comment||'Click to add comment';
-      cm.onclick=()=>{pin._editing=true;rebuildPinTable();};
-      card.appendChild(cm);
+      // Compact: show comment inline on the same row as the pin ID
+      const cm=document.createElement('span');
+      cm.style.cssText='font-size:10px;color:'+(pin.comment?'#9a9aaa':'#5a5a6a')+';font-style:'+(pin.comment?'normal':'italic')+';cursor:text;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-left:4px;';
+      cm.textContent=pin.comment||'Add comment…';
+      cm.title=pin.comment||'Click to add comment';
+      cm.onclick=(ev)=>{ev.stopPropagation();pin._editing=true;rebuildPinTable();};
+      top.insertBefore(cm, acts); // put comment between ID and action buttons
+      // If comment is long (>40 chars), also show truncated second line
+      if(pin.comment&&pin.comment.length>40){
+        const cm2=document.createElement('div');
+        cm2.style.cssText='font-size:10px;color:#9a9aaa;padding:1px 13px 2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
+        cm2.textContent=pin.comment;
+        card.appendChild(cm2);
+      }
     }
     card.addEventListener('click',(ev)=>{ if(ev.target.tagName==='BUTTON'||ev.target.tagName==='TEXTAREA') return; highlightPin(pin.id); });
     body.appendChild(card);
@@ -2423,12 +2438,13 @@ function _makeDimMarker(col) {
   geoO.translate(0,-h/2,0);
   var mat=new THREE.MeshBasicMaterial({color:col,depthTest:true,depthWrite:true});
   group.add(new THREE.Mesh(geoO,mat));
-  // Inner cap cone: tip at same point (y=0/surface), base going INTO surface (negative Y)
+  // Inner cap cone: tip touches surface contact point (y=0), body on LINE side
+  // This gives point-to-point effect with the outer cone
   var hi=0.012,ri=0.006;
   var geoI=new THREE.ConeGeometry(ri,hi,10,1);
-  geoI.translate(0,-hi/2,0); // tip at y=0, base at y=-hi (into surface side)
+  geoI.rotateX(Math.PI);        // flip: now tip points -Y (toward surface)
+  geoI.translate(0,hi/2,0);     // shift: tip now at y=0, base at +hi (on line side)
   var inner=new THREE.Mesh(geoI,mat.clone());
-  // No rotation needed — tip points same direction as outer (-Y local = into surface after orientation)
   group.add(inner);
   group.renderOrder=5;
   return group;
@@ -2872,7 +2888,7 @@ function onCanvasMouseMove(e) {
   const cw=document.getElementById('viewer-canvas-wrap'); if(!cw) return;
   // Check if hovering a measurement endpoint
   const sphere=getMeasSphereHit(e);
-  if(sphere) { cw.style.cursor='grab'; return; }
+  if(sphere) { cw.style.cursor="url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2216%22 height=%2216%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23f5a142%22 stroke-width=%222.5%22><path d=%22M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7%22/><path d=%22M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z%22/></svg>') 0 16, text"; return; }
   // Check pins
   if(viewerCamera&&viewerRenderer&&annotations.length){
     const cv=viewerRenderer.domElement, rect=cv.getBoundingClientRect();
