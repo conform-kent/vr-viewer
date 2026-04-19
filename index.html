@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CAD INSPECTOR v0.4.6</title>
+<title>CAD INSPECTOR v0.4.7</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230d0d10'/%3E%3Cpolygon points='16,3 28,10 28,22 16,29 4,22 4,10' fill='none' stroke='%23c8f542' stroke-width='2.2' stroke-linejoin='round'/%3E%3Cline x1='10' y1='13' x2='16' y2='21' stroke='%23c8f542' stroke-width='2.2' stroke-linecap='round'/%3E%3Cline x1='22' y1='13' x2='16' y2='21' stroke='%23c8f542' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap');
@@ -124,6 +124,7 @@ body.browser-open{overflow:auto;}
 .rp-head{display:flex;align-items:center;gap:8px;padding:9px 12px;border-bottom:1px solid var(--border);cursor:pointer;user-select:none;}
 .rp-title{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);flex:1;}
 .rp-sub-head{display:flex;align-items:center;gap:8px;padding:7px 12px 5px;}
+.pin-float-comment{position:fixed;z-index:148;background:rgba(14,14,18,0.94);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:7px 10px;font-family:"DM Mono",monospace;font-size:11px;color:#c8c8cc;max-width:200px;word-break:break-word;pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,0.5);transform:translate(-50%,-100%);margin-top:-8px;white-space:pre-wrap;line-height:1.5;}
 .folder-btn{font-family:'DM Mono',monospace;font-size:9px;padding:4px 12px;border-radius:20px;border:1px solid rgba(255,255,255,0.12);background:transparent;color:var(--muted);cursor:pointer;white-space:nowrap;transition:all 0.14s;}
 .folder-btn.active{background:rgba(200,245,66,0.1);color:var(--accent);border-color:rgba(200,245,66,0.35);}
 .meas-sec-title{display:none;}
@@ -251,7 +252,7 @@ body.browser-open{overflow:auto;}
     <div style="display:flex;align-items:center;gap:10px;padding:12px 20px;border-right:1px solid var(--border);flex-shrink:0;">
       <svg width="20" height="20" viewBox="0 0 32 32" fill="none"><polygon points="16,3 28,10 28,22 16,29 4,22 4,10" fill="none" stroke="#c8f542" stroke-width="2.2" stroke-linejoin="round"/><line x1="10" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="22" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="12" y1="13" x2="20" y2="13" stroke="rgba(200,245,66,0.5)" stroke-width="1.2" stroke-linecap="round"/></svg>
       <div>
-        <div style="font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;letter-spacing:.07em;color:#e4e4e0;text-transform:uppercase;">CAD Inspector <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--accent);font-weight:400;letter-spacing:.06em;text-transform:none;">v0.4.6</span></div>
+        <div style="font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;letter-spacing:.07em;color:#e4e4e0;text-transform:uppercase;">CAD Inspector <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--accent);font-weight:400;letter-spacing:.06em;text-transform:none;">v0.4.7</span></div>
         <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-top:1px;">3D CAD Model Review</div>
       </div>
     </div>
@@ -282,7 +283,7 @@ body.browser-open{overflow:auto;}
   <div id="viewer-logo" style="position:fixed;top:0;left:0;z-index:125;display:none;align-items:center;gap:10px;padding:10px 18px 10px 14px;background:rgba(13,13,16,0.7);backdrop-filter:blur(12px);border-bottom-right-radius:12px;border-bottom:1px solid var(--border);border-right:1px solid var(--border);">
     <svg width="18" height="18" viewBox="0 0 32 32" fill="none" style="flex-shrink:0;"><polygon points="16,3 28,10 28,22 16,29 4,22 4,10" fill="none" stroke="#c8f542" stroke-width="2.2" stroke-linejoin="round"/><line x1="10" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="22" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="12" y1="13" x2="20" y2="13" stroke="rgba(200,245,66,0.5)" stroke-width="1.2" stroke-linecap="round"/></svg>
     <div style="display:flex;flex-direction:column;gap:1px;">
-      <span style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;color:#e8e8e4;text-transform:uppercase;">CAD Inspector <span style="font-family:'DM Mono',monospace;font-size:8px;color:var(--accent);font-weight:400;letter-spacing:.06em;">v0.4.6</span></span>
+      <span style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;color:#e8e8e4;text-transform:uppercase;">CAD Inspector <span style="font-family:'DM Mono',monospace;font-size:8px;color:var(--accent);font-weight:400;letter-spacing:.06em;">v0.4.7</span></span>
       <span id="viewer-filename" style="font-family:'DM Mono',monospace;font-size:10px;color:#7a7a8a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px;"></span>
       <span id="size-readout-logo" style="font-family:'DM Mono',monospace;font-size:9px;color:#5a5a66;white-space:nowrap;display:none;"></span>
     </div>
@@ -339,16 +340,18 @@ body.browser-open{overflow:auto;}
         <div class="lp-sec-body" id="lps-0">
           <!-- Ghost toggle -->
           <div class="lp-row"><span class="lp-label">Ghost</span><label class="tog"><input type="checkbox" id="slice-ghost-tog" onchange="toggleSliceGhost(this.checked)"><span class="tog-s"></span></label></div>
-          <div class="lp-row"><span class="lp-label">H-Cut ↕</span><label class="tog teal"><input type="checkbox" id="hslice-tog" onchange="onHSliceToggle(this.checked);toggleSliceControls('h',this.checked)"><span class="tog-s"></span></label></div>
+          <div class="lp-row"><span class="lp-label" id="hslice-label">Horizontal cut</span><label class="tog teal"><input type="checkbox" id="hslice-tog" onchange="onHSliceToggle(this.checked);toggleSliceControls('h',this.checked)"><span class="tog-s"></span></label></div>
           <div id="hslice-controls" style="display:none;">
+            <div class="lp-row"><span class="lp-label" style="font-size:9px;color:var(--muted)">Cut height</span></div>
             <input type="range" class="lp-slider teal" id="hslice-sl" min="0" max="1" step="0.005" value="0.5" oninput="onHSliceSlider(this.value)">
             <div class="lp-row"><span class="lp-label" style="font-size:9px;color:var(--muted)">Rotate</span><span class="lp-val" id="hslice-ang-val">0°</span></div>
             <input type="range" class="lp-slider teal" id="hslice-ang" min="-90" max="90" step="1" value="0" oninput="onHSliceAngle(this.value)">
             <div class="lp-row"><span class="lp-label" style="font-size:9px;color:var(--muted)">Origin offset</span><span class="lp-val" id="hslice-orig-val">+0%</span></div>
             <input type="range" class="lp-slider teal" id="hslice-orig" min="0" max="1" step="0.005" value="0.5" oninput="onHSliceOriginSlider(this.value)">
           </div>
-          <div class="lp-row"><span class="lp-label">V-Cut ↔</span><label class="tog"><input type="checkbox" id="vslice-tog" onchange="onVSliceToggle(this.checked);toggleSliceControls('v',this.checked)"><span class="tog-s"></span></label></div>
+          <div class="lp-row"><span class="lp-label" id="vslice-label">Vertical cut</span><label class="tog"><input type="checkbox" id="vslice-tog" onchange="onVSliceToggle(this.checked);toggleSliceControls('v',this.checked)"><span class="tog-s"></span></label></div>
           <div id="vslice-controls" style="display:none;">
+            <div class="lp-row"><span class="lp-label" style="font-size:9px;color:var(--muted)">Cut width</span></div>
             <input type="range" class="lp-slider" id="vslice-sl" min="0" max="1" step="0.005" value="0.5" oninput="onVSliceSlider(this.value)">
             <div class="lp-row"><span class="lp-label" style="font-size:9px;color:var(--muted)">Rotate</span><span class="lp-val" id="vslice-ang-val">0°</span></div>
             <input type="range" class="lp-slider" id="vslice-ang" min="-90" max="90" step="1" value="0" oninput="onVSliceAngle(this.value)">
@@ -361,6 +364,7 @@ body.browser-open{overflow:auto;}
       <div class="lp-section">
         <div class="lp-sec-head" onclick="toggleLpSection('lps-1')">
           <span class="lp-title" style="margin:0;flex:1;">Surface Analysis Lines</span>
+          <button class="lp-head-btn" onclick="event.stopPropagation();resetZebra()" title="Reset zebra"><svg width="10" height="10" viewBox="0 0 16 16" fill="none" style="stroke:var(--accent);stroke-width:2;stroke-linecap:round;"><path d="M14 8a6 6 0 11-2-4.5"/><polyline points="10,1 14,3.5 11.5,7"/></svg></button>
           <span class="lp-sec-chevron" id="lps-1-ch">▾</span>
         </div>
         <div class="lp-sec-body" id="lps-1">
@@ -429,6 +433,7 @@ body.browser-open{overflow:auto;}
     <!-- Pins sub-section -->
     <div id="pins-section-head" class="rp-sub-head">
       <span class="rp-title">PINS</span>
+      <button class="lp-head-btn" id="pin-comments-toggle-btn" onclick="togglePinComments()" title="Show/hide comment bubbles" style="font-size:10px;">&#128172;</button>
       <button class="lp-head-btn" id="pins-eye-btn" onclick="toggleSectionVisibility('pins')" title="Toggle pin visibility"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
     </div>
     <div id="pin-table-body"></div>
@@ -526,13 +531,13 @@ body.browser-open{overflow:auto;}
   <!-- Light popup panel — shown when sun button active -->
   <div id="light-popup" style="display:none;position:fixed;top:44px;left:50%;transform:translateX(-50%);z-index:200;background:var(--surface);backdrop-filter:var(--blur);border:1px solid var(--border);border-top:none;border-radius:0 0 10px 10px;padding:12px 14px;width:220px;box-shadow:0 8px 24px rgba(0,0,0,0.5);">
     <div class="lp-row"><span class="lp-label">Sun Strength</span><span class="lp-val" id="light-str-val">1.2</span></div>
-    <input type="range" class="lp-slider warn" id="light-str" min="0" max="3" step="0.05" value="1.2" oninput="onLightSlider()">
+    <input type="range" class="lp-slider" id="light-str" min="0" max="3" step="0.05" value="1.2" oninput="onLightSlider()">
     <div class="lp-row"><span class="lp-label">Ambient</span><span class="lp-val" id="light-amb-val">0.5</span></div>
     <input type="range" class="lp-slider" id="light-amb" min="0" max="2" step="0.05" value="0.5" oninput="onLightSlider()">
     <div class="lp-row"><span class="lp-label">Azimuth</span><span class="lp-val" id="light-az-val">45°</span></div>
-    <input type="range" class="lp-slider warn" id="light-az" min="0" max="360" step="1" value="45" oninput="onLightSlider()">
+    <input type="range" class="lp-slider" id="light-az" min="0" max="360" step="1" value="45" oninput="onLightSlider()">
     <div class="lp-row"><span class="lp-label">Elevation</span><span class="lp-val" id="light-el-val">40°</span></div>
-    <input type="range" class="lp-slider warn" id="light-el" min="5" max="85" step="1" value="40" oninput="onLightSlider()">
+    <input type="range" class="lp-slider" id="light-el" min="5" max="85" step="1" value="40" oninput="onLightSlider()">
     <button onclick="resetLight()" style="width:100%;margin-top:6px;font-family:'DM Mono',monospace;font-size:9px;padding:4px 0;border-radius:5px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;">↺ Reset light</button>
   </div>
 
@@ -994,6 +999,7 @@ function removeMeasLabel(id) {
 }
 function updateMeasLabels() {
   if(!viewerCamera||!viewerRenderer) return;
+  if(_dimsHidden){measLabelDivs.forEach(d=>{d.style.display='none';});return;}
   const r=viewerRenderer.domElement.getBoundingClientRect();
   savedMeasurements.forEach(m=>{
     const div=getOrCreateMeasLabel(m.id);
@@ -1225,6 +1231,7 @@ function _destroyViewer() {
   window._loadToken = (window._loadToken||0)+1; // cancel any pending loads
   closePinPopup?.(); closeMeasPopup?.(); closeConfirm?.();
   measLabelDivs.forEach(d=>d.remove()); measLabelDivs.clear();
+  if(typeof _pinCommentDivs!=="undefined")_pinCommentDivs.forEach(function(d){d.remove();});
   zebraObjects.forEach(o=>viewerScene?.remove(o)); zebraObjects=[];
   if(zebraGridMesh){viewerScene?.remove(zebraGridMesh);zebraGridMesh=null;}
   if(zebraTexture){zebraTexture.dispose();zebraTexture=null;}
@@ -1407,18 +1414,18 @@ function onVSliceToggle(on) {
 
 let hSliceAngle=0, vSliceAngle=0;
 let hSlicePt=new THREE.Vector3(), vSlicePt=new THREE.Vector3(); // anchor point on plane for rotation
-function onHSliceAngle(val) {
+function onHSliceAngle(val) { _rebuildGhostIfActive(); showGimbalBriefly();
   hSliceAngle=parseFloat(val);
   const lbl=document.getElementById('hslice-ang-val'); if(lbl) lbl.textContent=Math.round(hSliceAngle)+'°';
   if(hSlicePlane&&hSliceActive){ _applyHSliceWithAngle(); applyAllClipping(); computeContour(hSlicePlane,hContourLine); }
 }
-function onVSliceAngle(val) {
+function onVSliceAngle(val) { _rebuildGhostIfActive(); showGimbalBriefly();
   vSliceAngle=parseFloat(val);
   const lbl=document.getElementById('vslice-ang-val'); if(lbl) lbl.textContent=Math.round(vSliceAngle)+'°';
   if(vSlicePlane&&vSliceActive){ _applyVSliceWithAngle(); applyAllClipping(); computeContour(vSlicePlane,vContourLine); }
 }
 
-function onHSliceOriginSlider(val) {
+function onHSliceOriginSlider(val) { _rebuildGhostIfActive(); showGimbalBriefly();
   // Moves the rotation PIVOT forward/back (Z axis) around the cut plane
   const t=parseFloat(val);
   const pct=Math.round((t-0.5)*200);
@@ -1433,7 +1440,7 @@ function onHSliceOriginSlider(val) {
   hSlicePt.set(0, planeY, zOffset);
   _applyHSliceWithAngle(); applyAllClipping(); computeContour(hSlicePlane,hContourLine);
 }
-function onVSliceOriginSlider(val) {
+function onVSliceOriginSlider(val) { _rebuildGhostIfActive(); showGimbalBriefly();
   // Moves the rotation PIVOT forward/back (Z axis) around the vertical cut
   const t=parseFloat(val);
   const pct=Math.round((t-0.5)*200);
@@ -1480,7 +1487,7 @@ function initGimbalDrag() {
   setupGimbalDrag('gh-c', true);
   setupGimbalDrag('gv-c', false);
 }
-function onHSliceSlider(val) {
+function onHSliceSlider(val) { _rebuildGhostIfActive(); showGimbalBriefly();
   if(!hSlicePlane||!loadedModel||!hSliceActive) return;
   const t=parseFloat(val), {minY,maxY}=getModelBounds();
   const planeY=minY+t*(maxY-minY+0.05);
@@ -1496,7 +1503,7 @@ function _applyHSliceWithAngle() {
   hSlicePlane.normal.copy(base.applyQuaternion(q)).normalize();
   hSlicePlane.constant=-hSlicePlane.normal.dot(hSlicePt);
 }
-function onVSliceSlider(val) {
+function onVSliceSlider(val) { _rebuildGhostIfActive(); showGimbalBriefly();
   if(!vSlicePlane||!loadedModel||!vSliceActive) return;
   const t=parseFloat(val), {minX,maxX}=getModelBounds();
   const planeX=minX+t*(maxX-minX);
@@ -1736,9 +1743,9 @@ function _updateBboxLabels(){
   const W=Math.round(size.x*100), H=Math.round(size.y*100), L=Math.round(size.z*100);
   // Place labels at corners matching image: W on front-bottom, H on right-bottom, L on top-right
   const dims=[
-    {pt:new THREE.Vector3(box.min.x, box.min.y, box.min.z), text:'W '+W+' cm', ox:-28, oy:16},
-    {pt:new THREE.Vector3(box.max.x, box.min.y, box.min.z), text:'H '+H+' cm', ox:28,  oy:0},
-    {pt:new THREE.Vector3(box.max.x, box.max.y, box.min.z), text:'L '+L+' cm', ox:28,  oy:-14},
+    {pt:new THREE.Vector3(box.min.x+size.x*0.5, box.min.y, box.min.z), text:'W '+W+' cm', ox:0, oy:24},
+    {pt:new THREE.Vector3(box.max.x, box.min.y+size.y*0.5, box.min.z), text:'H '+H+' cm', ox:32, oy:0},
+    {pt:new THREE.Vector3(box.max.x, box.max.y, box.min.z+size.z*0.5), text:'L '+L+' cm', ox:24, oy:-18},
   ];
   const r=viewerRenderer.domElement.getBoundingClientRect();
   const wrap=document.getElementById('viewer-canvas-wrap');
@@ -1804,6 +1811,76 @@ function toggleSliceGhost(on){
 function _rebuildGhostIfActive(){
   const tog=document.getElementById('slice-ghost-tog');
   if(tog&&tog.checked) toggleSliceGhost(true);
+}
+function makeValEditable(valEl,slideEl){
+  if(!valEl||!slideEl)return;
+  valEl.title="Click to type a value";
+  valEl.addEventListener("click",function(e){
+    e.stopPropagation();
+    var inp=document.createElement("input");
+    inp.type="text";inp.value=slideEl.value;
+    inp.style.cssText="width:42px;font-family:DM Mono,monospace;font-size:10px;color:var(--accent);background:rgba(200,245,66,0.08);border:1px solid rgba(200,245,66,0.4);border-radius:3px;outline:none;padding:0 3px;text-align:right;";
+    valEl.replaceWith(inp);inp.focus();inp.select();
+    function commit(){
+      var v=parseFloat(inp.value);
+      if(!isNaN(v)){var cl=Math.min(parseFloat(slideEl.max),Math.max(parseFloat(slideEl.min),v));slideEl.value=cl;slideEl.dispatchEvent(new Event("input",{bubbles:true}));}
+      inp.replaceWith(valEl);
+    }
+    inp.onblur=commit;
+    inp.onkeydown=function(ev){if(ev.key==="Enter")inp.blur();if(ev.key==="Escape")inp.replaceWith(valEl);};
+  });
+}
+function initEditableSliders(){
+  var pairs=[["hslice-ang-val","hslice-ang"],["hslice-orig-val","hslice-orig"],
+    ["vslice-ang-val","vslice-ang"],["vslice-orig-val","vslice-orig"],
+    ["zebra-size-val","zebra-size-sl"],["zebra-rot-val","zebra-rot-sl"],
+    ["light-str-val","light-str"],["light-amb-val","light-amb"],
+    ["light-az-val","light-az"],["light-el-val","light-el"]];
+  pairs.forEach(function(p){var v=document.getElementById(p[0]),s=document.getElementById(p[1]);if(v&&s)makeValEditable(v,s);});
+}
+var _gimbalHideTimer=null;
+function showGimbalBriefly(){
+  var sg=document.getElementById("slice-gimbals");if(sg)sg.style.display="block";
+  clearTimeout(_gimbalHideTimer);
+  _gimbalHideTimer=setTimeout(function(){var sg2=document.getElementById("slice-gimbals");if(sg2)sg2.style.display="none";},1500);
+}
+
+var _pinCommentsVisible=true;
+var _pinCommentDivs=new Map();
+function togglePinComments(){
+  _pinCommentsVisible=!_pinCommentsVisible;
+  var btn=document.getElementById("pin-comments-toggle-btn");
+  if(btn)btn.style.opacity=_pinCommentsVisible?"1":"0.4";
+  _pinCommentDivs.forEach(function(div,id){
+    var pin=annotations.find(function(a){return a.id===id;});
+    div.style.display=(!_pinCommentsVisible||_pinsHidden||(pin&&pin._hidden))?"none":"block";
+  });
+}
+function updatePinCommentPositions(){
+  if(!viewerCamera||!viewerRenderer){_pinCommentDivs.forEach(function(d){d.style.display="none";});return;}
+  var r=viewerRenderer.domElement.getBoundingClientRect();
+  annotations.forEach(function(pin){
+    if(!pin.comment||!pin.mesh){var old=_pinCommentDivs.get(pin.id);if(old){old.remove();_pinCommentDivs.delete(pin.id);}return;}
+    var div=_pinCommentDivs.get(pin.id);
+    if(!div){div=document.createElement("div");div.className="pin-float-comment";var wrap=document.getElementById("viewer-canvas-wrap");if(wrap)wrap.appendChild(div);_pinCommentDivs.set(pin.id,div);}
+    div.textContent=pin.comment;
+    var wp=new THREE.Vector3();pin.mesh.getWorldPosition(wp);
+    var v=wp.clone().project(viewerCamera);
+    if(v.z>=1){div.style.display="none";return;}
+    var sx=(v.x*0.5+0.5)*r.width+r.left;var sy=(-v.y*0.5+0.5)*r.height+r.top;
+    div.style.left=sx+"px";div.style.top=(sy-8)+"px";
+    div.style.display=(_pinsHidden||pin._hidden||!_pinCommentsVisible)?"none":"block";
+  });
+  _pinCommentDivs.forEach(function(div,id){if(!annotations.find(function(a){return a.id===id;})){div.remove();_pinCommentDivs.delete(id);}});
+}
+
+function resetZebra(){
+  setZebraMode("off");_zebraRotation=0;
+  var sl=document.getElementById("zebra-size-sl");if(sl)sl.value=12;
+  var rl=document.getElementById("zebra-rot-sl");if(rl)rl.value=0;
+  var sv=document.getElementById("zebra-size-val");if(sv)sv.textContent="12";
+  var rv=document.getElementById("zebra-rot-val");if(rv)rv.textContent="0";
+  _zebraStripeScale=12;
 }
 function onZebraSize(val){_zebraStripeScale=parseFloat(val); const lbl=document.getElementById('zebra-size-val'); if(lbl)lbl.textContent=val; if(zebraMode!=='off')setZebraMode(zebraMode);} // kept for compat — zebra now uses ShaderMaterial
 
@@ -2160,7 +2237,7 @@ function updateAnnotationLabels() {
   const r=viewerRenderer.domElement.getBoundingClientRect();
   const wp=new THREE.Vector3();
   annotations.forEach(a=>{
-    if(!annotationsVisible){a.labelDiv.style.display='none';return;}
+    if(!annotationsVisible||_pinsHidden||a._hidden){a.labelDiv.style.display='none';return;}
     a.mesh.getWorldPosition(wp);
     const v=wp.clone().project(viewerCamera);
     const x=(v.x*0.5+0.5)*r.width+r.left, y=(-v.y*0.5+0.5)*r.height+r.top;
@@ -2193,7 +2270,6 @@ function toggleSectionVisibility(section) {
     _dimsHidden=!_dimsHidden;
     savedMeasurements.forEach(m=>{
       if(m.line) m.line.visible=!_dimsHidden&&!m._hidden;
-      if(m.lineGhost) m.lineGhost.visible=!_dimsHidden&&!m._hidden;
       if(m.sA)   m.sA.visible=!_dimsHidden&&!m._hidden;
       if(m.sB)   m.sB.visible=!_dimsHidden&&!m._hidden;
       const ld=measLabelDivs.get(m.id); if(ld) ld.style.display=(_dimsHidden||m._hidden)?'none':'block';
@@ -2301,16 +2377,20 @@ function buildMeasureObjects(scene) {
 
 // Spawn a finalised measurement — tracks Three.js objects for later deletion/move
 function _makeDimMarker(col) {
-  // Cone with tip offset so tip sits exactly at position (touches model surface)
-  // ConeGeometry: tip at local +Y*(h/2), base at -Y*(h/2)
-  // We translate the geometry so the TIP is at local origin (y=0)
-  const h=0.030, r=0.010;
-  const geo=new THREE.ConeGeometry(r, h, 14, 1);
-  geo.translate(0, -h/2, 0); // tip now at local y=0
-  const mat=new THREE.MeshBasicMaterial({color:col, depthTest:true, depthWrite:true});
-  const mesh=new THREE.Mesh(geo, mat);
-  mesh.renderOrder=5;
-  return mesh;
+  var group=new THREE.Group();
+  var h=0.030,r=0.010;
+  var geoO=new THREE.ConeGeometry(r,h,14,1);
+  geoO.translate(0,-h/2,0);
+  var mat=new THREE.MeshBasicMaterial({color:col,depthTest:true,depthWrite:true});
+  group.add(new THREE.Mesh(geoO,mat));
+  var hi=0.013,ri=0.006;
+  var geoI=new THREE.ConeGeometry(ri,hi,10,1);
+  geoI.translate(0,hi/2,0);
+  var inner=new THREE.Mesh(geoI,mat.clone());
+  inner.rotation.z=Math.PI;
+  group.add(inner);
+  group.renderOrder=5;
+  return group;
 }
 function _orientDimMarker(mesh, pos, towards) {
   // Place at pos, rotate so local +Y points from pos toward towards
@@ -2597,7 +2677,7 @@ async function exportPinReport() {
   // Footer
   pdf.setDrawColor(200,200,215); pdf.setLineWidth(0.15); pdf.line(14,PH-8,PW-14,PH-8);
   pdf.setFont('helvetica','normal'); pdf.setFontSize(6); pdf.setTextColor(150,150,170);
-  pdf.text(`CAD Inspector v0.4.6  ·  Exported ${new Date().toLocaleDateString()}`, 14, PH-3);
+  pdf.text(`CAD Inspector v0.4.7  ·  Exported ${new Date().toLocaleDateString()}`, 14, PH-3);
 
   pdf.save(`${modelName}-pin-report.pdf`);
 }
@@ -3070,8 +3150,11 @@ function missSymmetry(axis) {
   if(!loadedModel) return;
   const ghost=loadedModel.clone();
   ghost.traverse(c=>{ if(c.isMesh&&c.material){ c.material=c.material.clone(); c.material.transparent=true; c.material.opacity=0.18; c.material.color.set(0x42f5c8); c.material.needsUpdate=true; } });
-  const sc=new THREE.Vector3(axis==='x'?-1:1, 1, axis==='z'?-1:1);
-  ghost.scale.multiply(sc); // mirror
+  ghost.position.copy(loadedModel.position);
+  ghost.quaternion.copy(loadedModel.quaternion);
+  ghost.scale.copy(loadedModel.scale);
+  if(axis==='x') ghost.scale.x*=-1;
+  if(axis==='z') ghost.scale.z*=-1;
   viewerScene.add(ghost); _missSymMesh=ghost; _missSymAxis=axis;
   ['x','z'].forEach(a=>{ const b=document.getElementById('sym-btn-'+a); if(b) b.classList.toggle('active',a===axis); });
 }
@@ -3215,7 +3298,7 @@ function updateSliceGimbals() {
     const sg=document.getElementById('slice-gimbals'); if(sg) sg.style.display='none'; return;
   }
   const sg=document.getElementById('slice-gimbals'); if(!sg) return;
-  sg.style.display='block';
+  // visibility controlled by showGimbalBriefly timer
   const rect=viewerRenderer.domElement.getBoundingClientRect();
   const W=rect.width, H=rect.height;
   // H-slice gimbal: project a point on the plane to screen
@@ -3833,7 +3916,7 @@ function _buildViewer(fileId, name, myToken) { function initViewer(fileId){
         document.getElementById('bottom-bar').style.display='flex';
         const tbar=document.getElementById('top-bar'); if(tbar) tbar.style.display='flex';
         // Browser is hidden while viewing
-        drawFloorCone(); initGimbalDrag();
+        drawFloorCone(); initGimbalDrag(); initEditableSliders();
         rebuildSidebar();
         ['hslice-tog','vslice-tog'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=false;});
   ['hslice-ang','vslice-ang','hslice-orig','vslice-orig'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=0.5;});
@@ -3899,6 +3982,7 @@ function _buildViewer(fileId, name, myToken) { function initViewer(fileId){
     }
     updateAnnotationLabels();
     updateMeasLabels();
+    updatePinCommentPositions();
     updateSliceGimbals();
     if(_bboxVisible&&_bboxHelper) _updateBboxLabels();
     viewerRenderer.render(viewerScene,viewerCamera);
