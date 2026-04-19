@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CAD INSPECTOR v0.4.8</title>
+<title>CAD INSPECTOR v0.4.9</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230d0d10'/%3E%3Cpolygon points='16,3 28,10 28,22 16,29 4,22 4,10' fill='none' stroke='%23c8f542' stroke-width='2.2' stroke-linejoin='round'/%3E%3Cline x1='10' y1='13' x2='16' y2='21' stroke='%23c8f542' stroke-width='2.2' stroke-linecap='round'/%3E%3Cline x1='22' y1='13' x2='16' y2='21' stroke='%23c8f542' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap');
@@ -252,7 +252,7 @@ body.browser-open{overflow:auto;}
     <div style="display:flex;align-items:center;gap:10px;padding:12px 20px;border-right:1px solid var(--border);flex-shrink:0;">
       <svg width="20" height="20" viewBox="0 0 32 32" fill="none"><polygon points="16,3 28,10 28,22 16,29 4,22 4,10" fill="none" stroke="#c8f542" stroke-width="2.2" stroke-linejoin="round"/><line x1="10" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="22" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="12" y1="13" x2="20" y2="13" stroke="rgba(200,245,66,0.5)" stroke-width="1.2" stroke-linecap="round"/></svg>
       <div>
-        <div style="font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;letter-spacing:.07em;color:#e4e4e0;text-transform:uppercase;">CAD Inspector <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--accent);font-weight:400;letter-spacing:.06em;text-transform:none;">v0.4.8</span></div>
+        <div style="font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;letter-spacing:.07em;color:#e4e4e0;text-transform:uppercase;">CAD Inspector <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--accent);font-weight:400;letter-spacing:.06em;text-transform:none;">v0.4.9</span></div>
         <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-top:1px;">3D CAD Model Review</div>
       </div>
     </div>
@@ -283,7 +283,7 @@ body.browser-open{overflow:auto;}
   <div id="viewer-logo" style="position:fixed;top:0;left:0;z-index:125;display:none;align-items:center;gap:10px;padding:10px 18px 10px 14px;background:rgba(13,13,16,0.7);backdrop-filter:blur(12px);border-bottom-right-radius:12px;border-bottom:1px solid var(--border);border-right:1px solid var(--border);">
     <svg width="18" height="18" viewBox="0 0 32 32" fill="none" style="flex-shrink:0;"><polygon points="16,3 28,10 28,22 16,29 4,22 4,10" fill="none" stroke="#c8f542" stroke-width="2.2" stroke-linejoin="round"/><line x1="10" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="22" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="12" y1="13" x2="20" y2="13" stroke="rgba(200,245,66,0.5)" stroke-width="1.2" stroke-linecap="round"/></svg>
     <div style="display:flex;flex-direction:column;gap:1px;">
-      <span style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;color:#e8e8e4;text-transform:uppercase;">CAD Inspector <span style="font-family:'DM Mono',monospace;font-size:8px;color:var(--accent);font-weight:400;letter-spacing:.06em;">v0.4.8</span></span>
+      <span style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;color:#e8e8e4;text-transform:uppercase;">CAD Inspector <span style="font-family:'DM Mono',monospace;font-size:8px;color:var(--accent);font-weight:400;letter-spacing:.06em;">v0.4.9</span></span>
       <span id="viewer-filename" style="font-family:'DM Mono',monospace;font-size:10px;color:#7a7a8a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px;"></span>
       <span id="size-readout-logo" style="font-family:'DM Mono',monospace;font-size:9px;color:#5a5a66;white-space:nowrap;display:none;"></span>
     </div>
@@ -1884,14 +1884,17 @@ function updatePinCommentPositions(){
     var pinX=(v.x*0.5+0.5)*r.width+(r.left-wrapR.left);
     var pinY=(-v.y*0.5+0.5)*r.height+(r.top-wrapR.top);
     // Offset comment box 55px above-right of pin
-    var offX=52, offY=-52;
+    // Offset box 60px right, 60px up from pin
+    var offX=60, offY=-60;
     var boxX=pinX+offX, boxY=pinY+offY;
-    div.style.left=(boxX+wrapR.left)+"px";div.style.top=(boxY+wrapR.top-16)+"px";
+    div.style.left=(boxX+wrapR.left)+"px";div.style.top=(boxY+wrapR.top)+"px";
     div.style.display=hidden?"none":"block";
     if(div._line){
       div._line.style.display=hidden?"none":"block";
+      // Line from pin to bottom-left corner of comment box
+      var boxH=div.offsetHeight||48;
       div._lineEl.setAttribute("x1",pinX);div._lineEl.setAttribute("y1",pinY);
-      div._lineEl.setAttribute("x2",boxX);div._lineEl.setAttribute("y2",boxY);
+      div._lineEl.setAttribute("x2",boxX);div._lineEl.setAttribute("y2",boxY+boxH);
     }
   });
   _pinCommentDivs.forEach(function(div,id){if(!annotations.find(function(a){return a.id===id;})){if(div._line)div._line.remove();div.remove();_pinCommentDivs.delete(id);}});
@@ -2163,6 +2166,12 @@ function savePinComment(id) {
 // ════════════════════════════════════════════════════════════
 //  PINS — smaller spheres, click-to-comment
 // ════════════════════════════════════════════════════════════
+function _pinContrastColor(col) {
+  // Returns black or white depending on background luminance
+  const r=(col>>16)&0xff, g=(col>>8)&0xff, b=col&0xff;
+  const lum=(0.299*r+0.587*g+0.114*b)/255;
+  return lum>0.55?'#1a1a1a':'#ffffff';
+}
 function getPinHex(idx){ return '#'+PIN_COLORS[idx%PIN_COLORS.length].toString(16).padStart(6,'0'); }
 
 // Internal spawn used both for new drops and session restore
@@ -2173,23 +2182,23 @@ function _spawnPin(worldPos, colorIdx, id, comment) {
   const hexC = getPinHex(colorIdx);
   // Convert world position to modelRoot local space
   const localPos = modelRoot ? modelRoot.worldToLocal(worldPos.clone()) : worldPos.clone();
+  // Invisible 3D anchor (tiny sphere — not visible, just for raycasting/position)
   const mesh = new THREE.Mesh(
-    new THREE.SphereGeometry(0.012, 10, 10),
-    new THREE.MeshBasicMaterial({color:col}));
+    new THREE.SphereGeometry(0.015, 8, 8),
+    new THREE.MeshBasicMaterial({color:col, transparent:true, opacity:0}));
   mesh.position.copy(localPos);
-  // Short stem
-  const stemEnd = localPos.clone().add(new THREE.Vector3(0, 0.04, 0));
+  // No stem
   const stem = new THREE.Line(
-    new THREE.BufferGeometry().setFromPoints([localPos.clone(), stemEnd]),
-    new THREE.LineBasicMaterial({color:col}));
-  // Add to modelRoot so they inherit transform
+    new THREE.BufferGeometry().setFromPoints([localPos.clone(), localPos.clone()]),
+    new THREE.LineBasicMaterial({color:col, transparent:true, opacity:0}));
   const parent = modelRoot || viewerScene;
   parent.add(mesh); parent.add(stem);
-  // DOM label
+  // DOM label — circular badge with number
+  const contrastColor = _pinContrastColor(col);
   const div = document.createElement('div');
-  div.style.cssText=`position:fixed;background:${hexC};color:#fff;font-family:'DM Mono',monospace;font-size:10px;font-weight:500;padding:2px 6px;border-radius:4px;pointer-events:auto;cursor:pointer;z-index:150;white-space:nowrap;box-shadow:0 1px 6px rgba(0,0,0,0.55);user-select:none;`;
-  div.textContent=`#${id}`;
-  div.title = comment ? `#${id}: ${comment}` : `Pin #${id}`;
+  div.style.cssText=`position:fixed;background:${hexC};color:${contrastColor};font-family:'DM Mono',monospace;font-size:11px;font-weight:700;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;pointer-events:auto;cursor:pointer;z-index:150;box-shadow:0 2px 8px rgba(0,0,0,0.6);user-select:none;border:2px solid rgba(255,255,255,0.25);transform:translate(-50%,-50%);`;
+  div.textContent=String(id);
+  div.title = comment ? `${id}: ${comment}` : `Pin ${id}`;
   div.addEventListener('click', e => {
     e.stopPropagation();
     const pin = annotations.find(a=>a.id===id);
@@ -2206,7 +2215,9 @@ function _spawnPin(worldPos, colorIdx, id, comment) {
 
 function dropAnnotation(worldPos) {
   if(!viewerScene) return;
-  const id = ++annotCount;
+  // Always use next sequential number based on current count
+  const id = annotations.length + 1;
+  annotCount = id;
   const colorIdx = (id-1) % PIN_COLORS.length;
   _spawnPin(worldPos, colorIdx, id, '');
   document.getElementById('annot-count').textContent = annotations.length;
@@ -2265,7 +2276,7 @@ function updateAnnotationLabels() {
     const v=wp.clone().project(viewerCamera);
     const x=(v.x*0.5+0.5)*r.width+r.left, y=(-v.y*0.5+0.5)*r.height+r.top;
     if(v.z<1){
-      a.labelDiv.style.left=(x+8)+'px'; a.labelDiv.style.top=(y-8)+'px';
+      a.labelDiv.style.left=x+'px'; a.labelDiv.style.top=y+'px';
       a.labelDiv.style.display='block';
       a.labelDiv.style.outline = a.id===highlightedPinId ? '2px solid #fff' : 'none';
       a.mesh.scale.setScalar(a.id===highlightedPinId ? 2 : (pinMovingId===a.id ? 2 : 1));
@@ -2408,7 +2419,7 @@ function _makeDimMarker(col) {
   group.add(new THREE.Mesh(geoO,mat));
   var hi=0.013,ri=0.006;
   var geoI=new THREE.ConeGeometry(ri,hi,10,1);
-  geoI.translate(0,hi/2+0.012,0);
+  geoI.translate(0,hi/2+0.004,0); // small offset so it sits just beyond outer tip
   var inner=new THREE.Mesh(geoI,mat.clone());
   inner.rotation.z=Math.PI;
   group.add(inner);
@@ -2464,20 +2475,24 @@ function deleteMeasurement(id) {
 // Update a saved measurement's endpoint position
 function updateMeasEndpoint(id, endpoint, newPt) {
   const m=savedMeasurements.find(r=>r.id===id); if(!m) return;
-  if(endpoint==='A'){ m.ptA.copy(newPt); }
-  else              { m.ptB.copy(newPt); }
-  const d=m.ptA.distanceTo(m.ptB);
-  m.label=d>=1?d.toFixed(3)+' m':(d*100).toFixed(1)+' cm';
+  if(m.color===MEAS_COL_HEIGHT) {
+    // Height: move top point to hit surface, bottom stays on floor (y=0) below it
+    m.ptA.set(newPt.x, newPt.y, newPt.z); // surface point
+    m.ptB.set(newPt.x, 0, newPt.z);        // floor point — same XZ, Y=0
+    const h=m.ptA.y;
+    m.label=(h>=1?h.toFixed(3)+' m':(h*100).toFixed(1)+' cm')+' ↕';
+    m.sA.position.copy(m.ptA); m.sA.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),new THREE.Vector3(0,-1,0));
+    m.sB.position.copy(m.ptB); m.sB.quaternion.identity();
+  } else {
+    if(endpoint==='A'){ m.ptA.copy(newPt); }
+    else              { m.ptB.copy(newPt); }
+    const d=m.ptA.distanceTo(m.ptB);
+    m.label=d>=1?d.toFixed(3)+' m':(d*100).toFixed(1)+' cm';
+    _orientDimMarker(m.sA,m.ptA,m.ptB); _orientDimMarker(m.sB,m.ptB,m.ptA);
+  }
   m.line.geometry.setFromPoints([m.ptA.clone(),m.ptB.clone()]);
   m.line.geometry.computeBoundingSphere();
   m.line.computeLineDistances();
-  // lineGhost removed
-  if(m.color===MEAS_COL_HEIGHT){
-    m.sA.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),new THREE.Vector3(0,-1,0));
-    m.sB.quaternion.identity();
-  } else {
-    _orientDimMarker(m.sA,m.ptA,m.ptB); _orientDimMarker(m.sB,m.ptB,m.ptA);
-  }
   saveSession();
 }
 
@@ -2558,10 +2573,9 @@ function startMoveMeasEndpoint(id, endpoint) {
   measMovingId=id; measMovingEndpoint=endpoint;
   closeMeasPopup();
   // Allow left-click to place new endpoint even though we're in measure mode
-  if(viewerControls) viewerControls.mouseButtons={LEFT:null,MIDDLE:THREE.MOUSE.PAN,RIGHT:THREE.MOUSE.PAN};
-  const dr=document.getElementById('measure-readout'); if(dr) dr.textContent=`Click new pos for pt ${endpoint}…`;
-  const ov=document.getElementById('measure-readout-overlay'); if(ov) ov.style.display='block';
+  if(viewerControls) viewerControls.mouseButtons={LEFT:THREE.MOUSE.ROTATE,MIDDLE:THREE.MOUSE.PAN,RIGHT:null};
   const cw=document.getElementById('viewer-canvas-wrap'); if(cw) cw.style.cursor='crosshair';
+  // No readout text shown — just change cursor
 }
 
 // ════════════════════════════════════════════════════════════
@@ -2634,6 +2648,25 @@ async function exportPinReport() {
     pdf.text(String(pin.id),px,py+0.9,{align:'center'});
   });
 
+  // ── Dimension labels on image ──────────────────────────────────
+  savedMeasurements.forEach((m,i)=>{
+    const mid=m.ptA.clone().add(m.ptB).multiplyScalar(0.5);
+    const v=mid.project(viewerCamera); if(v.z>=1) return;
+    const sx=(v.x*0.5+0.5)*cW, sy=(1-(v.y*0.5+0.5))*cH;
+    const px=dX+(sx/cW)*dW, py=dY+(sy/cH)*dH;
+    if(px<imgX||px>imgX+imgW||py<imgY||py>imgY+imgH) return;
+    const colHex='#'+(m.color||MEAS_COL_FREE).toString(16).padStart(6,'0');
+    const cr=parseInt(colHex.slice(1,3),16),cg=parseInt(colHex.slice(3,5),16),cb=parseInt(colHex.slice(5,7),16);
+    // Small background pill
+    const valStr=m.label.replace(/[↑↓↔↗↕⇕]/g,'').trim();
+    const nameStr=m.customLabel?m.customLabel+': ':'';
+    const txt=nameStr+valStr;
+    pdf.setFontSize(6); pdf.setFont('helvetica','bold');
+    const tw=pdf.getStringUnitWidth(txt)*6*0.352+4;
+    pdf.setFillColor(10,10,14); pdf.roundedRect(px-tw/2,py-3.5,tw,5.5,1,1,'F');
+    pdf.setTextColor(cr,cg,cb); pdf.text(txt,px,py+0.8,{align:'center'});
+  });
+
   // ── Right panel ───────────────────────────────────────────────
   const rx=164, ry=0, rw=PW-rx, rh=PH;
   pdf.setFillColor(250,250,248); pdf.rect(rx,ry,rw,rh,'F');
@@ -2642,7 +2675,7 @@ async function exportPinReport() {
   pdf.setFont('helvetica','bold'); pdf.setFontSize(11); pdf.setTextColor(20,20,24);
   pdf.text('CAD INSPECTOR', rx+8, 14);
   pdf.setFont('helvetica','normal'); pdf.setFontSize(7); pdf.setTextColor(140,140,150);
-  pdf.text('v0.4.8', rx+8, 20);
+  pdf.text('v0.4.9', rx+8, 20);
   // Separator
   pdf.setDrawColor(200,245,66); pdf.setLineWidth(0.6); pdf.line(rx+8,23,PW-8,23);
 
@@ -2766,7 +2799,8 @@ function setDesktopMode(mode, silent) {
     viewerControls.enabled=true;
     // enableRotate handled above via mouseButtons
     // Middle mouse = ORBIT always; scroll = zoom; left = orbit only in orbit mode
-    viewerControls.mouseButtons={LEFT:(mode!=='measure'&&mode!=='pin')?THREE.MOUSE.ROTATE:null, MIDDLE:THREE.MOUSE.PAN, RIGHT:null};
+    // LEFT always = ROTATE (orbit never disabled); only click interpretation changes per mode
+    viewerControls.mouseButtons={LEFT:THREE.MOUSE.ROTATE, MIDDLE:THREE.MOUSE.PAN, RIGHT:null};
     viewerControls.enableRotate=true; // always allow middle-mouse orbit
   }
   const cw=document.getElementById('viewer-canvas-wrap');
@@ -2865,7 +2899,6 @@ function onCanvasClick(e) {
     if(pt){ updateMeasEndpoint(measMovingId,measMovingEndpoint,pt); rebuildMeasTable(); }
     measMovingId=null; measMovingEndpoint=null;
     const ov2=document.getElementById('measure-readout-overlay'); if(ov2) ov2.style.display='none';
-    const dr2=document.getElementById('measure-readout'); if(dr2) dr2.textContent='—';
     setDesktopMode('measure'); return;
   }
 
@@ -2907,17 +2940,7 @@ function onCanvasClick(e) {
       rebuildMeasTable(); saveSession(); return;
     }
     // --- FREE mode (default) ---
-    let finalPt=pt;
-    if(measFloorSnap||!pt){
-      const cv2=viewerRenderer.domElement, rect2=cv2.getBoundingClientRect();
-      const nx=((e.clientX-rect2.left)/rect2.width)*2-1;
-      const ny=-((e.clientY-rect2.top)/rect2.height)*2+1;
-      const tmpRay=new THREE.Raycaster(); tmpRay.setFromCamera({x:nx,y:ny},viewerCamera);
-      const floorPlane=new THREE.Plane(new THREE.Vector3(0,1,0),0);
-      const floorPt=new THREE.Vector3();
-      if(tmpRay.ray.intersectPlane(floorPlane,floorPt)) finalPt=floorPt;
-      else if(!pt) return;
-    }
+    const finalPt=pt;
     if(!finalPt) return;
     if(measurePhase===0){
       measureState.ptA=finalPt.clone(); measurePhase=1;
