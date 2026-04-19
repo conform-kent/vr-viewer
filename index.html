@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CAD INSPECTOR v0.4.9</title>
+<title>CAD INSPECTOR v0.5.0</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230d0d10'/%3E%3Cpolygon points='16,3 28,10 28,22 16,29 4,22 4,10' fill='none' stroke='%23c8f542' stroke-width='2.2' stroke-linejoin='round'/%3E%3Cline x1='10' y1='13' x2='16' y2='21' stroke='%23c8f542' stroke-width='2.2' stroke-linecap='round'/%3E%3Cline x1='22' y1='13' x2='16' y2='21' stroke='%23c8f542' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap');
@@ -117,7 +117,7 @@ input[type=range].lp-slider::-moz-range-thumb{width:12px;height:12px;}
 
 /* ── RIGHT floating annotation panel ── */
 #right-panel{
-  position:fixed;top:68px;right:42px;z-index:150;
+  position:fixed;top:68px;right:42px;z-index:510;
   width:256px;display:none;
   background:var(--surface);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);
   border:1px solid var(--border);border-radius:var(--radius);
@@ -128,7 +128,7 @@ input[type=range].lp-slider::-moz-range-thumb{width:12px;height:12px;}
 .rp-head{display:flex;align-items:center;gap:8px;padding:9px 12px;border-bottom:1px solid var(--border);cursor:pointer;user-select:none;}
 .rp-title{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);flex:1;}
 .rp-sub-head{display:flex;align-items:center;gap:8px;padding:7px 12px 5px;}
-.pin-float-comment{position:fixed;z-index:148;background:rgba(14,14,18,0.94);backdrop-filter:blur(8px);border-radius:8px;padding:7px 10px;font-family:"DM Mono",monospace;font-size:11px;color:#c8c8cc;max-width:200px;word-break:break-word;pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,0.5);white-space:pre-wrap;line-height:1.5;}
+.pin-float-comment{position:fixed;z-index:500;background:rgba(10,10,14,0.92);backdrop-filter:blur(10px);border-radius:6px;padding:4px 8px;font-family:"DM Mono",monospace;font-size:10px;color:#c8c8cc;max-width:220px;word-break:break-word;pointer-events:none;box-shadow:0 2px 12px rgba(0,0,0,0.7);white-space:normal;line-height:1.45;}
 .folder-btn{font-family:'DM Mono',monospace;font-size:9px;padding:4px 12px;border-radius:20px;border:1px solid rgba(255,255,255,0.12);background:transparent;color:var(--muted);cursor:pointer;white-space:nowrap;transition:all 0.14s;}
 .folder-btn.active{background:rgba(200,245,66,0.1);color:var(--accent);border-color:rgba(200,245,66,0.35);}
 .meas-sec-title{display:none;}
@@ -256,7 +256,7 @@ input[type=range].lp-slider::-moz-range-thumb{width:12px;height:12px;}
     <div style="display:flex;align-items:center;gap:10px;padding:12px 20px;border-right:1px solid var(--border);flex-shrink:0;">
       <svg width="20" height="20" viewBox="0 0 32 32" fill="none"><polygon points="16,3 28,10 28,22 16,29 4,22 4,10" fill="none" stroke="#c8f542" stroke-width="2.2" stroke-linejoin="round"/><line x1="10" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="22" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="12" y1="13" x2="20" y2="13" stroke="rgba(200,245,66,0.5)" stroke-width="1.2" stroke-linecap="round"/></svg>
       <div>
-        <div style="font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;letter-spacing:.07em;color:#e4e4e0;text-transform:uppercase;">CAD Inspector <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--accent);font-weight:400;letter-spacing:.06em;text-transform:none;">v0.4.9</span></div>
+        <div style="font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;letter-spacing:.07em;color:#e4e4e0;text-transform:uppercase;">CAD Inspector <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--accent);font-weight:400;letter-spacing:.06em;text-transform:none;">v0.5.0</span></div>
         <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-top:1px;">3D CAD Model Review</div>
       </div>
     </div>
@@ -287,7 +287,7 @@ input[type=range].lp-slider::-moz-range-thumb{width:12px;height:12px;}
   <div id="viewer-logo" style="position:fixed;top:0;left:0;z-index:125;display:none;align-items:center;gap:10px;padding:10px 18px 10px 14px;background:rgba(13,13,16,0.7);backdrop-filter:blur(12px);border-bottom-right-radius:12px;border-bottom:1px solid var(--border);border-right:1px solid var(--border);">
     <svg width="18" height="18" viewBox="0 0 32 32" fill="none" style="flex-shrink:0;"><polygon points="16,3 28,10 28,22 16,29 4,22 4,10" fill="none" stroke="#c8f542" stroke-width="2.2" stroke-linejoin="round"/><line x1="10" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="22" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="12" y1="13" x2="20" y2="13" stroke="rgba(200,245,66,0.5)" stroke-width="1.2" stroke-linecap="round"/></svg>
     <div style="display:flex;flex-direction:column;gap:1px;">
-      <span style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;color:#e8e8e4;text-transform:uppercase;">CAD Inspector <span style="font-family:'DM Mono',monospace;font-size:8px;color:var(--accent);font-weight:400;letter-spacing:.06em;">v0.4.9</span></span>
+      <span style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;color:#e8e8e4;text-transform:uppercase;">CAD Inspector <span style="font-family:'DM Mono',monospace;font-size:8px;color:var(--accent);font-weight:400;letter-spacing:.06em;">v0.5.0</span></span>
       <span id="viewer-filename" style="font-family:'DM Mono',monospace;font-size:10px;color:#7a7a8a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px;"></span>
       <span id="size-readout-logo" style="font-family:'DM Mono',monospace;font-size:9px;color:#5a5a66;white-space:nowrap;display:none;"></span>
     </div>
@@ -431,7 +431,7 @@ input[type=range].lp-slider::-moz-range-thumb{width:12px;height:12px;}
   <div id="right-panel">
     <div class="rp-head" id="rp-drag-handle">
       <span class="rp-title" style="cursor:pointer;" onclick="toggleRightPanel()" id="rp-main-title">ANNOTATIONS</span>
-      <span id="annot-count" style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-right:4px;">0</span>
+      <span class="lp-head-icon open" id="rp-chevron" onclick="toggleRightPanel()" style="cursor:pointer;margin-left:auto;color:var(--muted);">▾</span>
       <button class="lp-head-btn" id="rp-pin-btn" onclick="togglePanelPin('right-panel','rp-pin-btn')" title="Snap to side">◨</button>
     </div>
     <!-- Pins sub-section -->
@@ -464,7 +464,7 @@ input[type=range].lp-slider::-moz-range-thumb{width:12px;height:12px;}
   </div>
 
   <!-- TOP toolbar — secondary tools -->
-  <div id="top-bar" style="display:none;position:fixed;top:0;left:50%;transform:translateX(-50%);z-index:122;padding:4px 6px;background:var(--surface);backdrop-filter:var(--blur);border:1px solid var(--border);border-bottom-left-radius:10px;border-bottom-right-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,0.4);display:none;align-items:center;gap:1px;">
+  <div id="top-bar" style="display:none;position:fixed;top:0;left:50%;transform:translateX(-50%);z-index:520;padding:4px 6px;background:var(--surface);backdrop-filter:var(--blur);border:1px solid var(--border);border-bottom-left-radius:10px;border-bottom-right-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,0.4);display:none;align-items:center;gap:1px;">
     <button class="tb-btn" id="autorot-btn" onclick="toggleAutoRotate()" title="Auto-rotate">
       <svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 11-9-9"/><polyline points="21 3 21 9 15 9"/></svg>
       <span class="tb-label">Auto</span>
@@ -513,7 +513,7 @@ input[type=range].lp-slider::-moz-range-thumb{width:12px;height:12px;}
   </div>
 
   <!-- BOTTOM pill — Orbit | Measure | Pin only -->
-  <div id="bottom-bar" style="display:none;position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:122;align-items:center;gap:2px;padding:6px 10px;background:var(--surface);backdrop-filter:var(--blur);border:1px solid var(--border);border-radius:100px;box-shadow:0 8px 32px rgba(0,0,0,0.6);">
+  <div id="bottom-bar" style="display:none;position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:520;align-items:center;gap:2px;padding:6px 10px;background:var(--surface);backdrop-filter:var(--blur);border:1px solid var(--border);border-radius:100px;box-shadow:0 8px 32px rgba(0,0,0,0.6);">
     <span id="viewer-title" style="display:none;position:absolute;pointer-events:none;" aria-hidden="true">—</span>
     <!-- 3 inspection mode buttons -->
 <!-- Orbit mode implicit — no button needed -->
@@ -694,17 +694,20 @@ function toggleRightPanel() {
   const ms=document.getElementById('meas-section');
   const psh=document.getElementById('pins-section-head');
   const rp=document.getElementById('right-panel');
+  const ch=document.getElementById('rp-chevron');
   const collapsed=rp?.dataset.collapsed==='1';
   if(collapsed){
     if(rp) rp.dataset.collapsed='0';
     if(ptb) ptb.style.display='';
     if(psh) psh.style.display='';
     if(ms&&savedMeasurements.length) ms.style.display='block';
+    if(ch){ ch.style.transform=''; ch.classList.remove('closed'); }
   } else {
     if(rp) rp.dataset.collapsed='1';
     if(ptb) ptb.style.display='none';
     if(psh) psh.style.display='none';
     if(ms) ms.style.display='none';
+    if(ch){ ch.style.transform='rotate(-90deg)'; ch.classList.add('closed'); }
   }
 }
 
@@ -942,7 +945,7 @@ function restoreSession(session) {
     const ptB = new THREE.Vector3(m.ptB.x, m.ptB.y, m.ptB.z);
     const rec2=_spawnMeasureLine(ptA, ptB, m.label, m.id||++measureCount, mColor); if(m.customLabel) rec2.customLabel=m.customLabel;
   });
-  const ac=document.getElementById('annot-count'); if(ac) ac.textContent=annotations.length;
+  // annot-count removed; count shown implicitly by pin list
   rebuildSidebar();
   // Reset all panel UI state
   const hav=document.getElementById('hslice-ang-val'); if(hav) hav.textContent='0°';
@@ -1770,9 +1773,13 @@ function _updateBboxLabels(){
 }
 
 function toggleZebra(mode){
-  // If already active, toggle off. If other is active, switch.
+  const wasOff=(zebraMode==='off');
   if(zebraMode===mode){ setZebraMode('off'); }
-  else { setZebraMode(mode); }
+  else {
+    // Only auto-activate clay when first turning zebra ON (not when switching H↔V)
+    if(wasOff && texMode!=='clay') setTexMode('clay');
+    setZebraMode(mode);
+  }
 }
 let _zebraRotation=0;
 function onZebraRotation(val){
@@ -1881,7 +1888,16 @@ function updatePinCommentPositions(){
       svg.appendChild(div._lineEl);wrap.appendChild(svg);div._line=svg;
       wrap.appendChild(div);_pinCommentDivs.set(pin.id,div);
     }
-    div.textContent=pin.comment;div.style.borderColor=pinHex;
+    // Header: pin number (from badge) + comment
+    div.innerHTML="";
+    var hdr=document.createElement("span");
+    hdr.style.cssText="color:"+pinHex+";font-weight:700;margin-right:5px;font-size:10px;";
+    var badgeNum=pin.labelDiv?pin.labelDiv.textContent:String(pin.id);
+    hdr.textContent=badgeNum;
+    var txt=document.createElement("span");
+    txt.textContent=pin.comment;
+    div.appendChild(hdr);div.appendChild(txt);
+    div.style.borderColor=pinHex;
     var wp=new THREE.Vector3();pin.mesh.getWorldPosition(wp);
     var v=wp.clone().project(viewerCamera);
     if(v.z>=1){div.style.display="none";if(div._line)div._line.style.display="none";return;}
@@ -2204,7 +2220,7 @@ function _spawnPin(worldPos, colorIdx, id, comment) {
   // DOM label — circular badge with number
   const contrastColor = _pinContrastColor(col);
   const div = document.createElement('div');
-  div.style.cssText=`position:fixed;background:#0d0d10;color:#fff;font-family:'DM Mono',monospace;font-size:10px;font-weight:700;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;text-align:center;line-height:20px;pointer-events:auto;cursor:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2216%22 height=%2216%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22white%22 stroke-width=%222.5%22><path d=%22M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7%22/><path d=%22M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z%22/></svg>') 0 16, text;z-index:150;box-shadow:0 2px 8px rgba(0,0,0,0.7);user-select:none;border:2.5px solid ${hexC};transform:translate(-50%,-50%);`;
+  div.style.cssText=`position:fixed;background:#0d0d10;color:#fff;font-family:'DM Mono',monospace;font-size:10px;font-weight:700;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;text-align:center;line-height:1;padding-bottom:0;pointer-events:auto;cursor:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2216%22 height=%2216%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22white%22 stroke-width=%222.5%22><path d=%22M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7%22/><path d=%22M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z%22/></svg>') 0 16, text;z-index:520;box-shadow:0 2px 8px rgba(0,0,0,0.7);user-select:none;border:1.5px solid ${hexC};transform:translate(-50%,-50%);`;
   div.textContent=String(id);
   div.title = comment ? `${id}: ${comment}` : `Pin ${id}`;
   div.addEventListener('click', e => {
@@ -2228,7 +2244,7 @@ function dropAnnotation(worldPos) {
   annotCount = id;
   const colorIdx = (id-1) % PIN_COLORS.length;
   _spawnPin(worldPos, colorIdx, id, '');
-  document.getElementById('annot-count').textContent = annotations.length;
+  // count now implicit
   saveSession(); rebuildSidebar();
 }
 
@@ -2238,7 +2254,7 @@ function removeAnnotation(id) {
   const parent = modelRoot || viewerScene;
   parent.remove(a.mesh); parent.remove(a.stem); a.labelDiv?.remove();
   annotations.splice(idx,1);
-  const ac=document.getElementById('annot-count'); if(ac) ac.textContent=annotations.length;
+  // annot-count removed; count shown implicitly by pin list
   saveSession(); rebuildSidebar();
 }
 function onClearAnnotations(){ closePinPopup(); [...annotations].forEach(a=>removeAnnotation(a.id)); }
@@ -2367,7 +2383,7 @@ function rebuildPinTable() {
     card.addEventListener('click',(ev)=>{ if(ev.target.tagName==='BUTTON'||ev.target.tagName==='TEXTAREA') return; highlightPin(pin.id); });
     body.appendChild(card);
   });
-  const ac=document.getElementById('annot-count'); if(ac) ac.textContent=annotations.length;
+  // annot-count removed; count shown implicitly by pin list
   // Show right panel only when there's content
   const rp=document.getElementById('right-panel');
   if(rp) rp.style.display=(annotations.length||savedMeasurements.length)?'block':'none';
@@ -2386,7 +2402,7 @@ function rebuildMeasTable() {
     const badge=document.createElement('span'); badge.style.cssText=`color:${colHex};font-size:10px;margin-right:3px;`; badge.textContent=typeIcon;
     const idSpan=document.createElement('span'); idSpan.className='meas-card-id'; idSpan.style.color=colHex; idSpan.textContent=`M${String(i+1).padStart(2,'0')}`;
     // Editable label — click to rename
-    const lbl=document.createElement('span'); lbl.className='meas-card-lbl'; lbl.style.color=colHex; lbl.style.cursor='text'; lbl.title='Click to rename';
+    const lbl=document.createElement('span'); lbl.className='meas-card-lbl'; lbl.style.color=colHex; lbl.style.cursor='text'; lbl.title='Click to rename'; lbl.style.fontFamily="'DM Mono',monospace";
     lbl.textContent=m.customLabel?m.customLabel+' · '+m.label:m.label;
     lbl.onclick=(ev)=>{ev.stopPropagation();
       const inp=document.createElement('input');
@@ -2438,14 +2454,7 @@ function _makeDimMarker(col) {
   geoO.translate(0,-h/2,0);
   var mat=new THREE.MeshBasicMaterial({color:col,depthTest:true,depthWrite:true});
   group.add(new THREE.Mesh(geoO,mat));
-  // Inner cap cone: tip touches surface contact point (y=0), body on LINE side
-  // This gives point-to-point effect with the outer cone
-  var hi=0.012,ri=0.006;
-  var geoI=new THREE.ConeGeometry(ri,hi,10,1);
-  geoI.rotateX(Math.PI);        // flip: now tip points -Y (toward surface)
-  geoI.translate(0,hi/2,0);     // shift: tip now at y=0, base at +hi (on line side)
-  var inner=new THREE.Mesh(geoI,mat.clone());
-  group.add(inner);
+  // Inner cone removed — cleaner single-cone markers
   group.renderOrder=5;
   return group;
 }
@@ -2717,7 +2726,7 @@ async function exportPinReport() {
   pdf.setFont('helvetica','bold'); pdf.setFontSize(11); pdf.setTextColor(20,20,24);
   pdf.text('CAD INSPECTOR', rx+8, 14);
   pdf.setFont('helvetica','normal'); pdf.setFontSize(7); pdf.setTextColor(140,140,150);
-  pdf.text('v0.4.9', rx+8, 20);
+  pdf.text('v0.5.0', rx+8, 20);
   // Separator
   pdf.setDrawColor(200,245,66); pdf.setLineWidth(0.6); pdf.line(rx+8,23,PW-8,23);
 
