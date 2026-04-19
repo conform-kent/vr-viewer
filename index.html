@@ -88,6 +88,10 @@ body.browser-open{overflow:auto;}
 .lp-label{font-family:'DM Mono',monospace;font-size:10px;color:var(--text);}
 .lp-val{font-family:'DM Mono',monospace;font-size:9px;color:var(--accent);min-width:28px;text-align:right;}
 .lp-slider{width:100%;accent-color:var(--accent);height:3px;margin:2px 0 8px;cursor:pointer;display:block;}
+
+input[type=range].lp-slider::-webkit-slider-thumb{width:12px;height:12px;}
+input[type=range].lp-slider::-moz-range-thumb{width:12px;height:12px;}
+
 .lp-slider.teal{accent-color:var(--accent2);}
 .lp-slider.warn{accent-color:var(--warn);}
 
@@ -124,7 +128,7 @@ body.browser-open{overflow:auto;}
 .rp-head{display:flex;align-items:center;gap:8px;padding:9px 12px;border-bottom:1px solid var(--border);cursor:pointer;user-select:none;}
 .rp-title{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);flex:1;}
 .rp-sub-head{display:flex;align-items:center;gap:8px;padding:7px 12px 5px;}
-.pin-float-comment{position:fixed;z-index:148;background:rgba(14,14,18,0.94);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:7px 10px;font-family:"DM Mono",monospace;font-size:11px;color:#c8c8cc;max-width:200px;word-break:break-word;pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,0.5);transform:translate(-50%,-100%);margin-top:-8px;white-space:pre-wrap;line-height:1.5;}
+.pin-float-comment{position:fixed;z-index:148;background:rgba(14,14,18,0.94);backdrop-filter:blur(8px);border-radius:8px;padding:7px 10px;font-family:"DM Mono",monospace;font-size:11px;color:#c8c8cc;max-width:200px;word-break:break-word;pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,0.5);white-space:pre-wrap;line-height:1.5;}
 .folder-btn{font-family:'DM Mono',monospace;font-size:9px;padding:4px 12px;border-radius:20px;border:1px solid rgba(255,255,255,0.12);background:transparent;color:var(--muted);cursor:pointer;white-space:nowrap;transition:all 0.14s;}
 .folder-btn.active{background:rgba(200,245,66,0.1);color:var(--accent);border-color:rgba(200,245,66,0.35);}
 .meas-sec-title{display:none;}
@@ -1884,15 +1888,17 @@ function updatePinCommentPositions(){
     var pinX=(v.x*0.5+0.5)*r.width+(r.left-wrapR.left);
     var pinY=(-v.y*0.5+0.5)*r.height+(r.top-wrapR.top);
     // Offset comment box 55px above-right of pin
-    // Offset box 60px right, 60px up from pin
-    var offX=60, offY=-60;
+    // Box: 60px right, 70px above pin; position by top-left corner
+    var offX=60, offY=-80;
     var boxX=pinX+offX, boxY=pinY+offY;
-    div.style.left=(boxX+wrapR.left)+"px";div.style.top=(boxY+wrapR.top)+"px";
+    div.style.left=(boxX+wrapR.left)+"px";
+    div.style.top=(boxY+wrapR.top)+"px";
+    div.style.border="1px solid "+pinHex;
     div.style.display=hidden?"none":"block";
     if(div._line){
       div._line.style.display=hidden?"none":"block";
-      // Line from pin to bottom-left corner of comment box
-      var boxH=div.offsetHeight||48;
+      // Line from pin centre to bottom-left corner of box
+      var boxH=div.getBoundingClientRect().height||44;
       div._lineEl.setAttribute("x1",pinX);div._lineEl.setAttribute("y1",pinY);
       div._lineEl.setAttribute("x2",boxX);div._lineEl.setAttribute("y2",boxY+boxH);
     }
@@ -2184,7 +2190,7 @@ function _spawnPin(worldPos, colorIdx, id, comment) {
   const localPos = modelRoot ? modelRoot.worldToLocal(worldPos.clone()) : worldPos.clone();
   // Invisible 3D anchor (tiny sphere — not visible, just for raycasting/position)
   const mesh = new THREE.Mesh(
-    new THREE.SphereGeometry(0.015, 8, 8),
+    new THREE.SphereGeometry(0.010, 8, 8),
     new THREE.MeshBasicMaterial({color:col, transparent:true, opacity:0}));
   mesh.position.copy(localPos);
   // No stem
@@ -2196,7 +2202,7 @@ function _spawnPin(worldPos, colorIdx, id, comment) {
   // DOM label — circular badge with number
   const contrastColor = _pinContrastColor(col);
   const div = document.createElement('div');
-  div.style.cssText=`position:fixed;background:${hexC};color:${contrastColor};font-family:'DM Mono',monospace;font-size:11px;font-weight:700;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;pointer-events:auto;cursor:pointer;z-index:150;box-shadow:0 2px 8px rgba(0,0,0,0.6);user-select:none;border:2px solid rgba(255,255,255,0.25);transform:translate(-50%,-50%);`;
+  div.style.cssText=`position:fixed;background:${hexC};color:#fff;font-family:'DM Mono',monospace;font-size:10px;font-weight:700;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;text-align:center;line-height:20px;pointer-events:auto;cursor:pointer;z-index:150;box-shadow:0 2px 8px rgba(0,0,0,0.6);user-select:none;border:2px solid rgba(255,255,255,0.3);transform:translate(-50%,-50%);`;
   div.textContent=String(id);
   div.title = comment ? `${id}: ${comment}` : `Pin ${id}`;
   div.addEventListener('click', e => {
@@ -2417,11 +2423,12 @@ function _makeDimMarker(col) {
   geoO.translate(0,-h/2,0);
   var mat=new THREE.MeshBasicMaterial({color:col,depthTest:true,depthWrite:true});
   group.add(new THREE.Mesh(geoO,mat));
-  var hi=0.013,ri=0.006;
+  // Inner cap cone: tip at same point (y=0/surface), base going INTO surface (negative Y)
+  var hi=0.012,ri=0.006;
   var geoI=new THREE.ConeGeometry(ri,hi,10,1);
-  geoI.translate(0,hi/2+0.004,0); // small offset so it sits just beyond outer tip
+  geoI.translate(0,-hi/2,0); // tip at y=0, base at y=-hi (into surface side)
   var inner=new THREE.Mesh(geoI,mat.clone());
-  inner.rotation.z=Math.PI;
+  // No rotation needed — tip points same direction as outer (-Y local = into surface after orientation)
   group.add(inner);
   group.renderOrder=5;
   return group;
@@ -2599,13 +2606,32 @@ async function exportPinReport() {
   if(!viewerRenderer||!viewerScene||!viewerCamera){alert('Open a model first.');return;}
   if(!window.jspdf){alert('jsPDF loading — try again shortly.');return;}
 
-  // Render model with bright background for PDF
+  // Save current state
   const origBg=viewerScene.background;
+  const origCamPos=viewerCamera.position.clone();
+  const origCamTarget=viewerControls?viewerControls.target.clone():new THREE.Vector3(0,0.4,0);
+  const origTexMode=texMode;
+  // Set standard view: textured, bright background, default camera angle
   viewerScene.background=new THREE.Color(0xf2f2f0);
+  if(origTexMode!=='tex') setTexMode('tex');
+  // Reset to standard camera angle
+  if(loadedModel){
+    const box=new THREE.Box3().setFromObject(loadedModel);
+    const size=box.getSize(new THREE.Vector3());
+    const cent=new THREE.Vector3(0,size.y*0.42,0);
+    const maxDim=Math.max(size.x,size.y,size.z);
+    viewerCamera.position.set(maxDim*1.15,maxDim*0.65,maxDim*0.95);
+    viewerCamera.lookAt(cent);
+    if(viewerControls){viewerControls.target.copy(cent);viewerControls.update();}
+  }
   if(gridGroup) gridGroup.visible=false;
   viewerRenderer.render(viewerScene,viewerCamera);
   const imgData=viewerRenderer.domElement.toDataURL('image/jpeg',0.95);
+  // Restore everything
   viewerScene.background=origBg;
+  if(origTexMode!=='tex') setTexMode(origTexMode);
+  viewerCamera.position.copy(origCamPos);
+  if(viewerControls){viewerControls.target.copy(origCamTarget);viewerControls.update();}
   if(gridGroup) gridGroup.visible=true;
 
   const modelName=document.getElementById('viewer-title').textContent||'model';
@@ -2783,8 +2809,14 @@ function toggleMeasSubMode(sub) {
   if(dr) dr.textContent=measureSubMode==='height'?'↕ Click surface point…':measureSubMode==='width'?'↔ Click surface point…':'Click pt A…';
 }
 
-function toggleMeasMode(){setDesktopMode(desktopMode==='measure'?'orbit':'measure');}
-function togglePinMode(){setDesktopMode(desktopMode==='pin'?'orbit':'pin');}
+function toggleMeasMode(){
+  if(desktopMode==='measure'){ if(measurePhase>0) clearMeasure(); setDesktopMode('orbit'); }
+  else setDesktopMode('measure');
+}
+function togglePinMode(){
+  if(desktopMode==='pin'){ setDesktopMode('orbit'); }
+  else { if(measurePhase>0) clearMeasure(); setDesktopMode('pin'); }
+}
 function setDesktopMode(mode, silent) {
   if(mode!=='measure'&&mode!=='pin') mode='orbit';
   desktopMode=mode;
@@ -2838,7 +2870,7 @@ function getCanvasHit(e, includeFloor) {
 function onCanvasMouseMove(e) {
   if(!viewerCamera||!viewerRenderer) return;
   const cw=document.getElementById('viewer-canvas-wrap'); if(!cw) return;
-  // Check if hovering a measurement endpoint or a pin
+  // Check if hovering a measurement endpoint
   const sphere=getMeasSphereHit(e);
   if(sphere) { cw.style.cursor='grab'; return; }
   // Check pins
@@ -2851,9 +2883,15 @@ function onCanvasMouseMove(e) {
     if(pinMeshes.length&&ray.intersectObjects(pinMeshes,false).length){
       cw.style.cursor='pointer'; return;
     }
+    // Over model surface in pin/measure: show action cursor; grab over empty space
+    if(desktopMode==='pin'||desktopMode==='measure'){
+      const modelMeshes=[]; if(loadedModel) loadedModel.traverse(c2=>{if(c2.isMesh)modelMeshes.push(c2);});
+      if(modelMeshes.length&&ray.intersectObjects(modelMeshes,false).length){
+        cw.style.cursor=desktopMode==='pin'?'crosshair':'cell'; return;
+      }
+    }
   }
-  // Default for current mode
-  cw.style.cursor=desktopMode==='pin'?'crosshair':desktopMode==='measure'?'cell':'grab';
+  cw.style.cursor='grab';
 }
 function getMeasSphereHit(e) {
   if(!viewerCamera||!viewerRenderer||!savedMeasurements.length) return null;
@@ -2869,8 +2907,16 @@ function getMeasSphereHit(e) {
     if(m.sB&&!m.sB.userData.floorFixed) spheres.push(m.sB);
   });
   if(!spheres.length) return null;
-  const hits=tmpRay.intersectObjects(spheres,false);
-  return hits.length ? hits[0].object : null;
+  // Use recursive=true because markers are Groups containing mesh children
+  const hits=tmpRay.intersectObjects(spheres,true);
+  if(!hits.length) return null;
+  // Find the parent group (the sA/sB stored in the measurement)
+  const hitObj=hits[0].object;
+  for(const m of savedMeasurements){
+    if(m.sA&&(m.sA===hitObj||m.sA===hitObj.parent)) return m.sA;
+    if(m.sB&&(m.sB===hitObj||m.sB===hitObj.parent)) return m.sB;
+  }
+  return hitObj;
 }
 
 // Right-click → open measure endpoint popup (works in any mode)
