@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CAD INSPECTOR v0.5.1</title>
+<title>CAD INSPECTOR v0.5.2</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230d0d10'/%3E%3Cpolygon points='16,3 28,10 28,22 16,29 4,22 4,10' fill='none' stroke='%23c8f542' stroke-width='2.2' stroke-linejoin='round'/%3E%3Cline x1='10' y1='13' x2='16' y2='21' stroke='%23c8f542' stroke-width='2.2' stroke-linecap='round'/%3E%3Cline x1='22' y1='13' x2='16' y2='21' stroke='%23c8f542' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap');
@@ -128,7 +128,7 @@ input[type=range].lp-slider::-moz-range-thumb{width:12px;height:12px;}
 .rp-head{display:flex;align-items:center;gap:8px;padding:9px 12px;border-bottom:1px solid var(--border);cursor:pointer;user-select:none;}
 .rp-title{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);flex:1;}
 .rp-sub-head{display:flex;align-items:center;gap:8px;padding:7px 12px 5px;}
-.pin-float-comment{position:fixed;z-index:505;background:rgba(10,10,14,0.92);backdrop-filter:blur(10px);border-radius:6px;padding:4px 8px;font-family:"DM Mono",monospace;font-size:10px;color:#c8c8cc;max-width:220px;word-break:break-word;pointer-events:none;box-shadow:0 2px 12px rgba(0,0,0,0.7);white-space:normal;line-height:1.45;}
+.pin-float-comment{position:fixed;z-index:102;background:rgba(10,10,14,0.92);backdrop-filter:blur(10px);border-radius:6px;padding:4px 8px;font-family:"DM Mono",monospace;font-size:10px;color:#c8c8cc;max-width:220px;word-break:break-word;pointer-events:none;box-shadow:0 2px 12px rgba(0,0,0,0.7);white-space:normal;line-height:1.45;}
 .folder-btn{font-family:'DM Mono',monospace;font-size:9px;padding:4px 12px;border-radius:20px;border:1px solid rgba(255,255,255,0.12);background:transparent;color:var(--muted);cursor:pointer;white-space:nowrap;transition:all 0.14s;}
 .folder-btn.active{background:rgba(200,245,66,0.1);color:var(--accent);border-color:rgba(200,245,66,0.35);}
 .meas-sec-title{display:none;}
@@ -256,7 +256,7 @@ input[type=range].lp-slider::-moz-range-thumb{width:12px;height:12px;}
     <div style="display:flex;align-items:center;gap:10px;padding:12px 20px;border-right:1px solid var(--border);flex-shrink:0;">
       <svg width="20" height="20" viewBox="0 0 32 32" fill="none"><polygon points="16,3 28,10 28,22 16,29 4,22 4,10" fill="none" stroke="#c8f542" stroke-width="2.2" stroke-linejoin="round"/><line x1="10" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="22" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="12" y1="13" x2="20" y2="13" stroke="rgba(200,245,66,0.5)" stroke-width="1.2" stroke-linecap="round"/></svg>
       <div>
-        <div style="font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;letter-spacing:.07em;color:#e4e4e0;text-transform:uppercase;">CAD Inspector <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--accent);font-weight:400;letter-spacing:.06em;text-transform:none;">v0.5.1</span></div>
+        <div style="font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;letter-spacing:.07em;color:#e4e4e0;text-transform:uppercase;">CAD Inspector <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--accent);font-weight:400;letter-spacing:.06em;text-transform:none;">v0.5.2</span></div>
         <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-top:1px;">3D CAD Model Review</div>
       </div>
     </div>
@@ -287,7 +287,7 @@ input[type=range].lp-slider::-moz-range-thumb{width:12px;height:12px;}
   <div id="viewer-logo" style="position:fixed;top:0;left:0;z-index:125;display:none;align-items:center;gap:10px;padding:10px 18px 10px 14px;background:rgba(13,13,16,0.7);backdrop-filter:blur(12px);border-bottom-right-radius:12px;border-bottom:1px solid var(--border);border-right:1px solid var(--border);">
     <svg width="18" height="18" viewBox="0 0 32 32" fill="none" style="flex-shrink:0;"><polygon points="16,3 28,10 28,22 16,29 4,22 4,10" fill="none" stroke="#c8f542" stroke-width="2.2" stroke-linejoin="round"/><line x1="10" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="22" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="12" y1="13" x2="20" y2="13" stroke="rgba(200,245,66,0.5)" stroke-width="1.2" stroke-linecap="round"/></svg>
     <div style="display:flex;flex-direction:column;gap:1px;">
-      <span style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;color:#e8e8e4;text-transform:uppercase;">CAD Inspector <span style="font-family:'DM Mono',monospace;font-size:8px;color:var(--accent);font-weight:400;letter-spacing:.06em;">v0.5.1</span></span>
+      <span style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;color:#e8e8e4;text-transform:uppercase;">CAD Inspector <span style="font-family:'DM Mono',monospace;font-size:8px;color:var(--accent);font-weight:400;letter-spacing:.06em;">v0.5.2</span></span>
       <span id="viewer-filename" style="font-family:'DM Mono',monospace;font-size:10px;color:#7a7a8a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px;"></span>
       <span id="size-readout-logo" style="font-family:'DM Mono',monospace;font-size:9px;color:#5a5a66;white-space:nowrap;display:none;"></span>
     </div>
@@ -1524,6 +1524,8 @@ function _applyVSliceWithAngle() {
 }
 
 function applyAllClipping() {
+  // Rebuild zebra overlay so it respects updated clipping planes
+  if(zebraMode!=='off'&&loadedModel) setTimeout(()=>setZebraMode(zebraMode),0);
   if(!loadedModel) return;
   const planes=[];
   if(hSliceActive&&hSlicePlane) planes.push(hSlicePlane);
@@ -1904,7 +1906,7 @@ function updatePinCommentPositions(){
       div.style.borderColor=pinHex;div.style.background="rgba(14,14,18,0.94)";
       // SVG line connector
       var svg=document.createElementNS("http://www.w3.org/2000/svg","svg");
-      svg.style.cssText="position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:147;overflow:visible;";
+      svg.style.cssText="position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:101;overflow:visible;";
       div._lineEl=document.createElementNS("http://www.w3.org/2000/svg","line");
       div._lineEl.setAttribute("stroke",pinHex);div._lineEl.setAttribute("stroke-width","1.2");div._lineEl.setAttribute("opacity","0.6");
       svg.appendChild(div._lineEl);wrap.appendChild(svg);div._line=svg;
@@ -1927,7 +1929,7 @@ function updatePinCommentPositions(){
     var pinY=(-v.y*0.5+0.5)*r.height+(r.top-wrapR.top);
     // Offset comment box 55px above-right of pin
     // Box: 60px right, 70px above pin; position by top-left corner
-    var offX=60, offY=-80;
+    var offX=30, offY=-50;
     var boxX=pinX+offX, boxY=pinY+offY;
     div.style.left=(boxX+wrapR.left)+"px";
     div.style.top=(boxY+wrapR.top)+"px";
@@ -2242,7 +2244,7 @@ function _spawnPin(worldPos, colorIdx, id, comment) {
   // DOM label — circular badge with number
   const contrastColor = _pinContrastColor(col);
   const div = document.createElement('div');
-  div.style.cssText=`position:fixed;background:#0d0d10;color:#fff;font-family:'DM Mono',monospace;font-size:10px;font-weight:700;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;text-align:center;line-height:20px;padding-bottom:0;pointer-events:auto;cursor:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2216%22 height=%2216%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22white%22 stroke-width=%222.5%22><path d=%22M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7%22/><path d=%22M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z%22/></svg>') 0 16, text;z-index:555;box-shadow:0 2px 8px rgba(0,0,0,0.7);user-select:none;border:1.5px solid ${hexC};transform:translate(-50%,-50%);`;
+  div.style.cssText=`position:fixed;background:#0d0d10;color:#fff;font-family:'DM Mono',monospace;font-size:10px;font-weight:700;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;text-align:center;line-height:20px;padding-bottom:1px;pointer-events:auto;cursor:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2216%22 height=%2216%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22white%22 stroke-width=%222.5%22><path d=%22M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7%22/><path d=%22M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z%22/></svg>') 0 16, text;z-index:555;box-shadow:0 2px 8px rgba(0,0,0,0.7);user-select:none;border:1.5px solid ${hexC};transform:translate(-50%,-50%);`;
   div.textContent=String(id);
   div.title = comment ? `${id}: ${comment}` : `Pin ${id}`;
   div.addEventListener('click', e => {
@@ -2459,7 +2461,7 @@ function highlightPin(id) {
 function buildMeasureObjects(scene) {
   measureState.lineObj = new THREE.LineSegments(
     new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(),new THREE.Vector3()]),
-    new THREE.LineDashedMaterial({color:0xf5a142,dashSize:0.018,gapSize:0.010,depthTest:false,opacity:0.5,transparent:true}));
+    new THREE.LineDashedMaterial({color:0xf5a142,dashSize:0.008,gapSize:0.006,depthTest:false,opacity:0.5,transparent:true}));
   measureState.lineObj.renderOrder=10;
   measureState.lineObj.visible=false; scene.add(measureState.lineObj);
   const smat=new THREE.MeshBasicMaterial({color:0xf5a142}), sgeo=new THREE.SphereGeometry(0.008,8,8);
@@ -2474,9 +2476,9 @@ function _makeDimMarker(col) {
   var h=0.030,r=0.010;
   var geoO=new THREE.ConeGeometry(r,h,14,1);
   geoO.translate(0,-h/2,0);
-  var mat=new THREE.MeshBasicMaterial({color:col,depthTest:true,depthWrite:true});
+  // MeshLambertMaterial gives shading so cone direction is visible
+  var mat=new THREE.MeshLambertMaterial({color:col,depthTest:true,depthWrite:true});
   group.add(new THREE.Mesh(geoO,mat));
-  // Inner cone removed — cleaner single-cone markers
   group.renderOrder=5;
   return group;
 }
@@ -2505,7 +2507,7 @@ function _spawnMeasureLine(ptA, ptB, label, id, color) {
   // Dashed line using LineDashedMaterial
   const geo=new THREE.BufferGeometry().setFromPoints([ptA.clone(),ptB.clone()]);
   // Line fully depth-tested — completely hidden by model geometry
-  const line=new THREE.LineSegments(geo.clone(),new THREE.LineDashedMaterial({color:col,linewidth:1.5,dashSize:0.022,gapSize:0.012,depthTest:true,opacity:1.0,transparent:false}));
+  const line=new THREE.LineSegments(geo.clone(),new THREE.LineDashedMaterial({color:col,linewidth:1.5,dashSize:0.010,gapSize:0.007,depthTest:true,opacity:1.0,transparent:false}));
   line.renderOrder=5; line.computeLineDistances();
   // No ghost line
   const lineGhost=null;
@@ -2755,7 +2757,7 @@ async function exportPinReport() {
   pdf.setFont('helvetica','bold'); pdf.setFontSize(11); pdf.setTextColor(20,20,24);
   pdf.text('CAD INSPECTOR', rx+8, 14);
   pdf.setFont('helvetica','normal'); pdf.setFontSize(7); pdf.setTextColor(140,140,150);
-  pdf.text('v0.5.1', rx+8, 20);
+  pdf.text('v0.5.2', rx+8, 20);
   // Separator
   pdf.setDrawColor(200,245,66); pdf.setLineWidth(0.6); pdf.line(rx+8,23,PW-8,23);
 
