@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CAD INSPECTOR v0.5.4</title>
+<title>CAD INSPECTOR v0.5.5</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230d0d10'/%3E%3Cpolygon points='16,3 28,10 28,22 16,29 4,22 4,10' fill='none' stroke='%23c8f542' stroke-width='2.2' stroke-linejoin='round'/%3E%3Cline x1='10' y1='13' x2='16' y2='21' stroke='%23c8f542' stroke-width='2.2' stroke-linecap='round'/%3E%3Cline x1='22' y1='13' x2='16' y2='21' stroke='%23c8f542' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap');
@@ -170,7 +170,7 @@ input[type=range].lp-slider::-moz-range-thumb{width:12px;height:12px;}
   white-space:nowrap;
 }
 /* Toolbar buttons */
-.tb-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:7px 9px;border-radius:8px;border:none;background:transparent;color:var(--muted);cursor:pointer;transition:all 0.15s;font-family:'DM Mono',monospace;min-width:44px;}
+.tb-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:7px 9px;border-radius:8px;border:1px solid transparent;background:transparent;color:var(--muted);cursor:pointer;transition:background 0.15s,color 0.15s;font-family:'DM Mono',monospace;min-width:44px;}
 .tb-btn svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;display:block;}
 .tb-btn .tb-label{font-size:7px;letter-spacing:.04em;text-transform:uppercase;line-height:1;margin-top:1px;}
 .tb-btn:hover{background:rgba(255,255,255,0.09);color:var(--text);border-radius:50%!important;}
@@ -178,8 +178,8 @@ input[type=range].lp-slider::-moz-range-thumb{width:12px;height:12px;}
 #top-bar.showcase-dim:hover{opacity:1!important;pointer-events:auto!important;}
 .tb-btn.active{background:rgba(200,245,66,0.15);color:var(--accent);border-radius:50%!important;}
 .tb-btn.active-measure{background:rgba(245,161,66,0.15);color:var(--warn);border-radius:50%!important;}
-.tb-btn.active-height{background:rgba(33,150,243,0.2)!important;border:1px solid rgba(33,150,243,0.5)!important;border-radius:50%!important;}
-.tb-btn.active-width{background:rgba(244,67,54,0.2)!important;border:1px solid rgba(244,67,54,0.5)!important;border-radius:50%!important;}
+.tb-btn.active-height{background:rgba(33,150,243,0.2)!important;border-color:rgba(33,150,243,0.5)!important;border-radius:50%!important;}
+.tb-btn.active-width{background:rgba(244,67,54,0.2)!important;border-color:rgba(244,67,54,0.5)!important;border-radius:50%!important;}
 .tb-btn.active-pin{background:rgba(245,66,66,0.15);color:var(--danger);border-radius:50%!important;}
 .tb-sep{width:1px;height:20px;background:rgba(255,255,255,0.07);margin:0 2px;flex-shrink:0;}
 .vr-btn{background:var(--accent);color:#0a0a0b;border:none;border-radius:20px;padding:6px 12px;font-family:'DM Mono',monospace;font-size:10px;font-weight:500;cursor:pointer;transition:opacity 0.15s;white-space:nowrap;height:34px;}
@@ -243,6 +243,11 @@ input[type=range].lp-slider::-moz-range-thumb{width:12px;height:12px;}
   .lp-sec-body{display:none;}
   .lp-sec-body.sec-mobile-open{display:block;}
 }
+
+#pin-table-body::-webkit-scrollbar,#meas-table-body::-webkit-scrollbar{width:4px;}
+#pin-table-body::-webkit-scrollbar-track,#meas-table-body::-webkit-scrollbar-track{background:transparent;}
+#pin-table-body::-webkit-scrollbar-thumb,#meas-table-body::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.15);border-radius:2px;}
+#pin-table-body::-webkit-scrollbar-thumb:hover,#meas-table-body::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,0.3);}
 </style>
 </head>
 <body>
@@ -256,7 +261,7 @@ input[type=range].lp-slider::-moz-range-thumb{width:12px;height:12px;}
     <div style="display:flex;align-items:center;gap:10px;padding:12px 20px;border-right:1px solid var(--border);flex-shrink:0;">
       <svg width="20" height="20" viewBox="0 0 32 32" fill="none"><polygon points="16,3 28,10 28,22 16,29 4,22 4,10" fill="none" stroke="#c8f542" stroke-width="2.2" stroke-linejoin="round"/><line x1="10" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="22" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="12" y1="13" x2="20" y2="13" stroke="rgba(200,245,66,0.5)" stroke-width="1.2" stroke-linecap="round"/></svg>
       <div>
-        <div style="font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;letter-spacing:.07em;color:#e4e4e0;text-transform:uppercase;">CAD Inspector <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--accent);font-weight:400;letter-spacing:.06em;text-transform:none;">v0.5.4</span></div>
+        <div style="font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;letter-spacing:.07em;color:#e4e4e0;text-transform:uppercase;">CAD Inspector <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--accent);font-weight:400;letter-spacing:.06em;text-transform:none;">v0.5.5</span></div>
         <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-top:1px;">3D CAD Model Review</div>
       </div>
     </div>
@@ -287,7 +292,7 @@ input[type=range].lp-slider::-moz-range-thumb{width:12px;height:12px;}
   <div id="viewer-logo" style="position:fixed;top:0;left:0;z-index:125;display:none;align-items:center;gap:10px;padding:10px 18px 10px 14px;background:rgba(13,13,16,0.7);backdrop-filter:blur(12px);border-bottom-right-radius:12px;border-bottom:1px solid var(--border);border-right:1px solid var(--border);">
     <svg width="18" height="18" viewBox="0 0 32 32" fill="none" style="flex-shrink:0;"><polygon points="16,3 28,10 28,22 16,29 4,22 4,10" fill="none" stroke="#c8f542" stroke-width="2.2" stroke-linejoin="round"/><line x1="10" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="22" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="12" y1="13" x2="20" y2="13" stroke="rgba(200,245,66,0.5)" stroke-width="1.2" stroke-linecap="round"/></svg>
     <div style="display:flex;flex-direction:column;gap:1px;">
-      <span style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;color:#e8e8e4;text-transform:uppercase;">CAD Inspector <span style="font-family:'DM Mono',monospace;font-size:8px;color:var(--accent);font-weight:400;letter-spacing:.06em;">v0.5.4</span></span>
+      <span style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;color:#e8e8e4;text-transform:uppercase;">CAD Inspector <span style="font-family:'DM Mono',monospace;font-size:8px;color:var(--accent);font-weight:400;letter-spacing:.06em;">v0.5.5</span></span>
       <span id="viewer-filename" style="font-family:'DM Mono',monospace;font-size:10px;color:#7a7a8a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px;"></span>
       <span id="size-readout-logo" style="font-family:'DM Mono',monospace;font-size:9px;color:#5a5a66;white-space:nowrap;display:none;"></span>
     </div>
@@ -437,24 +442,26 @@ input[type=range].lp-slider::-moz-range-thumb{width:12px;height:12px;}
       <button class="lp-head-btn" id="rp-pin-btn" onclick="togglePanelPin('right-panel','rp-pin-btn')" title="Snap to side">◨</button>
     </div>
     <!-- Pins sub-section -->
-    <div id="pins-section-head" class="rp-sub-head">
+    <div id="pins-section-head" class="rp-sub-head" style="cursor:pointer;" onclick="toggleRpSection('pins')">
       <span class="rp-title">PINS</span>
-      <button class="lp-head-btn" id="pin-comments-toggle-btn" onclick="togglePinComments()" title="Show/hide comment bubbles" style="font-size:10px;">&#128172;</button>
-      <button class="lp-head-btn" id="pins-eye-btn" onclick="toggleSectionVisibility('pins')" title="Toggle pin visibility"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+      <button class="lp-head-btn" id="pin-comments-toggle-btn" onclick="event.stopPropagation();togglePinComments()" title="Show/hide comment bubbles" style="font-size:10px;">&#128172;</button>
+      <button class="lp-head-btn" id="pins-eye-btn" onclick="event.stopPropagation();toggleSectionVisibility('pins')" title="Toggle pin visibility"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+      <span class="lp-sec-chevron" id="rp-pins-ch" style="color:var(--muted);">▾</span>
     </div>
-    <div id="pin-table-body"></div>
+    <div id="pin-table-body" style="overflow-y:auto;max-height:280px;"></div>
     <!-- Dimensions sub-section -->
     <div id="meas-section" style="display:none;">
-      <div id="dims-section-head" class="rp-sub-head">
+      <div id="dims-section-head" class="rp-sub-head" style="cursor:pointer;" onclick="toggleRpSection('dims')">
         <span class="rp-title">DIMENSIONS</span>
-        <button class="lp-head-btn" id="dims-eye-btn" onclick="toggleSectionVisibility('dims')" title="Toggle dimension visibility"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        <button class="lp-head-btn" id="dims-eye-btn" onclick="event.stopPropagation();toggleSectionVisibility('dims')" title="Toggle dimension visibility"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        <span class="lp-sec-chevron" id="rp-dims-ch" style="color:var(--muted);">▾</span>
       </div>
-      <div id="meas-table-body"></div>
+      <div id="meas-table-body" style="overflow-y:auto;max-height:220px;"></div>
     </div>
   </div>
 
   <!-- Sub-mode popup: appears above Measure button -->
-  <div id="meas-submode-popup" style="display:none;position:fixed;bottom:80px;left:50%;transform:translateX(-50%);z-index:556;display:none;align-items:center;gap:4px;padding:5px 8px;background:var(--surface);backdrop-filter:var(--blur);border:1px solid var(--border);border-radius:100px;box-shadow:0 4px 20px rgba(0,0,0,0.5);">
+  <div id="meas-submode-popup" style="display:none;position:fixed;bottom:80px;left:50%;transform:translateX(-50%);z-index:556;align-items:center;gap:4px;padding:5px 8px;background:var(--surface);backdrop-filter:var(--blur);border:1px solid var(--border);border-radius:100px;box-shadow:0 4px 20px rgba(0,0,0,0.5);">
     <button class="tb-btn" id="meas-height-btn" onclick="toggleMeasSubMode('height')" title="Height — drops to floor" style="min-width:36px;color:#2196f3;">
       <svg viewBox="0 0 24 24" style="stroke:#2196f3;"><line x1="12" y1="3" x2="12" y2="21"/><polyline points="9,6 12,3 15,6" fill="none"/><polyline points="9,18 12,21 15,18" fill="none"/></svg>
       <span class="tb-label">Height</span>
@@ -519,13 +526,13 @@ input[type=range].lp-slider::-moz-range-thumb{width:12px;height:12px;}
       <svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="8" x2="3" y2="16"/><line x1="21" y1="8" x2="21" y2="16"/></svg>
       <span class="tb-label">Measure</span>
     </button>
-    <button class="tb-btn" id="hide-all-btn" onclick="toggleAllAnnotations()" title="Show/hide all" style="padding:8px;width:44px;height:44px;position:relative;">
-      <svg id="hide-all-icon" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/><line id="hide-all-cross" x1="3" y1="3" x2="21" y2="21" stroke-width="2.5" style="display:none;"/></svg>
-      <span class="tb-label">All</span>
-    </button>
     <button class="tb-btn" id="dm-pin" onclick="togglePinMode()" title="Pin (P)" style="padding:8px;width:44px;height:44px;">
       <svg viewBox="0 0 24 24"><rect x="9" y="4" width="6" height="6" rx="1"/><line x1="12" y1="10" x2="12" y2="20"/></svg>
       <span class="tb-label">Pin</span>
+    </button>
+    <button class="tb-btn" id="hide-all-btn" onclick="toggleAllAnnotations()" title="Show/hide all" style="padding:8px;width:44px;height:44px;position:relative;">
+      <svg id="hide-all-icon" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/><line id="hide-all-cross" x1="3" y1="3" x2="21" y2="21" stroke-width="2.5" style="display:none;"/></svg>
+      <span class="tb-label">All</span>
     </button>
   </div>
 </div>
@@ -1653,13 +1660,38 @@ function setZebraMode(mode) {
       side:THREE.DoubleSide, blending:THREE.NormalBlending
     });
     child.updateWorldMatrix(true,false);
+    // Collect active clipping planes (same as what the model uses)
+    const planes=[];
+    if(hSliceActive&&hSlicePlane) planes.push(hSlicePlane);
+    if(vSliceActive&&vSlicePlane) planes.push(vSlicePlane);
+    // Build main zebra overlay — clipped to visible region only
     const m=new THREE.Mesh(child.geometry,mat);
     m.matrix.copy(child.matrixWorld); m.matrixAutoUpdate=false;
-    m.renderOrder=1;
-    // Apply current clipping planes so zebra respects active slices
-    if(hSliceActive&&hSlicePlane) mat.clippingPlanes=[...(vSliceActive&&vSlicePlane?[vSlicePlane]:[]),hSlicePlane];
-    else if(vSliceActive&&vSlicePlane) mat.clippingPlanes=[vSlicePlane];
+    m.renderOrder=2;
+    if(planes.length){
+      mat.clippingPlanes=planes;
+      mat.clipIntersection=false; // AND logic: hide where ANY plane clips
+    }
     viewerScene.add(m); _zebraOverlayMeshes.push(m);
+    // If ghost is active: also add dim zebra overlay for the cut-away region
+    const ghostOn=document.getElementById('slice-ghost-tog')?.checked;
+    if(ghostOn&&planes.length){
+      const matG=mat.clone();
+      // Invert planes so this overlay shows only in the cut-away region
+      const invPlanes=planes.map(p=>new THREE.Plane().copy(p).negate());
+      matG.clippingPlanes=invPlanes;
+      matG.clipIntersection=false;
+      // Dim: reduce alpha of dark bands
+      matG.fragmentShader=matG.fragmentShader.replace(
+        'float alpha=mix(0.82,0.0,band);',
+        'float alpha=mix(0.25,0.0,band); // dim zebra in ghost region'
+      );
+      matG.needsUpdate=true;
+      const mg=new THREE.Mesh(child.geometry,matG);
+      mg.matrix.copy(child.matrixWorld); mg.matrixAutoUpdate=false;
+      mg.renderOrder=2;
+      viewerScene.add(mg); _zebraOverlayMeshes.push(mg);
+    }
   });
 }
 function onExplodeSlider(t) {
@@ -1940,6 +1972,34 @@ function updatePinCommentPositions(){
   _pinCommentDivs.forEach(function(div,id){if(!annotations.find(function(a){return a.id===id;})){if(div._line)div._line.remove();div.remove();_pinCommentDivs.delete(id);}});
 }
 
+
+
+function toggleRpSection(section){
+  if(section==='pins'){
+    const body=document.getElementById('pin-table-body');
+    const ch=document.getElementById('rp-pins-ch');
+    const collapsed=body.dataset.collapsed==='1';
+    body.dataset.collapsed=collapsed?'0':'1';
+    body.style.display=collapsed?'':'none';
+    if(ch) ch.style.transform=collapsed?'':'rotate(-90deg)';
+  } else {
+    const body=document.getElementById('meas-table-body');
+    const ch=document.getElementById('rp-dims-ch');
+    const collapsed=body.dataset.collapsed==='1';
+    body.dataset.collapsed=collapsed?'0':'1';
+    body.style.display=collapsed?'':'none';
+    if(ch) ch.style.transform=collapsed?'':'rotate(-90deg)';
+  }
+}
+function _repositionMeasPopup(){
+  const popup=document.getElementById('meas-submode-popup');
+  const btn=document.getElementById('dm-meas');
+  if(!popup||!btn) return;
+  const r=btn.getBoundingClientRect();
+  popup.style.left=(r.left+r.width/2)+'px';
+  popup.style.transform='translateX(-50%)';
+  popup.style.bottom=(window.innerHeight-r.top+8)+'px';
+}
 function resetZebra(){
   _zebraRotation=0; _zebraStripeScale=12;
   var sl=document.getElementById("zebra-size-sl");if(sl)sl.value=12;
@@ -2749,7 +2809,7 @@ async function exportPinReport() {
   pdf.setFont('helvetica','bold'); pdf.setFontSize(11); pdf.setTextColor(20,20,24);
   pdf.text('CAD INSPECTOR', rx+8, 14);
   pdf.setFont('helvetica','normal'); pdf.setFontSize(7); pdf.setTextColor(140,140,150);
-  pdf.text('v0.5.4', rx+8, 20);
+  pdf.text('v0.5.5', rx+8, 20);
   // Separator
   pdf.setDrawColor(200,245,66); pdf.setLineWidth(0.6); pdf.line(rx+8,23,PW-8,23);
 
@@ -2908,7 +2968,7 @@ function setDesktopMode(mode, silent) {
   const cw=document.getElementById('viewer-canvas-wrap');
   if(cw) cw.style.cursor=mode==='pin'||mode==='measure'?'crosshair':'grab';
   const smp=document.getElementById('meas-submode-popup');
-  if(smp) smp.style.display=mode==='measure'?'flex':'none';
+  if(smp){ smp.style.display=mode==='measure'?'flex':'none'; if(mode==='measure') _repositionMeasPopup(); }
   if(mode!=='measure') resetMeasSubMode();
 }
 
