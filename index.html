@@ -178,8 +178,8 @@ input[type=range].lp-slider::-moz-range-thumb{width:12px;height:12px;}
 #top-bar.showcase-dim:hover{opacity:1!important;pointer-events:auto!important;}
 .tb-btn.active{background:rgba(200,245,66,0.15);color:var(--accent);border-radius:50%!important;}
 .tb-btn.active-measure{background:rgba(245,161,66,0.15);color:var(--warn);border-radius:50%!important;}
-.tb-btn.active-height{background:rgba(33,150,243,0.2)!important;border:1px solid rgba(33,150,243,0.5)!important;}
-.tb-btn.active-width{background:rgba(244,67,54,0.2)!important;border:1px solid rgba(244,67,54,0.5)!important;}
+.tb-btn.active-height{background:rgba(33,150,243,0.2)!important;border:1px solid rgba(33,150,243,0.5)!important;border-radius:50%!important;}
+.tb-btn.active-width{background:rgba(244,67,54,0.2)!important;border:1px solid rgba(244,67,54,0.5)!important;border-radius:50%!important;}
 .tb-btn.active-pin{background:rgba(245,66,66,0.15);color:var(--danger);border-radius:50%!important;}
 .tb-sep{width:1px;height:20px;background:rgba(255,255,255,0.07);margin:0 2px;flex-shrink:0;}
 .vr-btn{background:var(--accent);color:#0a0a0b;border:none;border-radius:20px;padding:6px 12px;font-family:'DM Mono',monospace;font-size:10px;font-weight:500;cursor:pointer;transition:opacity 0.15s;white-space:nowrap;height:34px;}
@@ -228,7 +228,7 @@ input[type=range].lp-slider::-moz-range-thumb{width:12px;height:12px;}
   #top-bar{
     left:0!important;top:50%!important;transform:translateY(-50%)!important;
     flex-direction:column!important;border-radius:0 10px 10px 0!important;
-    border-left:none!important;border-bottom-left-radius:0!important;border-top-left-radius:0!important;
+    /* top-bar mobile: keep pill shape but allow overflow */
     padding:6px 4px!important;max-height:80vh;overflow-y:auto;
   }
   #top-bar .tb-sep{width:20px;height:1px!important;margin:2px 0!important;}
@@ -342,22 +342,22 @@ input[type=range].lp-slider::-moz-range-thumb{width:12px;height:12px;}
           <span class="lp-sec-chevron" id="lps-0-ch" onclick="toggleLpSection('lps-0')" style="cursor:pointer;">▾</span>
         </div>
         <div class="lp-sec-body" id="lps-0">
-          <div class="lp-row"><span class="lp-label" id="hslice-label">Horizontal cut</span><label class="tog teal"><input type="checkbox" id="hslice-tog" onchange="onHSliceToggle(this.checked);toggleSliceControls('h',this.checked)"><span class="tog-s"></span></label></div>
+          <div class="lp-row"><span class="lp-label" id="hslice-label">Top plane cut</span><label class="tog teal"><input type="checkbox" id="hslice-tog" onchange="onHSliceToggle(this.checked);toggleSliceControls('h',this.checked)"><span class="tog-s"></span></label></div>
           <div id="hslice-controls" style="display:none;">
             <div class="lp-row"><span class="lp-label" style="font-size:9px;color:var(--muted)">Cut height</span></div>
             <input type="range" class="lp-slider teal" id="hslice-sl" min="0" max="1" step="0.005" value="0.5" oninput="onHSliceSlider(this.value)">
             <div class="lp-row"><span class="lp-label" style="font-size:9px;color:var(--muted)">Rotate</span><span class="lp-val" id="hslice-ang-val">0°</span></div>
             <input type="range" class="lp-slider teal" id="hslice-ang" min="-90" max="90" step="1" value="0" oninput="onHSliceAngle(this.value)">
-            <div class="lp-row"><span class="lp-label" style="font-size:9px;color:var(--muted)">Origin offset</span><span class="lp-val" id="hslice-orig-val">+0%</span></div>
+            <div class="lp-row"><span class="lp-label" style="font-size:9px;color:var(--muted)">Plane depth</span><span class="lp-val" id="hslice-orig-val">+0%</span></div>
             <input type="range" class="lp-slider teal" id="hslice-orig" min="0" max="1" step="0.005" value="0.5" oninput="onHSliceOriginSlider(this.value)">
           </div>
-          <div class="lp-row"><span class="lp-label" id="vslice-label">Vertical cut</span><label class="tog"><input type="checkbox" id="vslice-tog" onchange="onVSliceToggle(this.checked);toggleSliceControls('v',this.checked)"><span class="tog-s"></span></label></div>
+          <div class="lp-row"><span class="lp-label" id="vslice-label">Right plane cut</span><label class="tog"><input type="checkbox" id="vslice-tog" onchange="onVSliceToggle(this.checked);toggleSliceControls('v',this.checked)"><span class="tog-s"></span></label></div>
           <div id="vslice-controls" style="display:none;">
             <div class="lp-row"><span class="lp-label" style="font-size:9px;color:var(--muted)">Cut width</span></div>
             <input type="range" class="lp-slider" id="vslice-sl" min="0" max="1" step="0.005" value="0.5" oninput="onVSliceSlider(this.value)">
             <div class="lp-row"><span class="lp-label" style="font-size:9px;color:var(--muted)">Rotate</span><span class="lp-val" id="vslice-ang-val">0°</span></div>
             <input type="range" class="lp-slider" id="vslice-ang" min="-90" max="90" step="1" value="0" oninput="onVSliceAngle(this.value)">
-            <div class="lp-row"><span class="lp-label" style="font-size:9px;color:var(--muted)">Origin offset</span><span class="lp-val" id="vslice-orig-val">+0%</span></div>
+            <div class="lp-row"><span class="lp-label" style="font-size:9px;color:var(--muted)">Plane depth</span><span class="lp-val" id="vslice-orig-val">+0%</span></div>
             <input type="range" class="lp-slider" id="vslice-orig" min="0" max="1" step="0.005" value="0.5" oninput="onVSliceOriginSlider(this.value)">
           </div>
           <!-- Ghost model view -->
@@ -466,7 +466,7 @@ input[type=range].lp-slider::-moz-range-thumb{width:12px;height:12px;}
   </div>
 
   <!-- TOP toolbar — secondary tools -->
-  <div id="top-bar" style="display:none;position:fixed;top:0;left:50%;transform:translateX(-50%);z-index:550;padding:4px 6px;background:var(--surface);backdrop-filter:var(--blur);border:1px solid var(--border);border-bottom-left-radius:10px;border-bottom-right-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,0.4);display:none;align-items:center;gap:1px;">
+  <div id="top-bar" style="display:none;position:fixed;top:0;left:50%;transform:translateX(-50%);z-index:550;padding:4px 6px;background:var(--surface);backdrop-filter:var(--blur);border:1px solid var(--border);border-radius:100px;box-shadow:0 4px 20px rgba(0,0,0,0.4);margin-top:8px;display:none;align-items:center;gap:1px;">
     <button class="tb-btn" id="autorot-btn" onclick="toggleAutoRotate()" title="Auto-rotate">
       <svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 11-9-9"/><polyline points="21 3 21 9 15 9"/></svg>
       <span class="tb-label">Auto</span>
@@ -1747,9 +1747,9 @@ function _updateBboxLabels(){
   const W=Math.round(size.x*100), H=Math.round(size.y*100), L=Math.round(size.z*100);
   // Place labels at corners matching image: W on front-bottom, H on right-bottom, L on top-right
   const dims=[
-    // Labels on right/front-facing edges — visible from default camera angle
-    {pt:new THREE.Vector3(box.max.x, box.min.y, box.min.z+size.z*0.5), text:'W '+W+' cm', ox:28, oy:18},
-    {pt:new THREE.Vector3(box.max.x, box.min.y+size.y*0.5, box.max.z), text:'H '+H+' cm', ox:28, oy:0},
+    // W on front bottom edge, H on right vertical edge, L on top right edge
+    {pt:new THREE.Vector3(box.min.x+size.x*0.5, box.min.y, box.min.z), text:'W '+W+' cm', ox:0, oy:24},
+    {pt:new THREE.Vector3(box.max.x, box.min.y+size.y*0.5, box.min.z), text:'H '+H+' cm', ox:32, oy:0},
     {pt:new THREE.Vector3(box.max.x, box.max.y, box.min.z+size.z*0.5), text:'L '+L+' cm', ox:28, oy:-18},
   ];
   const r=viewerRenderer.domElement.getBoundingClientRect();
@@ -1804,27 +1804,34 @@ function toggleSliceGhost(on){
   if(!loadedModel) return;
   if(_sliceGhostMesh){viewerScene?.remove(_sliceGhostMesh);_sliceGhostMesh=null;}
   if(!on) return;
-  // Collect active inverted planes — one ghost group per plane so OR logic applies
+  // Collect active inverted planes
   const activePlanes=[];
   if(hSliceActive&&hSlicePlane) activePlanes.push(new THREE.Plane().copy(hSlicePlane).negate());
   if(vSliceActive&&vSlicePlane) activePlanes.push(new THREE.Plane().copy(vSlicePlane).negate());
   if(!activePlanes.length) return;
   const ghostGroup=new THREE.Group();
-  // One sub-group per inverted plane — Three.js uses AND for clippingPlanes on same mesh,
-  // so we create separate meshes per plane to get OR behaviour
-  activePlanes.forEach(plane=>{
+  if(activePlanes.length===1){
+    // Single plane: clip ghost to sliced-away region
     loadedModel.traverse(child=>{
       if(!child.isMesh) return;
-      const mat=new THREE.MeshBasicMaterial({
-        color:0xffffff,transparent:true,opacity:0.08,
-        depthWrite:false,side:THREE.DoubleSide,
-        clippingPlanes:[plane]
-      });
+      const mat=new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0.09,depthWrite:false,side:THREE.DoubleSide,clippingPlanes:[activePlanes[0]]});
       const m=new THREE.Mesh(child.geometry,mat);
       m.matrix.copy(child.matrixWorld); m.matrixAutoUpdate=false;
       ghostGroup.add(m);
     });
-  });
+  } else {
+    // Two planes: show full ghost (both regions) at low opacity without per-plane clipping
+    // OR approach: two separate render passes at half opacity each but different clip planes
+    activePlanes.forEach(plane=>{
+      loadedModel.traverse(child=>{
+        if(!child.isMesh) return;
+        const mat=new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0.06,depthWrite:false,side:THREE.DoubleSide,clippingPlanes:[plane]});
+        const m=new THREE.Mesh(child.geometry,mat);
+        m.matrix.copy(child.matrixWorld); m.matrixAutoUpdate=false;
+        ghostGroup.add(m);
+      });
+    });
+  }
   _sliceGhostMesh=ghostGroup;
   viewerScene.add(_sliceGhostMesh);
 }
@@ -2530,6 +2537,13 @@ function updateMeasEndpoint(id, endpoint, newPt) {
     m.label=(h>=1?h.toFixed(3)+' m':(h*100).toFixed(1)+' cm')+' ↕';
     m.sA.position.copy(m.ptA); m.sA.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),new THREE.Vector3(0,-1,0));
     m.sB.position.copy(m.ptB); m.sB.quaternion.identity();
+  } else if(m.color===MEAS_COL_WIDTH) {
+    // Width: mirror through X=0, both endpoints always symmetric
+    m.ptA.set(newPt.x, newPt.y, newPt.z);
+    m.ptB.set(-newPt.x, newPt.y, newPt.z);
+    const w=m.ptA.distanceTo(m.ptB);
+    m.label=(w>=1?w.toFixed(3)+' m':(w*100).toFixed(1)+' cm')+' ↔';
+    _orientDimMarker(m.sA,m.ptA,m.ptB); _orientDimMarker(m.sB,m.ptB,m.ptA);
   } else {
     if(endpoint==='A'){ m.ptA.copy(newPt); }
     else              { m.ptB.copy(newPt); }
@@ -2853,12 +2867,13 @@ function toggleMeasMode(){
   if(desktopMode==='measure'){ if(measurePhase>0) clearMeasure(); setDesktopMode('orbit'); }
   else {
     setDesktopMode('measure');
-    // If "All" is hidden, restore dims and turn off All
+    // If "All" is hidden, restore everything then hide only pins
     if(!allAnnotationsVisible){
-      toggleAllAnnotations(); // restore all
+      toggleAllAnnotations(); // re-enable all
     }
-    // Then ensure dims are visible
+    // Ensure dims visible, pins hidden (measure mode = dims only)
     if(_dimsHidden) toggleSectionVisibility('dims');
+    if(!_pinsHidden) toggleSectionVisibility('pins');
   }
 }
 function togglePinMode(){
@@ -2895,7 +2910,7 @@ function setDesktopMode(mode, silent) {
     viewerControls.enableRotate=true; // always allow middle-mouse orbit
   }
   const cw=document.getElementById('viewer-canvas-wrap');
-  if(cw) cw.style.cursor=mode==='pin'?'crosshair':mode==='measure'?'cell':'grab';
+  if(cw) cw.style.cursor=mode==='pin'||mode==='measure'?'crosshair':'grab';
   const smp=document.getElementById('meas-submode-popup');
   if(smp) smp.style.display=mode==='measure'?'flex':'none';
   if(mode!=='measure') resetMeasSubMode();
@@ -2931,7 +2946,7 @@ function onCanvasMouseMove(e) {
   const cw=document.getElementById('viewer-canvas-wrap'); if(!cw) return;
   // Check if hovering a measurement endpoint
   const sphere=getMeasSphereHit(e);
-  if(sphere) { cw.style.cursor="url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2216%22 height=%2216%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23f5a142%22 stroke-width=%222.5%22><path d=%22M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7%22/><path d=%22M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z%22/></svg>') 0 16, text"; return; }
+  if(sphere) { cw.style.cursor="url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2216%22 height=%2216%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22white%22 stroke-width=%222.5%22><path d=%22M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7%22/><path d=%22M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z%22/></svg>') 0 16, text"; return; }
   // Check pins
   if(viewerCamera&&viewerRenderer&&annotations.length){
     const cv=viewerRenderer.domElement, rect=cv.getBoundingClientRect();
@@ -2946,7 +2961,7 @@ function onCanvasMouseMove(e) {
     if(desktopMode==='pin'||desktopMode==='measure'){
       const modelMeshes=[]; if(loadedModel) loadedModel.traverse(c2=>{if(c2.isMesh)modelMeshes.push(c2);});
       if(modelMeshes.length&&ray.intersectObjects(modelMeshes,false).length){
-        cw.style.cursor=desktopMode==='pin'?'crosshair':'cell'; return;
+        cw.style.cursor='crosshair'; return;
       }
     }
   }
