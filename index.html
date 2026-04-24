@@ -569,6 +569,10 @@ input[type=range].lp-slider::-moz-range-thumb{width:12px;height:12px;}
     <span id="viewer-title" style="display:none;position:absolute;pointer-events:none;" aria-hidden="true">—</span>
     <!-- 3 inspection mode buttons -->
 <!-- Orbit mode implicit — no button needed -->
+    <button class="tb-btn" id="dm-part" onclick="togglePartMode()" title="Select part (S)" style="padding:8px;width:44px;height:44px;">
+      <svg viewBox="0 0 24 24"><path d="M3 3h7v7H3z" stroke-width="1.5" fill="none"/><path d="M14 3h7v7h-7z" stroke-width="1.5" fill="none"/><path d="M3 14h7v7H3z" stroke-width="1.5" fill="none"/><path d="M14 14h7v7h-7z" stroke-width="1.5" fill="none"/><circle cx="17.5" cy="17.5" r="2" fill="currentColor" stroke="none"/></svg>
+      <span class="tb-label">Part</span>
+    </button>
     <button class="tb-btn" id="dm-meas" onclick="toggleMeasMode()" title="Measure (M)" style="padding:8px;width:44px;height:44px;">
       <svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="8" x2="3" y2="16"/><line x1="21" y1="8" x2="21" y2="16"/></svg>
       <span class="tb-label">Measure</span>
@@ -1101,6 +1105,10 @@ function updateMeasLabels() {
       if(m.sB) m.sB.visible=false;
       return;
     }
+    // Ensure 3D objects are visible for matching types
+    if(m.line) m.line.visible=true;
+    if(m.sA) m.sA.visible=true;
+    if(m.sB) m.sB.visible=true;
     const mid=m.ptA.clone().add(m.ptB).multiplyScalar(0.5);
     const v=mid.project(viewerCamera);
     if(v.z>=1){div.style.display='none';return;}
@@ -2364,6 +2372,7 @@ function setTexMode(next) {
         c.material.color.copy(s.color); c.material.roughness=s.roughness??0.8;
         c.material.metalness=s.metalness??0; c.material.opacity=s.opacity??1;
         c.material.transparent=s.transparent??false;
+        c.material.depthWrite=true; c.material.side=THREE.DoubleSide;
         // Clear zebra state if any
         c.material.emissive&&c.material.emissive.set(0,0,0); c.material.emissiveIntensity=0;
         delete c.material._zebraCloned;
@@ -2398,6 +2407,9 @@ function setTexMode(next) {
       c.material.color.set(0xaaaacc);
       c.material.roughness=0.3; c.material.metalness=0;
       c.material.opacity=0.35; c.material.transparent=true;
+      // Critical: depthWrite:false prevents inner-face z-fighting in alpha mode
+      c.material.depthWrite=false;
+      c.material.side=THREE.FrontSide; // FrontSide avoids back-face fighting
     }
     c.material.needsUpdate=true;
   });
@@ -2525,6 +2537,10 @@ function closePinPopup() {
 }
 
 function openPinPopup(pin, screenX, screenY) {
+  // Clamp to viewport
+  const vpW=window.innerWidth, vpH=window.innerHeight;
+  if(typeof screenX!=='number') screenX=vpW/2;
+  if(typeof screenY!=='number') screenY=100;
   closePinPopup();
   const hc = getPinHex(pin.colorIdx);
   const popup = document.createElement('div');
@@ -2615,9 +2631,16 @@ function dropAnnotation(worldPos) {
   // count now implicit
   saveSession(); rebuildSidebar();
   // Auto-open comment popup for new pin
-  if(newPin && newPin.labelDiv){
-    const r=newPin.labelDiv.getBoundingClientRect();
-    setTimeout(()=>openPinPopup(newPin, r.left+r.width/2, r.top), 50);
+  if(newPin){
+    setTimeout(()=>{
+      if(!viewerCamera||!viewerRenderer||!newPin.mesh) return;
+      const wp=new THREE.Vector3(); newPin.mesh.getWorldPosition(wp);
+      const rv=viewerRenderer.domElement.getBoundingClientRect();
+      const v=wp.clone().project(viewerCamera);
+      const sx=(v.x*0.5+0.5)*rv.width+rv.left;
+      const sy=(-v.y*0.5+0.5)*rv.height+rv.top;
+      openPinPopup(newPin, sx+40, sy-80);
+    },60);
   }
 }
 
@@ -2728,7 +2751,7 @@ function rebuildPinTable() {
     const locBtn=document.createElement('button'); locBtn.className='ann-btn'; locBtn.textContent='⊕'; locBtn.title='Locate';
     locBtn.onclick=e=>{e.stopPropagation();highlightPin(pin.id);};
     const delBtn=document.createElement('button'); delBtn.className='ann-btn del'; delBtn.textContent='✕'; delBtn.title='Delete';
-    delBtn.onclick=e=>{e.stopPropagation();removeAnnotation(pin.id);};
+    delBtn.onclick=e=>{e.stopPropagation();showConfirm('Delete pin P'+String(displayNum).padStart(2,'0')+'?','Delete','#f54242',()=>{removeAnnotation(pin.id);});  };
     acts.appendChild(locBtn); acts.appendChild(delBtn); top.appendChild(acts);
     card.appendChild(top);
     // Comment
@@ -2771,12 +2794,13 @@ function rebuildMeasTable() {
   savedMeasurements.forEach((m,i)=>{
     const card=document.createElement('div'); card.className='meas-card';
     const colHex='#'+(m.color||MEAS_COL_FREE).toString(16).padStart(6,'0');
-    const typeIcon=m.color===MEAS_COL_HEIGHT?'↕':m.color===MEAS_COL_WIDTH?'↔':'↗';
+    const typeIcon=m.color===MEAS_COL_HEIGHT?'↕':m.color===MEAS_COL_WIDTH?'↔':m.color===MEAS_COL_DEPTH?'⟷':'↗';
     const badge=document.createElement('span'); badge.style.cssText=`color:${colHex};font-size:10px;margin-right:3px;`; badge.textContent=typeIcon;
     const idSpan=document.createElement('span'); idSpan.className='meas-card-id'; idSpan.style.color=colHex; idSpan.textContent=`M${String(i+1).padStart(2,'0')}`;
     // Editable label — click to rename
     const lbl=document.createElement('span'); lbl.className='meas-card-lbl'; lbl.style.color=colHex; lbl.style.cursor='text'; lbl.title='Click to rename'; lbl.style.fontFamily="'DM Mono',monospace";
-    lbl.textContent=m.customLabel?m.customLabel+' · '+m.label:m.label;
+    // Add pencil icon to hint that label is editable
+    lbl.innerHTML=(m.customLabel?`<strong>${m.customLabel}</strong> <span style='opacity:0.5'>${m.label}</span>`:m.label)+' <span style="opacity:0.35;font-size:8px;">✎</span>';
     lbl.onclick=(ev)=>{ev.stopPropagation();
       const inp=document.createElement('input');
       inp.value=m.customLabel||'';' // edit only the name, not the dimension' 
@@ -2787,7 +2811,7 @@ function rebuildMeasTable() {
       inp.onblur=done; inp.onkeydown=e=>{if(e.key==='Enter')inp.blur();if(e.key==='Escape'){inp.blur();}};
     };
     const del=document.createElement('button'); del.className='ann-btn del'; del.textContent='✕';
-    del.onclick=()=>{deleteMeasurement(m.id); rebuildMeasTable();};
+    del.onclick=()=>{showConfirm('Delete dimension '+`M${String(i+1).padStart(2,'0')}`+'?','Delete','#f54242',()=>{deleteMeasurement(m.id);});  };
     card.appendChild(badge); card.appendChild(idSpan); card.appendChild(lbl); card.appendChild(del);
     body.appendChild(card);
   });
@@ -2872,9 +2896,11 @@ function _spawnMeasureLine(ptA, ptB, label, id, color) {
 function deleteMeasurement(id) {
   const idx=savedMeasurements.findIndex(m=>m.id===id); if(idx===-1) return;
   const m=savedMeasurements[idx];
-  viewerScene?.remove(m.line); if(m.lineGhost) viewerScene?.remove(m.lineGhost); viewerScene?.remove(m.sA); viewerScene?.remove(m.sB);
+  viewerScene?.remove(m.line); if(m.lineGhost) viewerScene?.remove(m.lineGhost);
+  viewerScene?.remove(m.sA); viewerScene?.remove(m.sB);
+  const ld=measLabelDivs.get(id); if(ld){ld.remove();measLabelDivs.delete(id);}
   savedMeasurements.splice(idx,1);
-  saveSession();
+  rebuildMeasTable(); saveSession();
 }
 
 // Update a saved measurement's endpoint position
@@ -3194,6 +3220,19 @@ function applyExplode(t) {}
 // ════════════════════════════════════════════════════════════
 //  DESKTOP INTERACTION
 // ════════════════════════════════════════════════════════════
+function togglePartMode(){
+  // Toggle part selection mode — visual indicator only, part select always works in orbit
+  const btn=document.getElementById('dm-part');
+  if(btn) btn.classList.toggle('active');
+  if(desktopMode!=='orbit') setDesktopMode('orbit');
+  deselectPart();
+  // Show hint
+  const hint=document.createElement('div');
+  hint.style.cssText="position:fixed;bottom:80px;left:50%;transform:translateX(-50%);font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);background:rgba(10,10,14,0.88);padding:6px 14px;border-radius:20px;border:1px solid rgba(200,245,66,0.3);pointer-events:none;z-index:560;";
+  hint.textContent='Click any part to select and measure its volume';
+  document.body.appendChild(hint);
+  setTimeout(()=>hint.remove(),3000);
+}
 function _syncMeasSubBtns(){
   ['height','width','depth','free'].forEach(s=>{
     const b=document.getElementById('meas-'+s+'-btn');
@@ -3443,7 +3482,9 @@ function onCanvasClick(e) {
       _spawnMeasureLine(ptA, ptB, lbl, ++measureCount, MEAS_COL_WIDTH);
       rebuildMeasTable(); saveSession(); return;
     }
-    // --- DEPTH mode: straight horizontal line (both points at Y=0 projected) ---
+    // --- DEPTH mode: measure Z-axis distance only (front-to-back) ---
+    // Projects both points to a common Y and X (midpoint X), measures only Z difference.
+    // Like holding a spirit level from the back edge to the front edge of a seat.
     if(measureSubMode==='depth'){
       if(!pt) return;
       if(measurePhase===0){
@@ -3451,17 +3492,21 @@ function onCanvasClick(e) {
         measurePhase=1;
         measureState.sphereA&&(measureState.sphereA.position.copy(pt),measureState.sphereA.visible=true);
         measureState.lineObj&&(measureState.lineObj.visible=false);
-        const dr=document.getElementById('measure-readout'); if(dr) dr.textContent='Click second point…';
         const ov=document.getElementById('measure-readout-overlay'); if(ov) ov.style.display='block';
       } else {
-        measureState.ptB=pt.clone();
-        updateMeasureLine();
         measurePhase=0;
-        // Label uses 3D distance (true depth)
-        const d=measureState.ptA.distanceTo(measureState.ptB);
-        const lbl=(d>=1?d.toFixed(3)+' m':(d*100).toFixed(1)+' cm');
-        _spawnMeasureLine(measureState.ptA.clone(),measureState.ptB.clone(),lbl,++measureCount,MEAS_COL_DEPTH);
-        measureState.ptA=measureState.ptB=null;
+        const pA=measureState.ptA.clone();
+        const pB=pt.clone();
+        // Create L-shaped depth indicator:
+        // Horizontal line at Y=midpoint (spirit level), X=pA.x → X=pB.x, Z=pA.z → pB.z
+        // Both endpoint cones sit at the two Z positions, same Y and same X (use pA.x)
+        const midY=(pA.y+pB.y)/2;
+        const dA=new THREE.Vector3(pA.x, midY, pA.z); // start point
+        const dB=new THREE.Vector3(pA.x, midY, pB.z); // end point — same X and Y, only Z differs
+        const depth=Math.abs(pA.z-pB.z);
+        const lbl=(depth>=1?depth.toFixed(3)+' m':(depth*100).toFixed(1)+' cm')+' ↔';
+        _spawnMeasureLine(dA, dB, lbl, ++measureCount, MEAS_COL_DEPTH);
+        measureState.ptA=null;
         measureState.lineObj&&(measureState.lineObj.visible=false);
         measureState.sphereA&&(measureState.sphereA.visible=false);
         measureState.sphereB&&(measureState.sphereB.visible=false);
@@ -3489,15 +3534,7 @@ function onCanvasClick(e) {
 
   let pt=getCanvasHit(e);
   if(desktopMode==='pin'){
-    if(!pt){
-      // No model hit — try floor plane (Y=0) as fallback
-      const cv2=viewerRenderer.domElement, rect2=cv2.getBoundingClientRect();
-      const nx=((e.clientX-rect2.left)/rect2.width)*2-1;
-      const ny=-((e.clientY-rect2.top)/rect2.height)*2+1;
-      const tmpRay=new THREE.Raycaster(); tmpRay.setFromCamera({x:nx,y:ny},viewerCamera);
-      const floorPt=new THREE.Vector3();
-      if(tmpRay.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0,1,0),0),floorPt)) pt=floorPt;
-    }
+    // Only allow pins on actual model surface — no floor or air pins
     if(pt) dropAnnotation(pt);
     return;
   }
