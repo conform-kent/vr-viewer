@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CAD INSPECTOR v0.5.6</title>
+<title>CAD INSPECTOR v0.5.7</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230d0d10'/%3E%3Cpolygon points='16,3 28,10 28,22 16,29 4,22 4,10' fill='none' stroke='%23c8f542' stroke-width='2.2' stroke-linejoin='round'/%3E%3Cline x1='10' y1='13' x2='16' y2='21' stroke='%23c8f542' stroke-width='2.2' stroke-linecap='round'/%3E%3Cline x1='22' y1='13' x2='16' y2='21' stroke='%23c8f542' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap');
@@ -175,11 +175,14 @@ input[type=range].lp-slider::-moz-range-thumb{width:12px;height:12px;}
 .tb-btn .tb-label{font-size:7px;letter-spacing:.04em;text-transform:uppercase;line-height:1;margin-top:1px;}
 .tb-btn:hover{background:rgba(255,255,255,0.09);color:var(--text);border-radius:50%!important;}
 #top-bar.showcase-dim{opacity:0.18;transition:opacity 0.3s;pointer-events:none;}
+#hide-all-btn.annots-hidden::after{content:"";position:absolute;top:6px;right:6px;width:5px;height:5px;border-radius:50%;background:var(--warn);}
 #top-bar.showcase-dim:hover,#top-bar.showcase-focused{opacity:1!important;pointer-events:auto!important;}
 .tb-btn.active{background:rgba(200,245,66,0.15);color:var(--accent);border-radius:50%!important;}
 .tb-btn.active-measure{background:rgba(245,161,66,0.15);color:var(--warn);border-radius:50%!important;}
 .tb-btn.active-height{background:rgba(33,150,243,0.2)!important;border-color:rgba(33,150,243,0.5)!important;border-radius:50%!important;width:44px!important;height:44px!important;}
 .tb-btn.active-width{background:rgba(244,67,54,0.2)!important;border-color:rgba(244,67,54,0.5)!important;border-radius:50%!important;width:44px!important;height:44px!important;}
+.tb-btn.active-free{background:rgba(245,161,66,0.2)!important;border-color:rgba(245,161,66,0.5)!important;border-radius:50%!important;width:44px!important;height:44px!important;}
+.tb-btn.active-depth{background:rgba(0,188,212,0.2)!important;border-color:rgba(0,188,212,0.5)!important;border-radius:50%!important;width:44px!important;height:44px!important;}
 .tb-btn.active-pin{background:rgba(245,66,66,0.15);color:var(--danger);border-radius:50%!important;}
 .tb-sep{width:1px;height:20px;background:rgba(255,255,255,0.07);margin:0 2px;flex-shrink:0;}
 .vr-btn{background:var(--accent);color:#0a0a0b;border:none;border-radius:20px;padding:6px 12px;font-family:'DM Mono',monospace;font-size:10px;font-weight:500;cursor:pointer;transition:opacity 0.15s;white-space:nowrap;height:34px;}
@@ -206,7 +209,9 @@ input[type=range].lp-slider::-moz-range-thumb{width:12px;height:12px;}
 .meas-popup-actions button{font-family:'DM Mono',monospace;font-size:10px;padding:4px 8px;border-radius:4px;cursor:pointer;border:1px solid rgba(255,255,255,0.09);background:rgba(255,255,255,0.04);color:var(--text);text-align:left;}
 .meas-popup-actions button:hover{background:rgba(255,255,255,0.09);}
 .meas-del-btn{color:var(--danger)!important;border-color:rgba(245,66,66,0.22)!important;}
-.meas-label{position:fixed;pointer-events:none;z-index:140;font-family:'DM Mono',monospace;font-size:11px;font-weight:500;color:var(--warn);background:rgba(13,13,16,0.85);border:1px solid rgba(245,161,66,0.3);border-radius:4px;padding:2px 6px;white-space:nowrap;transform:translate(-50%,-50%);}
+.meas-label{position:fixed;pointer-events:none;z-index:140;font-family:'DM Mono',monospace;font-size:10px;color:var(--warn);background:rgba(13,13,16,0.88);border:1px solid rgba(245,161,66,0.3);border-radius:4px;padding:3px 7px;white-space:nowrap;transform:translate(-50%,-50%);text-align:center;}
+.meas-label .ml-name{font-size:9px;opacity:0.75;display:block;line-height:1.2;}
+.meas-label .ml-val{font-size:11px;font-weight:600;display:block;line-height:1.3;}
 .confirm-popup{position:fixed;z-index:700;background:rgba(14,14,18,0.98);backdrop-filter:var(--blur);border:1px solid var(--border-hi);border-radius:10px;padding:16px 20px;width:270px;box-shadow:0 12px 40px rgba(0,0,0,0.85);font-family:'DM Mono',monospace;top:50%;left:50%;transform:translate(-50%,-50%);}
 .confirm-popup p{font-size:12px;color:#c0c0cc;line-height:1.55;margin-bottom:14px;}
 .confirm-popup .confirm-btns{display:flex;gap:8px;justify-content:flex-end;}
@@ -248,6 +253,40 @@ input[type=range].lp-slider::-moz-range-thumb{width:12px;height:12px;}
 #pin-table-body::-webkit-scrollbar-track,#meas-table-body::-webkit-scrollbar-track{background:transparent;}
 #pin-table-body::-webkit-scrollbar-thumb,#meas-table-body::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.15);border-radius:2px;}
 #pin-table-body::-webkit-scrollbar-thumb:hover,#meas-table-body::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,0.3);}
+
+#part-info-panel{
+  position:fixed;left:16px;bottom:76px;z-index:525;
+  background:rgba(10,10,14,0.92);backdrop-filter:blur(10px);
+  border:1px solid rgba(255,255,255,0.1);border-radius:10px;
+  padding:10px 14px;font-family:'DM Mono',monospace;
+  min-width:200px;max-width:280px;
+  box-shadow:0 4px 20px rgba(0,0,0,0.6);
+  display:none;pointer-events:auto;
+}
+#part-info-panel .pi-title{
+  font-size:9px;letter-spacing:.08em;color:#6b6b78;
+  text-transform:uppercase;margin-bottom:6px;
+}
+#part-info-panel .pi-name{
+  font-size:13px;font-weight:600;color:#e8e8e6;
+  margin-bottom:8px;word-break:break-word;line-height:1.3;
+}
+#part-info-panel .pi-row{
+  display:flex;justify-content:space-between;align-items:baseline;
+  padding:3px 0;border-bottom:1px solid rgba(255,255,255,0.05);
+}
+#part-info-panel .pi-row:last-child{border-bottom:none;}
+#part-info-panel .pi-label{font-size:9px;color:#7a7a88;}
+#part-info-panel .pi-val{font-size:11px;color:var(--accent);font-weight:500;}
+#part-info-panel .pi-close{
+  position:absolute;top:8px;right:8px;background:none;border:none;
+  color:#6b6b78;cursor:pointer;font-size:14px;line-height:1;padding:2px;
+}
+#part-info-panel .pi-close:hover{color:#e8e8e6;}
+#part-info-panel .pi-multi{
+  font-size:9px;color:var(--accent);margin-top:4px;
+  padding-top:6px;border-top:1px solid rgba(200,245,66,0.15);
+}
 </style>
 </head>
 <body>
@@ -261,7 +300,7 @@ input[type=range].lp-slider::-moz-range-thumb{width:12px;height:12px;}
     <div style="display:flex;align-items:center;gap:10px;padding:12px 20px;border-right:1px solid var(--border);flex-shrink:0;">
       <svg width="20" height="20" viewBox="0 0 32 32" fill="none"><polygon points="16,3 28,10 28,22 16,29 4,22 4,10" fill="none" stroke="#c8f542" stroke-width="2.2" stroke-linejoin="round"/><line x1="10" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="22" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="12" y1="13" x2="20" y2="13" stroke="rgba(200,245,66,0.5)" stroke-width="1.2" stroke-linecap="round"/></svg>
       <div>
-        <div style="font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;letter-spacing:.07em;color:#e4e4e0;text-transform:uppercase;">CAD Inspector <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--accent);font-weight:400;letter-spacing:.06em;text-transform:none;">v0.5.6</span></div>
+        <div style="font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;letter-spacing:.07em;color:#e4e4e0;text-transform:uppercase;">CAD Inspector <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--accent);font-weight:400;letter-spacing:.06em;text-transform:none;">v0.5.7</span></div>
         <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-top:1px;">3D CAD Model Review</div>
       </div>
     </div>
@@ -292,7 +331,7 @@ input[type=range].lp-slider::-moz-range-thumb{width:12px;height:12px;}
   <div id="viewer-logo" style="position:fixed;top:0;left:0;z-index:125;display:none;align-items:center;gap:10px;padding:10px 18px 10px 14px;background:rgba(13,13,16,0.7);backdrop-filter:blur(12px);border-bottom-right-radius:12px;border-bottom:1px solid var(--border);border-right:1px solid var(--border);">
     <svg width="18" height="18" viewBox="0 0 32 32" fill="none" style="flex-shrink:0;"><polygon points="16,3 28,10 28,22 16,29 4,22 4,10" fill="none" stroke="#c8f542" stroke-width="2.2" stroke-linejoin="round"/><line x1="10" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="22" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="12" y1="13" x2="20" y2="13" stroke="rgba(200,245,66,0.5)" stroke-width="1.2" stroke-linecap="round"/></svg>
     <div style="display:flex;flex-direction:column;gap:1px;">
-      <span style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;color:#e8e8e4;text-transform:uppercase;">CAD Inspector <span style="font-family:'DM Mono',monospace;font-size:8px;color:var(--accent);font-weight:400;letter-spacing:.06em;">v0.5.6</span></span>
+      <span style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;color:#e8e8e4;text-transform:uppercase;">CAD Inspector <span style="font-family:'DM Mono',monospace;font-size:8px;color:var(--accent);font-weight:400;letter-spacing:.06em;">v0.5.7</span></span>
       <span id="viewer-filename" style="font-family:'DM Mono',monospace;font-size:10px;color:#7a7a8a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px;"></span>
       <span id="size-readout-logo" style="font-family:'DM Mono',monospace;font-size:9px;color:#5a5a66;white-space:nowrap;display:none;"></span>
     </div>
@@ -339,57 +378,6 @@ input[type=range].lp-slider::-moz-range-thumb{width:12px;height:12px;}
       <span class="lp-head-icon open" id="lp-chevron" onclick="toggleLeftPanel()" style="cursor:pointer;">▾</span>
     </div>
     <div class="lp-body" id="lp-body">
-      <!-- Slicing -->
-      <div class="lp-section">
-        <div class="lp-sec-head">
-          <span class="lp-title" style="margin:0;flex:1;cursor:pointer;" onclick="toggleLpSection('lps-0')">Slicing</span>
-          <button class="lp-head-btn" onclick="resetSlicing()" title="Reset slicing"><svg width="10" height="10" viewBox="0 0 16 16" fill="none" style="stroke:var(--accent);stroke-width:2;stroke-linecap:round;"><path d="M14 8a6 6 0 11-2-4.5"/><polyline points="10,1 14,3.5 11.5,7"/></svg></button>
-          <span class="lp-sec-chevron" id="lps-0-ch" onclick="toggleLpSection('lps-0')" style="cursor:pointer;">▾</span>
-        </div>
-        <div class="lp-sec-body" id="lps-0">
-          <div class="lp-row"><span class="lp-label" id="hslice-label">Top plane cut</span><label class="tog teal"><input type="checkbox" id="hslice-tog" onchange="onHSliceToggle(this.checked);toggleSliceControls('h',this.checked)"><span class="tog-s"></span></label></div>
-          <div id="hslice-controls" style="display:none;">
-            <div class="lp-row"><span class="lp-label" style="font-size:9px;color:var(--muted)">Cut height</span></div>
-            <input type="range" class="lp-slider teal" id="hslice-sl" min="0" max="1" step="0.005" value="0.5" oninput="onHSliceSlider(this.value)">
-            <div class="lp-row"><span class="lp-label" style="font-size:9px;color:var(--muted)">Rotate</span><span class="lp-val" id="hslice-ang-val">0°</span></div>
-            <input type="range" class="lp-slider teal" id="hslice-ang" min="-90" max="90" step="1" value="0" oninput="onHSliceAngle(this.value)">
-            <div class="lp-row"><span class="lp-label" style="font-size:9px;color:var(--muted)">Plane depth</span><span class="lp-val" id="hslice-orig-val">+0%</span></div>
-            <input type="range" class="lp-slider teal" id="hslice-orig" min="0" max="1" step="0.005" value="0.5" oninput="onHSliceOriginSlider(this.value)">
-          </div>
-          <div class="lp-row"><span class="lp-label" id="vslice-label">Right plane cut</span><label class="tog"><input type="checkbox" id="vslice-tog" onchange="onVSliceToggle(this.checked);toggleSliceControls('v',this.checked)"><span class="tog-s"></span></label></div>
-          <div id="vslice-controls" style="display:none;">
-            <div class="lp-row"><span class="lp-label" style="font-size:9px;color:var(--muted)">Cut width</span></div>
-            <input type="range" class="lp-slider" id="vslice-sl" min="0" max="1" step="0.005" value="0.5" oninput="onVSliceSlider(this.value)">
-            <div class="lp-row"><span class="lp-label" style="font-size:9px;color:var(--muted)">Rotate</span><span class="lp-val" id="vslice-ang-val">0°</span></div>
-            <input type="range" class="lp-slider" id="vslice-ang" min="-90" max="90" step="1" value="0" oninput="onVSliceAngle(this.value)">
-            <div class="lp-row"><span class="lp-label" style="font-size:9px;color:var(--muted)">Plane depth</span><span class="lp-val" id="vslice-orig-val">+0%</span></div>
-            <input type="range" class="lp-slider" id="vslice-orig" min="0" max="1" step="0.005" value="0.5" oninput="onVSliceOriginSlider(this.value)">
-          </div>
-          <!-- Ghost model view -->
-          <div id="ghost-row" class="lp-row" style="margin-top:4px;display:none;"><span class="lp-label">Ghost model view</span><label class="tog"><input type="checkbox" id="slice-ghost-tog" onchange="toggleSliceGhost(this.checked)"><span class="tog-s"></span></label></div>
-        </div>
-      </div>
-      <!-- Surface Analysis -->
-      <div class="lp-section">
-        <div class="lp-sec-head" onclick="toggleLpSection('lps-1')">
-          <span class="lp-title" style="margin:0;flex:1;">Surface Analysis Lines</span>
-          <button class="lp-head-btn" onclick="event.stopPropagation();resetZebra()" title="Reset zebra"><svg width="10" height="10" viewBox="0 0 16 16" fill="none" style="stroke:var(--accent);stroke-width:2;stroke-linecap:round;"><path d="M14 8a6 6 0 11-2-4.5"/><polyline points="10,1 14,3.5 11.5,7"/></svg></button>
-          <span class="lp-sec-chevron" id="lps-1-ch">▾</span>
-        </div>
-        <div class="lp-sec-body" id="lps-1">
-          <div class="btn-group">
-            <button class="tex-btn" id="zebra-h" onclick="toggleZebra('h')">≡ Horizontal</button>
-            <button class="tex-btn" id="zebra-v" onclick="toggleZebra('v')">⫶ Vertical</button>
-          </div>
-          <div id="zebra-off" style="display:none;"></div><!-- compat -->
-          <div id="zebra-slider-rows" style="display:none;">
-          <div class="lp-row" style="margin-top:6px;"><span class="lp-label" style="font-size:9px;color:var(--muted)">Stripe density</span><span class="lp-val" id="zebra-size-val">12</span></div>
-          <input type="range" class="lp-slider" id="zebra-size-sl" min="3" max="40" step="1" value="12" oninput="onZebraSize(this.value)">
-          <div class="lp-row" style="margin-top:4px;"><span class="lp-label" style="font-size:9px;color:var(--muted)">Rotation</span><span class="lp-val" id="zebra-rot-val">0°</span></div>
-          <input type="range" class="lp-slider" id="zebra-rot-sl" min="-90" max="90" step="1" value="0" oninput="onZebraRotation(this.value)">
-          </div>
-        </div>
-      </div>
       <!-- Display -->
       <div class="lp-section">
         <div class="lp-sec-head" onclick="toggleLpSection('lps-3')">
@@ -407,6 +395,57 @@ input[type=range].lp-slider::-moz-range-thumb{width:12px;height:12px;}
       </div>
       <div id="lps-4" style="display:none;"></div>
       <div id="lps-6" style="display:none;"><div id="explode-val-lp" style="display:none;"></div><input id="explode-sl-lp" type="range" style="display:none;" min="0" max="1" step="0.01" value="0"></div>
+      <!-- Surface Analysis -->
+      <div class="lp-section">
+        <div class="lp-sec-head" onclick="toggleLpSection('lps-1')">
+          <span class="lp-title" style="margin:0;flex:1;">Surface Analysis Lines</span>
+          <button class="lp-head-btn" onclick="event.stopPropagation();resetZebra()" title="Reset zebra"><svg width="10" height="10" viewBox="0 0 16 16" fill="none" style="stroke:var(--accent);stroke-width:2;stroke-linecap:round;"><path d="M14 8a6 6 0 11-2-4.5"/><polyline points="10,1 14,3.5 11.5,7"/></svg></button>
+          <span class="lp-sec-chevron" id="lps-1-ch">▾</span>
+        </div>
+        <div class="lp-sec-body" id="lps-1">
+          <div class="btn-group">
+            <button class="tex-btn" id="zebra-h" onclick="toggleZebra('h')">≡ Horizontal</button>
+            <button class="tex-btn" id="zebra-v" onclick="toggleZebra('v')">⫶ Vertical</button>
+          </div>
+          <div id="zebra-off" style="display:none;"></div><!-- Slicing -->
+      <div class="lp-section">
+        <div class="lp-sec-head">
+          <span class="lp-title" style="margin:0;flex:1;cursor:pointer;" onclick="toggleLpSection('lps-0')">Slicing</span>
+          <button class="lp-head-btn" onclick="resetSlicing()" title="Reset slicing"><svg width="10" height="10" viewBox="0 0 16 16" fill="none" style="stroke:var(--accent);stroke-width:2;stroke-linecap:round;"><path d="M14 8a6 6 0 11-2-4.5"/><polyline points="10,1 14,3.5 11.5,7"/></svg></button>
+          <span class="lp-sec-chevron" id="lps-0-ch" onclick="toggleLpSection('lps-0')" style="cursor:pointer;">▾</span>
+        </div>
+        <div class="lp-sec-body" id="lps-0">
+          <div class="lp-row"><span class="lp-label" id="hslice-label">Horizontal cross-section</span><label class="tog teal"><input type="checkbox" id="hslice-tog" onchange="onHSliceToggle(this.checked);toggleSliceControls('h',this.checked)"><span class="tog-s"></span></label></div>
+          <div id="hslice-controls" style="display:none;">
+            <div class="lp-row"><span class="lp-label" style="font-size:9px;color:var(--muted)">Cut height</span></div>
+            <input type="range" class="lp-slider teal" id="hslice-sl" min="0" max="1" step="0.005" value="0.5" oninput="onHSliceSlider(this.value)">
+            <div class="lp-row"><span class="lp-label" style="font-size:9px;color:var(--muted)">Rotate</span><span class="lp-val" id="hslice-ang-val">0°</span></div>
+            <input type="range" class="lp-slider teal" id="hslice-ang" min="-90" max="90" step="1" value="0" oninput="onHSliceAngle(this.value)">
+            <div class="lp-row"><span class="lp-label" style="font-size:9px;color:var(--muted)">Plane offset</span><span class="lp-val" id="hslice-orig-val">+0%</span></div>
+            <input type="range" class="lp-slider teal" id="hslice-orig" min="0" max="1" step="0.005" value="0.5" oninput="onHSliceOriginSlider(this.value)">
+          </div>
+          <div class="lp-row"><span class="lp-label" id="vslice-label">Vertical cross-section</span><label class="tog"><input type="checkbox" id="vslice-tog" onchange="onVSliceToggle(this.checked);toggleSliceControls('v',this.checked)"><span class="tog-s"></span></label></div>
+          <div id="vslice-controls" style="display:none;">
+            <div class="lp-row"><span class="lp-label" style="font-size:9px;color:var(--muted)">Cut width</span></div>
+            <input type="range" class="lp-slider" id="vslice-sl" min="0" max="1" step="0.005" value="0.5" oninput="onVSliceSlider(this.value)">
+            <div class="lp-row"><span class="lp-label" style="font-size:9px;color:var(--muted)">Rotate</span><span class="lp-val" id="vslice-ang-val">0°</span></div>
+            <input type="range" class="lp-slider" id="vslice-ang" min="-90" max="90" step="1" value="0" oninput="onVSliceAngle(this.value)">
+            <div class="lp-row"><span class="lp-label" style="font-size:9px;color:var(--muted)">Plane offset</span><span class="lp-val" id="vslice-orig-val">+0%</span></div>
+            <input type="range" class="lp-slider" id="vslice-orig" min="0" max="1" step="0.005" value="0.5" oninput="onVSliceOriginSlider(this.value)">
+          </div>
+          <!-- Ghost model view -->
+          <div id="ghost-row" class="lp-row" style="margin-top:4px;display:none;"><span class="lp-label">Ghost model view</span><label class="tog"><input type="checkbox" id="slice-ghost-tog" onchange="toggleSliceGhost(this.checked)"><span class="tog-s"></span></label></div>
+        </div>
+      </div>
+      <!-- compat -->
+          <div id="zebra-slider-rows" style="display:none;">
+          <div class="lp-row" style="margin-top:6px;"><span class="lp-label" style="font-size:9px;color:var(--muted)">Stripe density</span><span class="lp-val" id="zebra-size-val">12</span></div>
+          <input type="range" class="lp-slider" id="zebra-size-sl" min="3" max="40" step="1" value="12" oninput="onZebraSize(this.value)">
+          <div class="lp-row" style="margin-top:4px;"><span class="lp-label" style="font-size:9px;color:var(--muted)">Rotation</span><span class="lp-val" id="zebra-rot-val">0°</span></div>
+          <input type="range" class="lp-slider" id="zebra-rot-sl" min="-90" max="90" step="1" value="0" oninput="onZebraRotation(this.value)">
+          </div>
+        </div>
+      </div>
       <!-- Symmetry -->
       <div class="lp-section">
         <div class="lp-sec-head" onclick="toggleLpSection('lps-7')">
@@ -462,6 +501,10 @@ input[type=range].lp-slider::-moz-range-thumb{width:12px;height:12px;}
 
   <!-- Sub-mode popup: appears above Measure button -->
   <div id="meas-submode-popup" style="display:none;position:fixed;bottom:80px;left:50%;transform:translateX(-50%);z-index:556;align-items:center;gap:4px;padding:5px 8px;background:var(--surface);backdrop-filter:var(--blur);border:1px solid var(--border);border-radius:100px;box-shadow:0 4px 20px rgba(0,0,0,0.5);">
+    <button class="tb-btn" id="meas-free-btn" onclick="toggleMeasSubMode('free')" title="Free — any two points" style="width:44px;height:44px;min-width:44px;flex-shrink:0;color:#f5a142;">
+      <svg viewBox="0 0 24 24" style="stroke:#f5a142;"><line x1="5" y1="19" x2="19" y2="5"/><circle cx="5" cy="19" r="2" fill="#f5a142" stroke="none"/><circle cx="19" cy="5" r="2" fill="#f5a142" stroke="none"/></svg>
+      <span class="tb-label">Free</span>
+    </button>
     <button class="tb-btn" id="meas-height-btn" onclick="toggleMeasSubMode('height')" title="Height — drops to floor" style="width:44px;height:44px;min-width:44px;flex-shrink:0;color:#2196f3;">
       <svg viewBox="0 0 24 24" style="stroke:#2196f3;"><line x1="12" y1="3" x2="12" y2="21"/><polyline points="9,6 12,3 15,6" fill="none"/><polyline points="9,18 12,21 15,18" fill="none"/></svg>
       <span class="tb-label">Height</span>
@@ -469,6 +512,10 @@ input[type=range].lp-slider::-moz-range-thumb{width:12px;height:12px;}
     <button class="tb-btn" id="meas-width-btn" onclick="toggleMeasSubMode('width')" title="Width — mirrors to centre" style="width:44px;height:44px;min-width:44px;flex-shrink:0;color:#f44336;">
       <svg viewBox="0 0 24 24" style="stroke:#f44336;"><line x1="3" y1="12" x2="21" y2="12"/><polyline points="6,9 3,12 6,15" fill="none"/><polyline points="18,9 21,12 18,15" fill="none"/></svg>
       <span class="tb-label">Width</span>
+    </button>
+    <button class="tb-btn" id="meas-depth-btn" onclick="toggleMeasSubMode('depth')" title="Depth — horizontal straight line between two points" style="width:44px;height:44px;min-width:44px;flex-shrink:0;color:#00bcd4;">
+      <svg viewBox="0 0 24 24" style="stroke:#00bcd4;"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="8" x2="3" y2="16"/><line x1="21" y1="8" x2="21" y2="16"/><line x1="3" y1="12" x2="3" y2="18" stroke-dasharray="2,2"/><line x1="21" y1="12" x2="21" y2="18" stroke-dasharray="2,2"/></svg>
+      <span class="tb-label">Depth</span>
     </button>
   </div>
 
@@ -582,6 +629,10 @@ input[type=range].lp-slider::-moz-range-thumb{width:12px;height:12px;}
     </div>
   </div>
 
+  <!-- VR/MR menu open button — tap to open palm menu, also opened by A/X button on controller -->
+  <div id="vr-menu-open-btn" style="display:none;position:absolute;top:20px;right:20px;pointer-events:auto;">
+    <button onclick="toggleVRMenu()" style="font-family:'DM Mono',monospace;font-size:12px;padding:10px 16px;border-radius:24px;border:1px solid rgba(255,255,255,0.25);background:rgba(10,10,14,0.75);color:#e8e8e6;cursor:pointer;backdrop-filter:blur(8px);">☰ Menu</button>
+  </div>
   <!-- AR mobile controls (shown only in AR mode) -->
   <div id="ar-mobile-controls" style="display:none;position:absolute;bottom:16px;left:0;right:0;pointer-events:auto;">
     <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;padding:0 16px;">
@@ -589,12 +640,23 @@ input[type=range].lp-slider::-moz-range-thumb{width:12px;height:12px;}
       <button onclick="arAction('rot-r')" style="font-family:'DM Mono',monospace;font-size:13px;padding:12px 18px;border-radius:10px;border:1px solid rgba(255,255,255,0.2);background:rgba(0,0,0,0.7);color:#fff;cursor:pointer;">→ ↻</button>
       <button onclick="arAction('up')" style="font-family:'DM Mono',monospace;font-size:13px;padding:12px 18px;border-radius:10px;border:1px solid rgba(200,245,66,0.3);background:rgba(0,0,0,0.7);color:#c8f542;cursor:pointer;">↑ Up</button>
       <button onclick="arAction('down')" style="font-family:'DM Mono',monospace;font-size:13px;padding:12px 18px;border-radius:10px;border:1px solid rgba(200,245,66,0.3);background:rgba(0,0,0,0.7);color:#c8f542;cursor:pointer;">↓ Down</button>
-      <button onclick="arAction('center')" style="font-family:'DM Mono',monospace;font-size:13px;padding:12px 18px;border-radius:10px;border:1px solid rgba(66,144,245,0.3);background:rgba(0,0,0,0.7);color:#4290f5;cursor:pointer;">⊙ Center</button>
+      <button onclick="arRecenter()" style="font-family:'DM Mono',monospace;font-size:13px;padding:12px 18px;border-radius:10px;border:1px solid rgba(66,144,245,0.3);background:rgba(0,0,0,0.7);color:#4290f5;cursor:pointer;">⊙ Recenter</button>
     </div>
     <div id="hud-measure" style="display:none;text-align:center;font-family:'DM Mono',monospace;font-size:18px;color:#c8f542;margin-top:8px;text-shadow:0 0 12px rgba(200,245,66,0.5);"></div>
   </div>
 </div>
 
+<!-- Part info panel -->
+<div id="part-info-panel">
+  <button class="pi-close" onclick="deselectPart()" title="Close (Esc)">×</button>
+  <div class="pi-title">SELECTED PART</div>
+  <div class="pi-name" id="pi-name">—</div>
+  <div class="pi-row"><span class="pi-label">Dimensions</span><span class="pi-val" id="pi-dims">—</span></div>
+  <div class="pi-row"><span class="pi-label">Volume</span><span class="pi-val" id="pi-vol-cm">—</span></div>
+  <div class="pi-row"><span class="pi-label">Volume (litres)</span><span class="pi-val" id="pi-vol-l">—</span></div>
+  <div class="pi-row"><span class="pi-label">Triangles</span><span class="pi-val" id="pi-tris">—</span></div>
+  <div class="pi-multi" id="pi-multi" style="display:none;"></div>
+</div>
 <!-- Right sidebar: pin comments -->
 <div id="sidebar">
   <div id="sidebar-tab" onclick="toggleSidebar()">Comments</div>
@@ -748,7 +810,7 @@ let cloudSyncEnabled = !!(JSONBIN_ID && JSONBIN_KEY);
 
 // ── Viewer core ──────────────────────────────────────────────
 let viewerScene, viewerRenderer, viewerCamera, viewerControls;
-let sunLight = null, lightAz = 45, lightEl = 40;
+let sunLight = null, fillLight = null, lightAz = 45, lightEl = 40;
 
 // ── Model ────────────────────────────────────────────────────
 let modelRoot = null, loadedModel = null;
@@ -774,9 +836,10 @@ let measurePhase = 0;
 // Height = vertical drop to floor (Z-axis blue 0x2196f3)
 // Width  = symmetric span across model centre plane (X-axis red 0xf44336)
 let measureSubMode = 'free';
-const MEAS_COL_FREE   = 0xf5a142; // orange — existing free measure
-const MEAS_COL_HEIGHT = 0x2196f3; // blue  — industry Z-axis
-const MEAS_COL_WIDTH  = 0xf44336; // red   — industry X-axis
+const MEAS_COL_FREE   = 0xf5a142; // orange — free measure
+const MEAS_COL_HEIGHT = 0x2196f3; // blue   — height (floor drop)
+const MEAS_COL_WIDTH  = 0xf44336; // red    — width (mirrored)
+const MEAS_COL_DEPTH  = 0x00bcd4; // cyan   — depth (straight line, projected to horizontal)
 // Saved measurements — each has THREE.js objects so they can be deleted/moved
 // {id, ptA, ptB, label, line, sA, sB}
 let savedMeasurements = [];
@@ -863,6 +926,7 @@ let highlightedPinId = null;
     if(e.key==='m'||e.key==='M') setDesktopMode('measure');
     if(e.key==='p'||e.key==='P') setDesktopMode('pin');
     if(e.key==='Escape'){
+      if(typeof _selectedParts!=='undefined'&&_selectedParts.length>0){ deselectPart(); }
       closePinPopup(); closeMeasPopup();
       if(pinMovingId!==null){ const p=annotations.find(a=>a.id===pinMovingId); if(p)p.mesh.scale.setScalar(1); pinMovingId=null; }
       measMovingId=null; measMovingEndpoint=null;
@@ -1005,6 +1069,9 @@ const measLabelDivs = new Map(); // measId → DOM div
 function getOrCreateMeasLabel(id) {
   if(measLabelDivs.has(id)) return measLabelDivs.get(id);
   const div=document.createElement('div'); div.className='meas-label';
+  div._nameEl=document.createElement('span'); div._nameEl.className='ml-name';
+  div._valEl=document.createElement('span'); div._valEl.className='ml-val';
+  div.appendChild(div._nameEl); div.appendChild(div._valEl);
   document.getElementById('meas-labels-wrap').appendChild(div);
   measLabelDivs.set(id,div); return div;
 }
@@ -1015,6 +1082,7 @@ function updateMeasLabels() {
   if(!viewerCamera||!viewerRenderer) return;
   if(_dimsHidden){measLabelDivs.forEach(d=>{d.style.display='none';});return;}
   // Submode filter: when a submode is active, show only that dimension type
+  // subFilter: null when free (show all), otherwise show only matching type
   const subFilter=(measureSubMode!=='free')?measureSubMode:null;
   const r=viewerRenderer.domElement.getBoundingClientRect();
   savedMeasurements.forEach(m=>{
@@ -1022,7 +1090,10 @@ function updateMeasLabels() {
     if(!allAnnotationsVisible){div.style.display='none';return;}
     // Apply submode filter
     // Submode filter: hide non-matching 3D objects too
-    const matchType=!subFilter||(subFilter==='height'&&m.color===MEAS_COL_HEIGHT)||(subFilter==='width'&&m.color===MEAS_COL_WIDTH);
+    const matchType=!subFilter
+      ||(subFilter==='height'&&m.color===MEAS_COL_HEIGHT)
+      ||(subFilter==='width'&&m.color===MEAS_COL_WIDTH)
+      ||(subFilter==='depth'&&m.color===MEAS_COL_DEPTH);
     if(!matchType){
       div.style.display='none';
       if(m.line) m.line.visible=false;
@@ -1038,7 +1109,8 @@ function updateMeasLabels() {
     div.style.top=(-v.y*0.5+0.5)*r.height+r.top+'px';
     // Always: name/id above (small), dimension below (main)
     const nameStr=m.customLabel||('M'+String(m.id).padStart(2,'0'));
-    div.innerHTML='<span style="display:block;font-size:9px;opacity:0.7;letter-spacing:.04em;">'+nameStr+'</span><span>'+m.label+'</span>';
+    if(div._nameEl){ div._nameEl.textContent=nameStr; div._valEl.textContent=m.label.replace(/[↕↔↗]/g,'').trim(); }
+    else div.innerHTML='<span class="ml-name">'+nameStr+'</span><span class="ml-val">'+m.label.replace(/[↕↔↗]/g,'').trim()+'</span>';
     // Apply measurement type colour to label
     if(m.color){
       const h='#'+m.color.toString(16).padStart(6,'0');
@@ -1176,6 +1248,171 @@ async function renderThumb(fileId,name) {
   }
 }
 
+
+// ════════════════════════════════════════════════════════════
+//  PART SELECTION — click mesh to select, Shift+click for multi
+// ════════════════════════════════════════════════════════════
+let _selectedParts = [];       // array of {mesh, origEmissive, origEmissiveIntensity}
+let _partSelectEnabled = true; // disable during measure/pin modes
+
+// Compute signed volume of a mesh (world-space, accounts for model transform)
+function _computeMeshVolume(mesh) {
+  const pos = mesh.geometry.attributes.position;
+  const idx = mesh.geometry.index;
+  if(!pos) return 0;
+  // Build world matrix once
+  mesh.updateWorldMatrix(true, false);
+  const mat = mesh.matrixWorld;
+  let vol = 0;
+  const vA = new THREE.Vector3(), vB = new THREE.Vector3(), vC = new THREE.Vector3();
+  const getV = (i, v) => {
+    v.fromBufferAttribute(pos, i).applyMatrix4(mat);
+  };
+  if(idx) {
+    for(let i = 0; i < idx.count; i += 3) {
+      getV(idx.getX(i),   vA);
+      getV(idx.getX(i+1), vB);
+      getV(idx.getX(i+2), vC);
+      // Signed tetrahedra volume contribution
+      vol += vA.dot(vB.cross(vC)) / 6;
+    }
+  } else {
+    for(let i = 0; i < pos.count; i += 3) {
+      getV(i,   vA); getV(i+1, vB); getV(i+2, vC);
+      vol += vA.dot(vB.cross(vC)) / 6;
+    }
+  }
+  return Math.abs(vol); // in scene units³ (metres³ since model is in metres)
+}
+
+// Format volume in cm³ and litres
+function _formatVolume(m3) {
+  const cm3 = m3 * 1e6;         // 1 m³ = 1,000,000 cm³
+  const litres = m3 * 1000;     // 1 m³ = 1000 litres
+  return {
+    cm3: cm3 >= 1000 ? (cm3/1000).toFixed(2)+' dm³' : cm3.toFixed(1)+' cm³',
+    litres: litres >= 1 ? litres.toFixed(3)+' L' : (litres*1000).toFixed(1)+' mL'
+  };
+}
+
+// Highlight a mesh with emissive glow
+function _highlightMesh(mesh) {
+  if(!mesh.material) return;
+  const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+  const saved = mats.map(m => ({
+    emissive: m.emissive ? m.emissive.clone() : new THREE.Color(0),
+    emissiveIntensity: m.emissiveIntensity || 0
+  }));
+  mats.forEach(m => {
+    if(m.emissive) { m.emissive.set(0xc8f542); m.emissiveIntensity = 0.18; m.needsUpdate = true; }
+  });
+  return saved;
+}
+
+// Remove highlight
+function _unhighlightMesh(mesh, savedMats) {
+  if(!mesh.material || !savedMats) return;
+  const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+  mats.forEach((m, i) => {
+    const s = savedMats[i];
+    if(!s) return;
+    if(m.emissive) { m.emissive.copy(s.emissive); m.emissiveIntensity = s.emissiveIntensity; m.needsUpdate = true; }
+  });
+}
+
+// Get a readable name for a mesh node
+function _getMeshName(mesh) {
+  // Walk up to find a named node (GLB often has name on parent Object3D)
+  let node = mesh;
+  while(node) {
+    if(node.name && node.name.trim() && !node.name.match(/^(Scene|RootNode|Armature|Skeleton|mesh\d*|Object\d*)$/i)) {
+      return node.name.replace(/_/g,' ');
+    }
+    node = node.parent;
+  }
+  // Fallback: geometry name
+  if(mesh.geometry.name && mesh.geometry.name.trim()) return mesh.geometry.name.replace(/_/g,' ');
+  return 'Unnamed part';
+}
+
+function selectPart(mesh, addToSelection) {
+  if(!mesh || !mesh.isMesh) return;
+  // Check if already selected — if so, and not multi-select, just deselect
+  const existing = _selectedParts.find(p => p.mesh === mesh);
+  if(existing && !addToSelection) { deselectPart(); return; }
+  if(existing) return; // already in multi-selection, don't add twice
+  // If not adding, clear existing selection first
+  if(!addToSelection) deselectPart();
+  const savedMats = _highlightMesh(mesh);
+  _selectedParts.push({ mesh, savedMats });
+  _updatePartInfoPanel();
+}
+
+function deselectPart() {
+  _selectedParts.forEach(p => _unhighlightMesh(p.mesh, p.savedMats));
+  _selectedParts = [];
+  const panel = document.getElementById('part-info-panel');
+  if(panel) panel.style.display = 'none';
+}
+
+function _updatePartInfoPanel() {
+  const panel = document.getElementById('part-info-panel');
+  if(!panel) return;
+  if(_selectedParts.length === 0) { panel.style.display = 'none'; return; }
+  panel.style.display = 'block';
+
+  if(_selectedParts.length === 1) {
+    const { mesh } = _selectedParts[0];
+    const name = _getMeshName(mesh);
+    const box = new THREE.Box3().setFromObject(mesh);
+    const size = box.getSize(new THREE.Vector3());
+    const volM3 = _computeMeshVolume(mesh);
+    const vf = _formatVolume(volM3);
+    const tris = mesh.geometry.index
+      ? mesh.geometry.index.count / 3
+      : mesh.geometry.attributes.position.count / 3;
+    document.getElementById('pi-name').textContent = name;
+    document.getElementById('pi-dims').textContent =
+      `${(size.x*100).toFixed(1)} × ${(size.y*100).toFixed(1)} × ${(size.z*100).toFixed(1)} cm`;
+    document.getElementById('pi-vol-cm').textContent = vf.cm3;
+    document.getElementById('pi-vol-l').textContent = vf.litres;
+    document.getElementById('pi-tris').textContent = Math.round(tris).toLocaleString();
+    const multiEl = document.getElementById('pi-multi');
+    if(multiEl) { multiEl.style.display = 'none'; }
+  } else {
+    // Multi-select: show combined volume
+    const names = _selectedParts.map(p => _getMeshName(p.mesh));
+    document.getElementById('pi-name').textContent = `${_selectedParts.length} parts selected`;
+    const totalVol = _selectedParts.reduce((sum, p) => sum + _computeMeshVolume(p.mesh), 0);
+    const vf = _formatVolume(totalVol);
+    const totalTris = _selectedParts.reduce((sum, p) => {
+      const g = p.mesh.geometry;
+      return sum + (g.index ? g.index.count/3 : g.attributes.position.count/3);
+    }, 0);
+    document.getElementById('pi-dims').textContent = '—';
+    document.getElementById('pi-vol-cm').textContent = vf.cm3;
+    document.getElementById('pi-vol-l').textContent = vf.litres;
+    document.getElementById('pi-tris').textContent = Math.round(totalTris).toLocaleString();
+    const multiEl = document.getElementById('pi-multi');
+    if(multiEl) { multiEl.style.display = 'block'; multiEl.textContent = 'Shift+click to add/remove parts'; }
+  }
+}
+
+// Raycast to find the mesh the user clicked
+function _getPartHit(e) {
+  if(!viewerCamera || !viewerRenderer || !loadedModel) return null;
+  const cv = viewerRenderer.domElement;
+  const rect = cv.getBoundingClientRect();
+  const nx = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+  const ny = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+  const ray = new THREE.Raycaster();
+  ray.setFromCamera({x: nx, y: ny}, viewerCamera);
+  const meshes = [];
+  loadedModel.traverse(c => { if(c.isMesh) meshes.push(c); });
+  const hits = ray.intersectObjects(meshes, false);
+  return hits.length ? hits[0].object : null;
+}
+
 // ════════════════════════════════════════════════════════════
 //  VIEWER OPEN / CLOSE
 // ════════════════════════════════════════════════════════════
@@ -1255,6 +1492,7 @@ function _destroyViewer() {
   closePinPopup?.(); closeMeasPopup?.(); closeConfirm?.();
   measLabelDivs.forEach(d=>d.remove()); measLabelDivs.clear();
   if(typeof _pinCommentDivs!=="undefined")_pinCommentDivs.forEach(function(d){d.remove();});
+  if(typeof deselectPart!=="undefined") deselectPart();
   zebraObjects.forEach(o=>viewerScene?.remove(o)); zebraObjects=[];
   if(zebraGridMesh){viewerScene?.remove(zebraGridMesh);zebraGridMesh=null;}
   if(zebraTexture){zebraTexture.dispose();zebraTexture=null;}
@@ -1283,7 +1521,7 @@ function _destroyViewer() {
   savedMeasurements=[]; measureCount=0; measMovingId=null; measMovingEndpoint=null;
   pinMovingId=null; annotationsVisible=true; highlightedPinId=null;
   if(viewerControls){try{viewerControls.dispose();}catch(e){} viewerControls=null;}
-  viewerScene=null; viewerCamera=null; loadedModel=null; modelRoot=null; sunLight=null; viewerShadowReceiver=null;
+  viewerScene=null; viewerCamera=null; loadedModel=null; modelRoot=null; sunLight=null; fillLight=null; viewerShadowReceiver=null;
   slicerPlane=slicerMesh=slicerGroup=null; slicerActive=false;
   hSlicePlane=vSlicePlane=null; hSliceActive=vSliceActive=false;
   hContourLine=vContourLine=null; laserLine=laserDot=null;
@@ -1556,15 +1794,33 @@ function _applyVSliceWithAngle() {
   vSlicePlane.constant=-vSlicePlane.normal.dot(vSlicePt);
 }
 
+let _lastClipPlanes=[];
 function applyAllClipping() {
-  if(viewerRenderer) viewerRenderer.localClippingEnabled=true;
-  // Zebra overlay rebuilt after clipping is applied (see end of function)
   if(!loadedModel) return;
   const planes=[];
   if(hSliceActive&&hSlicePlane) planes.push(hSlicePlane);
   if(vSliceActive&&vSlicePlane) planes.push(vSlicePlane);
   if(slicerActive&&slicerPlane) planes.push(slicerPlane);
-  loadedModel.traverse(c=>{if(!c.isMesh)return;c.material.clippingPlanes=planes;c.material.needsUpdate=true;});
+  // Only traverse and set needsUpdate if the plane set changed
+  const changed=planes.length!==_lastClipPlanes.length||
+    planes.some((p,i)=>p!==_lastClipPlanes[i]);
+  if(!changed) return;
+  _lastClipPlanes=planes.slice();
+  // Batch materials — avoid setting needsUpdate on already-correct materials
+  const seen=new Set();
+  loadedModel.traverse(child=>{
+    if(!child.isMesh) return;
+    const mat=child.material;
+    if(!mat) return;
+    // Handle multi-material arrays
+    const mats=Array.isArray(mat)?mat:[mat];
+    mats.forEach(m=>{
+      if(seen.has(m)) return;
+      seen.add(m);
+      m.clippingPlanes=planes;
+      m.needsUpdate=true;
+    });
+  });
 }
 
 // ════════════════════════════════════════════════════════════
@@ -1580,6 +1836,7 @@ function onLightSlider() {
   const sv=document.getElementById('light-str-val'); if(sv) sv.textContent=str.toFixed(2);
   const av=document.getElementById('light-amb-val'); if(av) av.textContent=amb.toFixed(2);
   if(sunLight){ sunLight.intensity=str; const az=lightAz*Math.PI/180, el=lightEl*Math.PI/180, r=8; sunLight.position.set(Math.cos(el)*Math.sin(az)*r,Math.sin(el)*r,Math.cos(el)*Math.cos(az)*r); }
+  if(fillLight){ const azF=lightAz*Math.PI/180+Math.PI, elF=Math.max(0.1,(Math.PI/2-lightEl*Math.PI/180)), r=6; fillLight.intensity=str*0.45; fillLight.position.set(Math.cos(elF)*Math.sin(azF)*r,Math.sin(elF)*r,Math.cos(elF)*Math.cos(azF)*r); }
   // Update ambient light
   viewerScene&&viewerScene.traverse(o=>{if(o.isAmbientLight&&!o._floorSpot) o.intensity=amb;});
 }
@@ -1859,22 +2116,27 @@ function toggleSliceGhost(on){
   if(!loadedModel) return;
   if(_sliceGhostMesh){viewerScene?.remove(_sliceGhostMesh);_sliceGhostMesh=null;}
   if(!on) return;
-  // Collect active inverted planes
-  const activePlanes=[];
-  if(hSliceActive&&hSlicePlane) activePlanes.push(new THREE.Plane().copy(hSlicePlane).negate());
-  if(vSliceActive&&vSlicePlane) activePlanes.push(new THREE.Plane().copy(vSlicePlane).negate());
-  if(!activePlanes.length) return;
+  if(!hSliceActive&&!vSliceActive) return;
+  // Ghost shows ONLY the cut-away region (inverse of the model's visible region).
+  // Three.js clippingPlanes uses AND logic on a single mesh.
+  // For OR behaviour (show where EITHER plane cuts), create one mesh per inverted plane.
+  const invPlanes=[];
+  if(hSliceActive&&hSlicePlane) invPlanes.push(new THREE.Plane().copy(hSlicePlane).negate());
+  if(vSliceActive&&vSlicePlane) invPlanes.push(new THREE.Plane().copy(vSlicePlane).negate());
   const ghostGroup=new THREE.Group();
-  // One ghost mesh per model child, clipped to show cut-away regions.
-  // For multiple planes: combine into one ghost with all inverted planes using OR stencil logic.
-  // Simplest correct approach: one ghost per child at low opacity, no plane clipping.
-  // The ghost communicates "this is what was removed" — full faint silhouette.
-  loadedModel.traverse(child=>{
-    if(!child.isMesh) return;
-    const mat=new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0.07,depthWrite:false,side:THREE.DoubleSide});
-    const m=new THREE.Mesh(child.geometry,mat);
-    m.matrix.copy(child.matrixWorld); m.matrixAutoUpdate=false;
-    ghostGroup.add(m);
+  invPlanes.forEach(function(invPlane){
+    loadedModel.traverse(function(child){
+      if(!child.isMesh) return;
+      var mat=new THREE.MeshBasicMaterial({
+        color:0xffffff,transparent:true,opacity:0.07,
+        depthWrite:false,side:THREE.DoubleSide,
+        clippingPlanes:[invPlane]
+      });
+      var m=new THREE.Mesh(child.geometry,mat);
+      child.updateWorldMatrix(true,false);
+      m.matrix.copy(child.matrixWorld); m.matrixAutoUpdate=false;
+      ghostGroup.add(m);
+    });
   });
   _sliceGhostMesh=ghostGroup;
   viewerScene.add(_sliceGhostMesh);
@@ -2237,7 +2499,7 @@ function toggleAllAnnotations() {
   allAnnotationsVisible = !allAnnotationsVisible;
   const btn=document.getElementById('hide-all-btn');
   const cross=document.getElementById('hide-all-cross');
-  if(btn){ btn.classList.toggle('active',!allAnnotationsVisible); }
+  if(btn){ btn.classList.toggle('active',!allAnnotationsVisible); btn.classList.toggle('annots-hidden',!allAnnotationsVisible); }
   if(cross) cross.style.display=allAnnotationsVisible?'none':'';
   annotationsVisible=allAnnotationsVisible;
   annotations.forEach(a=>{
@@ -2677,6 +2939,8 @@ function resetMeasSubMode() {
   measureSubMode='free';
   document.getElementById('meas-height-btn')?.classList.remove('active-height');
   document.getElementById('meas-width-btn')?.classList.remove('active-width');
+  document.getElementById('meas-depth-btn')?.classList.remove('active-depth');
+  document.getElementById('meas-free-btn')?.classList.remove('active-free');
 }
 
 function finaliseMeasure() {
@@ -2844,7 +3108,7 @@ async function exportPinReport() {
   pdf.setFont('helvetica','bold'); pdf.setFontSize(11); pdf.setTextColor(20,20,24);
   pdf.text('CAD INSPECTOR', rx+8, 14);
   pdf.setFont('helvetica','normal'); pdf.setFontSize(7); pdf.setTextColor(140,140,150);
-  pdf.text('v0.5.6', rx+8, 20);
+  pdf.text('v0.5.7', rx+8, 20);
   // Separator
   pdf.setDrawColor(200,245,66); pdf.setLineWidth(0.6); pdf.line(rx+8,23,PW-8,23);
 
@@ -2930,7 +3194,15 @@ function applyExplode(t) {}
 // ════════════════════════════════════════════════════════════
 //  DESKTOP INTERACTION
 // ════════════════════════════════════════════════════════════
+function _syncMeasSubBtns(){
+  ['height','width','depth','free'].forEach(s=>{
+    const b=document.getElementById('meas-'+s+'-btn');
+    if(b) b.classList.toggle('active-'+s, measureSubMode===s);
+  });
+}
 function toggleMeasSubMode(sub) {
+  // 'free' is a special case — clicking it again stays free (it's the default)
+  if(sub==='free'){ measureSubMode='free'; _syncMeasSubBtns(); clearMeasure(); return; }
   if(measureSubMode===sub) {
     // Already active — deactivate back to free
     measureSubMode='free';
@@ -2943,8 +3215,9 @@ function toggleMeasSubMode(sub) {
     measureSubMode=sub; // re-set after setDesktopMode (which calls resetMeasSubMode)
     document.getElementById('meas-height-btn')?.classList.toggle('active-height', sub==='height');
     document.getElementById('meas-width-btn')?.classList.toggle('active-width',  sub==='width');
-    if(sub==='height') document.getElementById('meas-width-btn')?.classList.remove('active-width');
-    else               document.getElementById('meas-height-btn')?.classList.remove('active-height');
+    document.getElementById('meas-depth-btn')?.classList.toggle('active-depth',   sub==='depth');
+    document.getElementById('meas-free-btn')?.classList.toggle('active-free',    sub==='free');
+    ['height','width','depth','free'].forEach(s=>{ if(s!==sub){ document.getElementById('meas-'+s+'-btn')?.classList.remove('active-'+s); } });
   }
   clearMeasure();
   // Filter 3D dim objects by submode
@@ -3062,11 +3335,17 @@ function onCanvasMouseMove(e) {
     if(pinMeshes.length&&ray.intersectObjects(pinMeshes,false).length){
       cw.style.cursor='pointer'; return;
     }
-    // Over model surface in pin/measure: show action cursor; grab over empty space
     if(desktopMode==='pin'||desktopMode==='measure'){
       const modelMeshes=[]; if(loadedModel) loadedModel.traverse(c2=>{if(c2.isMesh)modelMeshes.push(c2);});
       if(modelMeshes.length&&ray.intersectObjects(modelMeshes,false).length){
         cw.style.cursor='crosshair'; return;
+      }
+    }
+    // Orbit mode: pointer over model = hand cursor (part selectable)
+    if(desktopMode==='orbit'&&loadedModel){
+      const modelMeshes2=[]; loadedModel.traverse(c2=>{if(c2.isMesh)modelMeshes2.push(c2);});
+      if(modelMeshes2.length&&ray.intersectObjects(modelMeshes2,false).length){
+        cw.style.cursor='pointer'; return;
       }
     }
   }
@@ -3164,6 +3443,33 @@ function onCanvasClick(e) {
       _spawnMeasureLine(ptA, ptB, lbl, ++measureCount, MEAS_COL_WIDTH);
       rebuildMeasTable(); saveSession(); return;
     }
+    // --- DEPTH mode: straight horizontal line (both points at Y=0 projected) ---
+    if(measureSubMode==='depth'){
+      if(!pt) return;
+      if(measurePhase===0){
+        measureState.ptA=pt.clone();
+        measurePhase=1;
+        measureState.sphereA&&(measureState.sphereA.position.copy(pt),measureState.sphereA.visible=true);
+        measureState.lineObj&&(measureState.lineObj.visible=false);
+        const dr=document.getElementById('measure-readout'); if(dr) dr.textContent='Click second point…';
+        const ov=document.getElementById('measure-readout-overlay'); if(ov) ov.style.display='block';
+      } else {
+        measureState.ptB=pt.clone();
+        updateMeasureLine();
+        measurePhase=0;
+        // Label uses 3D distance (true depth)
+        const d=measureState.ptA.distanceTo(measureState.ptB);
+        const lbl=(d>=1?d.toFixed(3)+' m':(d*100).toFixed(1)+' cm');
+        _spawnMeasureLine(measureState.ptA.clone(),measureState.ptB.clone(),lbl,++measureCount,MEAS_COL_DEPTH);
+        measureState.ptA=measureState.ptB=null;
+        measureState.lineObj&&(measureState.lineObj.visible=false);
+        measureState.sphereA&&(measureState.sphereA.visible=false);
+        measureState.sphereB&&(measureState.sphereB.visible=false);
+        const ov2=document.getElementById('measure-readout-overlay'); if(ov2) ov2.style.display='none';
+        rebuildMeasTable(); saveSession();
+      }
+      return;
+    }
     // --- FREE mode (default) ---
     const finalPt=pt;
     if(!finalPt) return;
@@ -3181,8 +3487,21 @@ function onCanvasClick(e) {
     return;
   }
 
-  const pt=getCanvasHit(e); if(!pt) return;
-  if(desktopMode==='pin') dropAnnotation(pt);
+  let pt=getCanvasHit(e);
+  if(desktopMode==='pin'){
+    if(!pt){
+      // No model hit — try floor plane (Y=0) as fallback
+      const cv2=viewerRenderer.domElement, rect2=cv2.getBoundingClientRect();
+      const nx=((e.clientX-rect2.left)/rect2.width)*2-1;
+      const ny=-((e.clientY-rect2.top)/rect2.height)*2+1;
+      const tmpRay=new THREE.Raycaster(); tmpRay.setFromCamera({x:nx,y:ny},viewerCamera);
+      const floorPt=new THREE.Vector3();
+      if(tmpRay.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0,1,0),0),floorPt)) pt=floorPt;
+    }
+    if(pt) dropAnnotation(pt);
+    return;
+  }
+  if(!pt) return;
 }
 // HUD is now static — these are stubs for backward compat
 function updateHUD(){}
@@ -3921,7 +4240,7 @@ function pollGamepadButtons() {
 
   // ── Palm menu detection (also Y button as fallback) ─────────
   checkPalmMenu(cL);
-  // Y button (left hand index 4 on Quest = Y) → toggle palm menu
+  // Y button (left hand index 4 on Quest = Y) / A button → toggle palm menu
   const lFaceY=gpL.buttons[4]?.pressed||false;
   if(lFaceY&&!_prevFaceY){
     vrPalmMenuVisible=!vrPalmMenuVisible;
@@ -3954,7 +4273,7 @@ function pollGamepadButtons() {
   const lTrig=gpL.buttons[0]?.value>0.1;
   if(lTrig){
     // Clear previous frozen contour when starting a new slice
-    if(!slicerActive){ clearFrozenContour(); slicerActive=true; if(slicerMesh) slicerMesh.visible=true; setClipping(true); }
+    if(!slicerActive){ clearFrozenContour(); slicerActive=true; if(slicerMesh) slicerMesh.visible=true; _lastClipPlanes=[]; setClipping(true); } // reset cache on activate
     updateSlicer(cL);
     // Left stick X → spin slice plane around the aim axis
     const lX=gpL.axes[2]||0;
@@ -4056,7 +4375,18 @@ function _buildViewer(fileId, name, myToken) { function initViewer(fileId){
   viewerRenderer.shadowMap.type=THREE.PCFSoftShadowMap;
   viewerRenderer.xr.enabled=true; viewerRenderer.localClippingEnabled=true;
   wrap.appendChild(viewerRenderer.domElement);
-  viewerRenderer.domElement.addEventListener('click',onCanvasClick);
+  // Drag guard: only fire onCanvasClick if pointer didn't move (i.e. was a tap, not a drag)
+  let _canvasPointerDownX=0, _canvasPointerDownY=0, _canvasDragged=false;
+  viewerRenderer.domElement.addEventListener('pointerdown',e=>{
+    _canvasPointerDownX=e.clientX; _canvasPointerDownY=e.clientY; _canvasDragged=false;
+  });
+  viewerRenderer.domElement.addEventListener('pointermove',e=>{
+    const dx=e.clientX-_canvasPointerDownX, dy=e.clientY-_canvasPointerDownY;
+    if(dx*dx+dy*dy>25) _canvasDragged=true; // 5px threshold
+  });
+  viewerRenderer.domElement.addEventListener('click',e=>{
+    if(!_canvasDragged) onCanvasClick(e);
+  });
   viewerRenderer.domElement.addEventListener('mousemove',onCanvasMouseMove);
   viewerRenderer.domElement.addEventListener('contextmenu',onCanvasRightClick);
 
@@ -4067,13 +4397,18 @@ function _buildViewer(fileId, name, myToken) { function initViewer(fileId){
   sunLight=new THREE.DirectionalLight(0xffffff,1.2);
   const az0=lightAz*Math.PI/180, el0=lightEl*Math.PI/180;
   sunLight.position.set(Math.cos(el0)*Math.sin(az0)*8,Math.sin(el0)*8,Math.cos(el0)*Math.cos(az0)*8);
-  sunLight.castShadow=true; sunLight.shadow.mapSize.width=1024; sunLight.shadow.mapSize.height=1024;
+  sunLight.castShadow=true; sunLight.shadow.mapSize.width=512; sunLight.shadow.mapSize.height=512; // 512 adequate for VR, saves GPU
   sunLight.shadow.camera.near=0.1; sunLight.shadow.camera.far=50;
   sunLight.shadow.camera.left=-3; sunLight.shadow.camera.right=3;
   sunLight.shadow.camera.top=3; sunLight.shadow.camera.bottom=-3;
   sunLight.shadow.bias=-0.001;
   viewerScene.add(sunLight);
-  // fill light removed — was causing curved halo artefact on model top
+  // Fill light — opposite to sun, half intensity, warm tint (reflector effect)
+  fillLight=new THREE.DirectionalLight(0xfff8f0,0.55);
+  const _az1=lightAz*Math.PI/180+Math.PI, _el1=Math.max(0.1,(Math.PI/2-lightEl*Math.PI/180));
+  fillLight.position.set(Math.cos(_el1)*Math.sin(_az1)*6,Math.sin(_el1)*6,Math.cos(_el1)*Math.cos(_az1)*6);
+  fillLight.castShadow=false;
+  viewerScene.add(fillLight);
   // Floor disc — soft radial glow on floor surface (wanted back)
   (function buildFloorDisc(scene){
     const geo=new THREE.CircleGeometry(1.4,64);
@@ -4270,6 +4605,9 @@ function _buildViewer(fileId, name, myToken) { function initViewer(fileId){
       if(viewerShadowReceiver) viewerShadowReceiver.visible=!belowFloor;
       const fcd=document.getElementById('floor-cone-canvas'); if(fcd) fcd.style.opacity=belowFloor?'0':'';
     }
+    else if(!viewerRenderer.xr.isPresenting&&!viewerRenderer.shadowMap.enabled){
+      viewerRenderer.shadowMap.enabled=true; // restore shadows when exiting XR
+    }
     if(autoRotate&&viewerControls&&!viewerRenderer.xr.isPresenting){
       const t=viewerControls.target;
       const angle=autoRotateSpeed;
@@ -4279,6 +4617,8 @@ function _buildViewer(fileId, name, myToken) { function initViewer(fileId){
       viewerCamera.lookAt(t); viewerControls.update();
     }
     if(viewerRenderer.xr.isPresenting){
+      // Disable shadows in XR for performance (big GPU saving on 20MB models)
+      viewerRenderer.shadowMap.enabled=false;
       pollGamepadButtons(); // all VR controls handled there
     }
     updateAnnotationLabels();
@@ -4307,14 +4647,21 @@ function _buildViewer(fileId, name, myToken) { function initViewer(fileId){
 async function checkXRSupport() {
   const btn=document.getElementById('vr-btn');
   const arBtn=document.getElementById('ar-btn');
-  if(!navigator.xr){btn.textContent='VR not supported';btn.disabled=true;return;}
+  if(!navigator.xr){btn.textContent='VR not available';btn.disabled=true;btn.style.opacity='0.5';return;}
+  // Try MR (passthrough) first — preferred mode
+  const arOk=await navigator.xr.isSessionSupported('immersive-ar').catch(()=>false);
   const vrOk=await navigator.xr.isSessionSupported('immersive-vr').catch(()=>false);
-  if(vrOk){btn.textContent='⬡ Enter VR';btn.disabled=false;}
-  else{btn.textContent='VR not available';btn.style.opacity='0.5';}
-  // Show AR button if supported (phones, tablets, Quest passthrough)
-  if(arBtn){
-    const arOk=await navigator.xr.isSessionSupported('immersive-ar').catch(()=>false);
-    arBtn.style.display=arOk?'':'none';
+  if(arOk){
+    // MR supported — single button enters MR
+    vrImmersiveMode='ar';
+    btn.textContent='⬡ Mixed Reality';btn.disabled=false;
+    if(arBtn) arBtn.style.display='none'; // hide separate AR button
+  } else if(vrOk){
+    vrImmersiveMode='vr';
+    btn.textContent='⬡ Enter VR';btn.disabled=false;
+    if(arBtn) arBtn.style.display='none';
+  } else {
+    btn.textContent='VR not available';btn.disabled=true;btn.style.opacity='0.5';
   }
 }
 
@@ -4355,6 +4702,37 @@ async function enterAR() {
   } catch(e){alert('Could not start AR session: '+e.message);}
 }
 
+
+// AR Recenter — shifts the XR reference space so the camera appears at a new origin.
+// The model does NOT move in world space — true scale is preserved.
+function arRecenter(){
+  if(!viewerRenderer||!viewerRenderer.xr.isPresenting) return;
+  const refSpace=viewerRenderer.xr.getReferenceSpace();
+  if(!refSpace) return;
+  // Get current camera (viewer) world position
+  const camPos=viewerCamera.position;
+  // Create an offset that shifts the reference space so current camera pos → origin
+  try {
+    const offsetTransform=new XRRigidTransform(
+      {x:-camPos.x, y:0, z:-camPos.z}, // only XZ — keep vertical as-is
+      {x:0,y:0,z:0,w:1}
+    );
+    const newRefSpace=refSpace.getOffsetReferenceSpace(offsetTransform);
+    viewerRenderer.xr.setReferenceSpace(newRefSpace);
+  } catch(e){
+    // Fallback: move model instead (older browsers)
+    if(modelRoot){
+      modelRoot.position.x=-camPos.x;
+      modelRoot.position.z=-camPos.z;
+    }
+  }
+}
+
+function toggleVRMenu(){
+  const pm=document.getElementById('vr-palm-menu');
+  if(!pm) return;
+  pm.style.display=pm.style.display==='none'?'block':'none';
+}
 function toggleMRMode() {
   vrImmersiveMode = vrImmersiveMode==='vr' ? 'ar' : 'vr';
   const btn=document.getElementById('mr-toggle-btn');
@@ -4373,32 +4751,54 @@ function setARControls(isAR) {
 async function enterVR() {
   if(!navigator.xr||!viewerRenderer) return;
   try {
-    const isAR = vrImmersiveMode==='ar';
-    if(isAR){
-      const arOk=await navigator.xr.isSessionSupported('immersive-ar').catch(()=>false);
-      if(!arOk){ alert('Mixed Reality not supported on this device. Entering VR.'); vrImmersiveMode='vr'; toggleMRMode(); }
+    // Always prefer MR (immersive-ar passthrough). Fall back to VR if not available.
+    let sessionMode='immersive-ar';
+    const arOk=await navigator.xr.isSessionSupported('immersive-ar').catch(()=>false);
+    if(!arOk){
+      const vrOk=await navigator.xr.isSessionSupported('immersive-vr').catch(()=>false);
+      if(!vrOk){alert('No XR support on this device.');return;}
+      sessionMode='immersive-vr';
     }
-    const sessionMode = vrImmersiveMode==='ar' ? 'immersive-ar' : 'immersive-vr';
+    vrImmersiveMode=sessionMode==='immersive-ar'?'ar':'vr';
     const session=await navigator.xr.requestSession(sessionMode,{
       requiredFeatures:['local-floor'],
       optionalFeatures:['bounded-floor','dom-overlay','hand-tracking',
                         ...(sessionMode==='immersive-ar'?['hit-test']:[])],
       domOverlay:{root:document.getElementById('vr-hud')}
     });
-    const _isAR2=sessionMode==='immersive-ar';
-    if(viewerScene) viewerScene.background = _isAR2 ? null : new THREE.Color(0x1a1a1e);
+    const _isAR=sessionMode==='immersive-ar';
+    if(viewerScene) viewerScene.background=_isAR?null:new THREE.Color(0x1a1a1e);
+    // Hide floor and annotations in MR
+    if(_isAR){
+      if(gridGroup) gridGroup.visible=false;
+      if(viewerShadowReceiver) viewerShadowReceiver.visible=false;
+      if(allAnnotationsVisible) toggleAllAnnotations();
+    }
     viewerRenderer.xr.setSession(session);
-    // Hide floor in AR/passthrough mode
-    if(_isAR2){ if(gridGroup) gridGroup.visible=false; if(viewerShadowReceiver) viewerShadowReceiver.visible=false; }
+    setupControllers(viewerRenderer,viewerScene);
+    document.getElementById('vr-hud').style.display='block';
+    // Show on-screen menu button in HUD
+    const menuBtn=document.getElementById('vr-menu-open-btn');
+    if(menuBtn) menuBtn.style.display='block';
     session.addEventListener('end',()=>{
-      if(_isAR2){ if(gridGroup) gridGroup.visible=true; if(viewerShadowReceiver) viewerShadowReceiver.visible=true; }
-      document.getElementById('vr-btn').textContent='⬡ Enter VR';
+      if(_isAR){
+        if(gridGroup) gridGroup.visible=true;
+        if(viewerShadowReceiver) viewerShadowReceiver.visible=true;
+      }
+      const btn2=document.getElementById('vr-btn');
+      if(btn2) btn2.textContent=arOk?'⬡ Mixed Reality':'⬡ Enter VR';
+      document.getElementById('vr-hud').style.display='none';
+      const menuBtn2=document.getElementById('vr-menu-open-btn');
+      if(menuBtn2) menuBtn2.style.display='none';
       if(viewerScene) viewerScene.background=new THREE.Color(0x1a1a1e);
       if(slicerActive){slicerActive=false;slicerMesh&&(slicerMesh.visible=false);setClipping(false);}
       if(hContourLine&&!hSliceActive) hContourLine.visible=false;
+      // Restore model to pre-XR state
+      if(modelRoot){modelRoot.position.set(0,0,0);modelRoot.quaternion.identity();modelRoot.scale.set(1,1,1);}
       saveSession();
     });
-    document.getElementById('vr-btn').textContent='◼ Exit';
+    const vrBtnEl=document.getElementById('vr-btn');
+    if(vrBtnEl) vrBtnEl.textContent='◼ Exit XR';
   } catch(e){alert('Could not start XR session: '+e.message);}
 }
 </script>
