@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CAD INSPECTOR v0.5.7</title>
+<title>CAD INSPECTOR v0.5.8</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230d0d10'/%3E%3Cpolygon points='16,3 28,10 28,22 16,29 4,22 4,10' fill='none' stroke='%23c8f542' stroke-width='2.2' stroke-linejoin='round'/%3E%3Cline x1='10' y1='13' x2='16' y2='21' stroke='%23c8f542' stroke-width='2.2' stroke-linecap='round'/%3E%3Cline x1='22' y1='13' x2='16' y2='21' stroke='%23c8f542' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap');
@@ -209,7 +209,7 @@ input[type=range].lp-slider::-moz-range-thumb{width:12px;height:12px;}
 .meas-popup-actions button{font-family:'DM Mono',monospace;font-size:10px;padding:4px 8px;border-radius:4px;cursor:pointer;border:1px solid rgba(255,255,255,0.09);background:rgba(255,255,255,0.04);color:var(--text);text-align:left;}
 .meas-popup-actions button:hover{background:rgba(255,255,255,0.09);}
 .meas-del-btn{color:var(--danger)!important;border-color:rgba(245,66,66,0.22)!important;}
-.meas-label{position:fixed;pointer-events:none;z-index:140;font-family:'DM Mono',monospace;font-size:10px;color:var(--warn);background:rgba(13,13,16,0.88);border:1px solid rgba(245,161,66,0.3);border-radius:4px;padding:3px 7px;white-space:nowrap;transform:translate(-50%,-50%);text-align:center;}
+.meas-label{position:fixed;pointer-events:none;z-index:520;font-family:'DM Mono',monospace;font-size:10px;color:var(--warn);background:rgba(13,13,16,0.88);border:1px solid rgba(245,161,66,0.3);border-radius:4px;padding:3px 7px;white-space:nowrap;transform:translate(-50%,-50%);text-align:center;}
 .meas-label .ml-name{font-size:9px;opacity:0.75;display:block;line-height:1.2;}
 .meas-label .ml-val{font-size:11px;font-weight:600;display:block;line-height:1.3;}
 .confirm-popup{position:fixed;z-index:700;background:rgba(14,14,18,0.98);backdrop-filter:var(--blur);border:1px solid var(--border-hi);border-radius:10px;padding:16px 20px;width:270px;box-shadow:0 12px 40px rgba(0,0,0,0.85);font-family:'DM Mono',monospace;top:50%;left:50%;transform:translate(-50%,-50%);}
@@ -300,7 +300,7 @@ input[type=range].lp-slider::-moz-range-thumb{width:12px;height:12px;}
     <div style="display:flex;align-items:center;gap:10px;padding:12px 20px;border-right:1px solid var(--border);flex-shrink:0;">
       <svg width="20" height="20" viewBox="0 0 32 32" fill="none"><polygon points="16,3 28,10 28,22 16,29 4,22 4,10" fill="none" stroke="#c8f542" stroke-width="2.2" stroke-linejoin="round"/><line x1="10" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="22" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="12" y1="13" x2="20" y2="13" stroke="rgba(200,245,66,0.5)" stroke-width="1.2" stroke-linecap="round"/></svg>
       <div>
-        <div style="font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;letter-spacing:.07em;color:#e4e4e0;text-transform:uppercase;">CAD Inspector <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--accent);font-weight:400;letter-spacing:.06em;text-transform:none;">v0.5.7</span></div>
+        <div style="font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;letter-spacing:.07em;color:#e4e4e0;text-transform:uppercase;">CAD Inspector <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--accent);font-weight:400;letter-spacing:.06em;text-transform:none;">v0.5.8</span></div>
         <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-top:1px;">3D CAD Model Review</div>
       </div>
     </div>
@@ -331,7 +331,7 @@ input[type=range].lp-slider::-moz-range-thumb{width:12px;height:12px;}
   <div id="viewer-logo" style="position:fixed;top:0;left:0;z-index:125;display:none;align-items:center;gap:10px;padding:10px 18px 10px 14px;background:rgba(13,13,16,0.7);backdrop-filter:blur(12px);border-bottom-right-radius:12px;border-bottom:1px solid var(--border);border-right:1px solid var(--border);">
     <svg width="18" height="18" viewBox="0 0 32 32" fill="none" style="flex-shrink:0;"><polygon points="16,3 28,10 28,22 16,29 4,22 4,10" fill="none" stroke="#c8f542" stroke-width="2.2" stroke-linejoin="round"/><line x1="10" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="22" y1="13" x2="16" y2="21" stroke="#c8f542" stroke-width="2.2" stroke-linecap="round"/><line x1="12" y1="13" x2="20" y2="13" stroke="rgba(200,245,66,0.5)" stroke-width="1.2" stroke-linecap="round"/></svg>
     <div style="display:flex;flex-direction:column;gap:1px;">
-      <span style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;color:#e8e8e4;text-transform:uppercase;">CAD Inspector <span style="font-family:'DM Mono',monospace;font-size:8px;color:var(--accent);font-weight:400;letter-spacing:.06em;">v0.5.7</span></span>
+      <span style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;color:#e8e8e4;text-transform:uppercase;">CAD Inspector <span style="font-family:'DM Mono',monospace;font-size:8px;color:var(--accent);font-weight:400;letter-spacing:.06em;">v0.5.8</span></span>
       <span id="viewer-filename" style="font-family:'DM Mono',monospace;font-size:10px;color:#7a7a8a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px;"></span>
       <span id="size-readout-logo" style="font-family:'DM Mono',monospace;font-size:9px;color:#5a5a66;white-space:nowrap;display:none;"></span>
     </div>
@@ -407,16 +407,7 @@ input[type=range].lp-slider::-moz-range-thumb{width:12px;height:12px;}
             <button class="tex-btn" id="zebra-h" onclick="toggleZebra('h')">≡ Horizontal</button>
             <button class="tex-btn" id="zebra-v" onclick="toggleZebra('v')">⫶ Vertical</button>
           </div>
-          <div id="zebra-off" style="display:none;"></div>
-          <div id="zebra-slider-rows" style="display:none;">
-          <div class="lp-row" style="margin-top:6px;"><span class="lp-label" style="font-size:9px;color:var(--muted)">Stripe density</span><span class="lp-val" id="zebra-size-val">12</span></div>
-          <input type="range" class="lp-slider" id="zebra-size-sl" min="3" max="40" step="1" value="12" oninput="onZebraSize(this.value)">
-          <div class="lp-row" style="margin-top:4px;"><span class="lp-label" style="font-size:9px;color:var(--muted)">Rotation</span><span class="lp-val" id="zebra-rot-val">0°</span></div>
-          <input type="range" class="lp-slider" id="zebra-rot-sl" min="-90" max="90" step="1" value="0" oninput="onZebraRotation(this.value)">
-          </div>
-        </div>
-      </div>
-      <!-- Slicing -->
+          <div id="zebra-off" style="display:none;"></div><!-- Slicing -->
       <div class="lp-section">
         <div class="lp-sec-head">
           <span class="lp-title" style="margin:0;flex:1;cursor:pointer;" onclick="toggleLpSection('lps-0')">Slicing</span>
@@ -444,6 +435,17 @@ input[type=range].lp-slider::-moz-range-thumb{width:12px;height:12px;}
           </div>
           <!-- Ghost model view -->
           <div id="ghost-row" class="lp-row" style="margin-top:4px;display:none;"><span class="lp-label">Ghost model view</span><label class="tog"><input type="checkbox" id="slice-ghost-tog" onchange="toggleSliceGhost(this.checked)"><span class="tog-s"></span></label></div>
+        </div>
+      </div>
+      <!-- compat -->
+          <div id="zebra-slider-rows" style="display:none;">
+          <div class="lp-row" style="margin-top:6px;"><span class="lp-label" style="font-size:9px;color:var(--muted)">Stripe density</span><span class="lp-val" id="zebra-size-val">12</span></div>
+          <input type="range" class="lp-slider" id="zebra-size-sl" min="3" max="40" step="1" value="12" oninput="onZebraSize(this.value)">
+          <div class="lp-row" style="margin-top:4px;"><span class="lp-label" style="font-size:9px;color:var(--muted)">Rotation</span><span class="lp-val" id="zebra-rot-val">0°</span></div>
+          <input type="range" class="lp-slider" id="zebra-rot-sl" min="-90" max="90" step="1" value="0" oninput="onZebraRotation(this.value)">
+          <div class="lp-row" style="margin-top:4px;"><span class="lp-label" style="font-size:9px;color:var(--muted)">Opacity</span><span class="lp-val" id="zebra-opacity-val">82%</span></div>
+          <input type="range" class="lp-slider" id="zebra-opacity-sl" min="10" max="100" step="1" value="82" oninput="onZebraOpacity(this.value)">
+          </div>
         </div>
       </div>
       <!-- Symmetry -->
@@ -655,10 +657,22 @@ input[type=range].lp-slider::-moz-range-thumb{width:12px;height:12px;}
   <button class="pi-close" onclick="deselectPart()" title="Close (Esc)">×</button>
   <div class="pi-title">SELECTED PART</div>
   <div class="pi-name" id="pi-name">—</div>
+  <div style="height:8px;"></div>
   <div class="pi-row"><span class="pi-label">Dimensions</span><span class="pi-val" id="pi-dims">—</span></div>
   <div class="pi-row"><span class="pi-label">Volume</span><span class="pi-val" id="pi-vol-cm">—</span></div>
   <div class="pi-row"><span class="pi-label">Volume (litres)</span><span class="pi-val" id="pi-vol-l">—</span></div>
-  <div class="pi-row"><span class="pi-label">Triangles</span><span class="pi-val" id="pi-tris">—</span></div>
+  <div class="pi-row" id="pi-foam-row" style="display:none;">
+    <span class="pi-label">Est. foam cost</span>
+    <span class="pi-val" id="pi-foam-cost">—</span>
+  </div>
+  <div style="margin-top:8px;display:flex;align-items:center;gap:6px;">
+    <span class="pi-label" style="white-space:nowrap;">€/cl</span>
+    <input id="pi-foam-price" type="number" min="0" step="0.001" value=""
+      placeholder="price/cl"
+      style="width:70px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:5px;color:#e8e8e6;font-family:'DM Mono',monospace;font-size:10px;padding:3px 6px;outline:none;"
+      oninput="updateFoamCost()" />
+    <span class="pi-label" style="white-space:nowrap;">per cm³</span>
+  </div>
   <div class="pi-multi" id="pi-multi" style="display:none;"></div>
 </div>
 <!-- Right sidebar: pin comments -->
@@ -794,7 +808,7 @@ function drawFloorCone() {
 }
 
 // ── Config ───────────────────────────────────────────────────
-const THUMB_KEY = 'vr_thumb_cache';
+const THUMB_KEY = 'vr_thumb_cache_v2'; // v2: black background
 const SESSION_PREFIX = 'vr_session_';
 const config = {
   folderId: '1OtwMUU-oHisoufPNRCl4IUDT7qVR7dcG',
@@ -1207,8 +1221,8 @@ function renderGrid(models) {
       const name=model.name.replace(/\.glb$/i,'');
       const sizeMB=model.size?(model.size/1024/1024).toFixed(1)+' MB':'—';
       const card=document.createElement('div');
-      card.style.cssText='border-radius:8px;overflow:hidden;background:#000;border:1px solid rgba(255,255,255,0.08);cursor:pointer;transition:all 0.15s;';
-      card.innerHTML=`<div id="tw-${model.id}" style="height:200px;display:flex;align-items:center;justify-content:center;background:#000;border-radius:8px 8px 0 0;overflow:hidden;"><span style="font-size:30px;opacity:0.15">⬡</span></div><div style="padding:8px 10px 10px;font-family:DM Mono,monospace;font-size:11px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${name}<span style="display:block;color:var(--muted);font-size:9px;margin-top:2px;">${sizeMB}</span></div>`;
+      card.style.cssText='border-radius:8px;overflow:hidden;background:#000;border:1px solid rgba(255,255,255,0.1);cursor:pointer;transition:all 0.15s;aspect-ratio:1;display:flex;flex-direction:column;';
+      card.innerHTML=`<div id="tw-${model.id}" style="flex:1;min-height:0;display:flex;align-items:center;justify-content:center;background:#000;overflow:hidden;"><span style="font-size:30px;opacity:0.15">⬡</span></div><div style="padding:8px 10px 10px;font-family:DM Mono,monospace;font-size:11px;color:var(--text);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border-top:1px solid rgba(255,255,255,0.07);">${name}<span style="display:block;color:var(--muted);font-size:9px;margin-top:2px;">${sizeMB}</span></div>`;
       card.onmouseenter=()=>{ card.style.borderColor='rgba(200,245,66,0.4)'; card.style.transform='translateY(-2px)'; };
       card.onmouseleave=()=>{ card.style.borderColor='rgba(255,255,255,0.08)'; card.style.transform=''; };
       card.onclick=()=>{ document.getElementById('browser-screen').style.display='none'; openViewer(model.id,name); };
@@ -1234,7 +1248,7 @@ async function renderThumb(fileId,name) {
   wrap.innerHTML=''; wrap.appendChild(cv);
   const r=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:false});
   r.setSize(300,300); r.setPixelRatio(1); r.outputEncoding=THREE.sRGBEncoding;
-  const sc=new THREE.Scene(); sc.background=new THREE.Color(0x111114); const cam=new THREE.PerspectiveCamera(45,1,0.01,1000);
+  const sc=new THREE.Scene(); sc.background=new THREE.Color(0x000000); const cam=new THREE.PerspectiveCamera(45,1,0.01,1000);
   sc.add(new THREE.AmbientLight(0xffffff,0.7));
   const d=new THREE.DirectionalLight(0xffffff,1.2); d.position.set(2,4,3); sc.add(d);
   const glbUrl=`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media&key=${config.apiKey}`;
@@ -1376,34 +1390,40 @@ function _updatePartInfoPanel() {
     const size = box.getSize(new THREE.Vector3());
     const volM3 = _computeMeshVolume(mesh);
     const vf = _formatVolume(volM3);
-    const tris = mesh.geometry.index
-      ? mesh.geometry.index.count / 3
-      : mesh.geometry.attributes.position.count / 3;
     document.getElementById('pi-name').textContent = name;
     document.getElementById('pi-dims').textContent =
       `${(size.x*100).toFixed(1)} × ${(size.y*100).toFixed(1)} × ${(size.z*100).toFixed(1)} cm`;
     document.getElementById('pi-vol-cm').textContent = vf.cm3;
     document.getElementById('pi-vol-l').textContent = vf.litres;
-    document.getElementById('pi-tris').textContent = Math.round(tris).toLocaleString();
     const multiEl = document.getElementById('pi-multi');
     if(multiEl) { multiEl.style.display = 'none'; }
   } else {
-    // Multi-select: show combined volume
-    const names = _selectedParts.map(p => _getMeshName(p.mesh));
     document.getElementById('pi-name').textContent = `${_selectedParts.length} parts selected`;
     const totalVol = _selectedParts.reduce((sum, p) => sum + _computeMeshVolume(p.mesh), 0);
     const vf = _formatVolume(totalVol);
-    const totalTris = _selectedParts.reduce((sum, p) => {
-      const g = p.mesh.geometry;
-      return sum + (g.index ? g.index.count/3 : g.attributes.position.count/3);
-    }, 0);
     document.getElementById('pi-dims').textContent = '—';
     document.getElementById('pi-vol-cm').textContent = vf.cm3;
     document.getElementById('pi-vol-l').textContent = vf.litres;
-    document.getElementById('pi-tris').textContent = Math.round(totalTris).toLocaleString();
     const multiEl = document.getElementById('pi-multi');
     if(multiEl) { multiEl.style.display = 'block'; multiEl.textContent = 'Shift+click to add/remove parts'; }
   }
+  updateFoamCost();
+}
+
+function updateFoamCost() {
+  const inp = document.getElementById('pi-foam-price');
+  const costEl = document.getElementById('pi-foam-cost');
+  const row = document.getElementById('pi-foam-row');
+  if(!inp || !costEl || !row || _selectedParts.length === 0) return;
+  const pricePerCl = parseFloat(inp.value);
+  if(isNaN(pricePerCl) || pricePerCl <= 0) { row.style.display = 'none'; return; }
+  // Sum volume in m³ → convert to cl (1 m³ = 100000 cl)
+  const totalM3 = _selectedParts.reduce((sum, p) => sum + _computeMeshVolume(p.mesh), 0);
+  const totalCl = Math.abs(totalM3) * 100000;
+  const cost = totalCl * pricePerCl;
+  const fmt = cost >= 1000 ? cost.toFixed(0) : cost >= 10 ? cost.toFixed(2) : cost.toFixed(3);
+  costEl.textContent = `€${fmt}`;
+  row.style.display = 'flex';
 }
 
 // Raycast to find the mesh the user clicked
@@ -1868,6 +1888,7 @@ function onLightSlider() {
 // World-space zebra — uses ShaderMaterial overlay meshes so stripes are continuous across all parts
 let _zebraOverlayMeshes=[];
 let _zebraStripeScale=12; // stripes per metre
+let _zebraOpacity=0.82; // 0..1
 
 function setZebraMode(mode) {
   // Remove previous overlay meshes
@@ -1938,7 +1959,7 @@ function setZebraMode(mode) {
     if(!child.isMesh) return;
     const mat=new THREE.ShaderMaterial({
       vertexShader:zebraVertN, fragmentShader:zebraFrag,
-      uniforms:{axis:{value:axis},scale:{value:_zebraStripeScale},rotation:{value:_zebraRotation*Math.PI/180},bandAlpha:{value:0.82}},
+      uniforms:{axis:{value:axis},scale:{value:_zebraStripeScale},rotation:{value:_zebraRotation*Math.PI/180},bandAlpha:{value:_zebraOpacity}},
       transparent:true, depthWrite:false, depthTest:true,
       polygonOffset:true, polygonOffsetFactor:-1, polygonOffsetUnits:-1,
       side:THREE.DoubleSide, blending:THREE.NormalBlending
@@ -2301,14 +2322,26 @@ function _initShowcaseTopBarHover(){
   });
 }
 function resetZebra(){
-  _zebraRotation=0; _zebraStripeScale=12;
+  _zebraRotation=0; _zebraStripeScale=12; _zebraOpacity=0.82;
   var sl=document.getElementById("zebra-size-sl");if(sl)sl.value=12;
   var rl=document.getElementById("zebra-rot-sl");if(rl)rl.value=0;
+  var ol=document.getElementById("zebra-opacity-sl");if(ol)ol.value=82;
   var sv=document.getElementById("zebra-size-val");if(sv)sv.textContent="12";
   var rv=document.getElementById("zebra-rot-val");if(rv)rv.textContent="0°";
-  if(zebraMode!=="off") setZebraMode(zebraMode); // re-render with reset params
+  var ov=document.getElementById("zebra-opacity-val");if(ov)ov.textContent="82%";
+  if(zebraMode!=="off") setZebraMode(zebraMode);
 }
 function onZebraSize(val){_zebraStripeScale=parseFloat(val); const lbl=document.getElementById('zebra-size-val'); if(lbl)lbl.textContent=val; if(zebraMode!=='off')setZebraMode(zebraMode);} // kept for compat — zebra now uses ShaderMaterial
+function onZebraOpacity(val){
+  _zebraOpacity=parseFloat(val)/100;
+  const lbl=document.getElementById('zebra-opacity-val'); if(lbl)lbl.textContent=val+'%';
+  // Update uniform live on all existing overlay meshes (no full rebuild needed)
+  _zebraOverlayMeshes.forEach(m=>{
+    if(m.material?.uniforms?.bandAlpha && m.material.uniforms.bandAlpha.value > 0.3) {
+      m.material.uniforms.bandAlpha.value = _zebraOpacity;
+    }
+  });
+}
 
 // ════════════════════════════════════════════════════════════
 //  WIREFRAME GRID OVERLAY (separate toggle)
@@ -2921,18 +2954,6 @@ function updateMeasEndpoint(id, endpoint, newPt) {
     const w=m.ptA.distanceTo(m.ptB);
     m.label=(w>=1?w.toFixed(3)+' m':(w*100).toFixed(1)+' cm')+' ↔';
     _orientDimMarker(m.sA,m.ptA,m.ptB); _orientDimMarker(m.sB,m.ptB,m.ptA);
-  } else if(m.color===MEAS_COL_DEPTH) {
-    // Depth: spirit-level — same Y (midpoint of raw hits), same X (rawA.x), only Z differs
-    if(endpoint==='A') { m._rawA = newPt.clone(); }
-    else               { m._rawB = newPt.clone(); }
-    const rawA = m._rawA || m.ptA;
-    const rawB = m._rawB || m.ptB;
-    const midY = (rawA.y + rawB.y) / 2;
-    m.ptA.set(rawA.x, midY, rawA.z);
-    m.ptB.set(rawA.x, midY, rawB.z);
-    const depth = Math.abs(rawA.z - rawB.z);
-    m.label=(depth>=1?depth.toFixed(3)+' m':(depth*100).toFixed(1)+' cm')+' ⟷';
-    _orientDimMarker(m.sA,m.ptA,m.ptB); _orientDimMarker(m.sB,m.ptB,m.ptA);
   } else {
     if(endpoint==='A'){ m.ptA.copy(newPt); }
     else              { m.ptB.copy(newPt); }
@@ -3146,7 +3167,7 @@ async function exportPinReport() {
   pdf.setFont('helvetica','bold'); pdf.setFontSize(11); pdf.setTextColor(20,20,24);
   pdf.text('CAD INSPECTOR', rx+8, 14);
   pdf.setFont('helvetica','normal'); pdf.setFontSize(7); pdf.setTextColor(140,140,150);
-  pdf.text('v0.5.7', rx+8, 20);
+  pdf.text('v0.5.8', rx+8, 20);
   // Separator
   pdf.setDrawColor(200,245,66); pdf.setLineWidth(0.6); pdf.line(rx+8,23,PW-8,23);
 
@@ -3232,22 +3253,18 @@ function applyExplode(t) {}
 // ════════════════════════════════════════════════════════════
 //  DESKTOP INTERACTION
 // ════════════════════════════════════════════════════════════
-let _partModeActive = false;
 function togglePartMode(){
+  // Toggle part selection mode — visual indicator only, part select always works in orbit
   const btn=document.getElementById('dm-part');
-  _partModeActive = !_partModeActive;
-  if(btn) btn.classList.toggle('active', _partModeActive);
-  if(_partModeActive){
-    if(desktopMode!=='orbit') setDesktopMode('orbit');
-    deselectPart();
-    const hint=document.createElement('div');
-    hint.style.cssText="position:fixed;bottom:80px;left:50%;transform:translateX(-50%);font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);background:rgba(10,10,14,0.88);padding:6px 14px;border-radius:20px;border:1px solid rgba(200,245,66,0.3);pointer-events:none;z-index:560;";
-    hint.textContent='Click any part to select and measure its volume';
-    document.body.appendChild(hint);
-    setTimeout(()=>hint.remove(),3000);
-  } else {
-    deselectPart();
-  }
+  if(btn) btn.classList.toggle('active');
+  if(desktopMode!=='orbit') setDesktopMode('orbit');
+  deselectPart();
+  // Show hint
+  const hint=document.createElement('div');
+  hint.style.cssText="position:fixed;bottom:80px;left:50%;transform:translateX(-50%);font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);background:rgba(10,10,14,0.88);padding:6px 14px;border-radius:20px;border:1px solid rgba(200,245,66,0.3);pointer-events:none;z-index:560;";
+  hint.textContent='Click any part to select and measure its volume';
+  document.body.appendChild(hint);
+  setTimeout(()=>hint.remove(),3000);
 }
 function _syncMeasSubBtns(){
   ['height','width','depth','free'].forEach(s=>{
@@ -3326,11 +3343,6 @@ function togglePinMode(){
 }
 function setDesktopMode(mode, silent) {
   if(mode!=='measure'&&mode!=='pin') mode='orbit';
-  // Deactivate part mode when switching to measure or pin
-  if((mode==='measure'||mode==='pin') && _partModeActive) {
-    _partModeActive = false;
-    const pb=document.getElementById('dm-part'); if(pb) pb.classList.remove('active');
-  }
   desktopMode=mode;
   ['dm-orbit','dm-meas','dm-pin'].forEach(id=>{
     const b=document.getElementById(id); if(!b) return;
@@ -3475,25 +3487,6 @@ function onCanvasClick(e) {
     }
   }
 
-  // ── Part selection mode ──────────────────────────────────
-  if(_partModeActive && desktopMode==='orbit') {
-    const mouseNDC2 = new THREE.Vector2(
-      (e.clientX / window.innerWidth) * 2 - 1,
-      -(e.clientY / window.innerHeight) * 2 + 1
-    );
-    const ray2 = new THREE.Raycaster();
-    ray2.setFromCamera(mouseNDC2, viewerCamera);
-    const ms2 = [];
-    loadedModel && loadedModel.traverse(c => { if(c.isMesh) ms2.push(c); });
-    const hits2 = ray2.intersectObjects(ms2, false);
-    if(hits2.length) {
-      selectPart(hits2[0].object, e.shiftKey);
-    } else {
-      deselectPart();
-    }
-    return;
-  }
-
   // orbit is always on — only block measure/pin actions if not in those modes
   if(desktopMode!=='measure'&&desktopMode!=='pin') return;
 
@@ -3544,9 +3537,8 @@ function onCanvasClick(e) {
         const dA=new THREE.Vector3(pA.x, midY, pA.z); // start point
         const dB=new THREE.Vector3(pA.x, midY, pB.z); // end point — same X and Y, only Z differs
         const depth=Math.abs(pA.z-pB.z);
-        const lbl=(depth>=1?depth.toFixed(3)+' m':(depth*100).toFixed(1)+' cm')+' ⟷';
-        const depthRec=_spawnMeasureLine(dA, dB, lbl, ++measureCount, MEAS_COL_DEPTH);
-        depthRec._rawA=pA.clone(); depthRec._rawB=pB.clone();
+        const lbl=(depth>=1?depth.toFixed(3)+' m':(depth*100).toFixed(1)+' cm')+' ↔';
+        _spawnMeasureLine(dA, dB, lbl, ++measureCount, MEAS_COL_DEPTH);
         measureState.ptA=null;
         measureState.lineObj&&(measureState.lineObj.visible=false);
         measureState.sphereA&&(measureState.sphereA.visible=false);
@@ -4310,148 +4302,6 @@ function showScaleHUD(pct) {
   _scaleHudTimeout=setTimeout(()=>{if(el) el.style.display='none';},1200);
 }
 
-// Fit camera back to model — used by SpaceMouse left button and toolbar
-function resetView() {
-  if(!loadedModel || !viewerCamera || !viewerControls) return;
-  const box = new THREE.Box3().setFromObject(loadedModel);
-  const size = box.getSize(new THREE.Vector3());
-  const maxDim = Math.max(size.x, size.y, size.z);
-  const cent = new THREE.Vector3(0, size.y * 0.42, 0);
-  viewerCamera.position.set(maxDim * 1.15, maxDim * 0.65, maxDim * 0.95);
-  viewerCamera.lookAt(cent);
-  viewerControls.target.copy(cent);
-  viewerControls.update();
-}
-
-// ════════════════════════════════════════════════════════════
-//  Axis layout (3Dconnexion browser driver via Gamepad API):
-//    axes[0] = translate X (push left/right)
-//    axes[1] = translate Z (push forward/back)   ← note: NOT Y
-//    axes[2] = translate Y (push up/down)
-//    axes[3] = rotate X (tilt forward/back)
-//    axes[4] = rotate Y (spin left/right)
-//    axes[5] = rotate Z (roll — ignored for CAD feel)
-//  Button 0 = left button  → reset view
-//  Button 1 = right button → toggle part select
-//  CAD convention: object moves toward you, camera stays conceptually fixed.
-//  We achieve this by moving the orbit target + camera together for pan/zoom,
-//  and rotating the camera around the target for rotation — identical to how
-//  a physical SpaceMouse feels in SolidWorks / Fusion.
-// ════════════════════════════════════════════════════════════
-const _sm = {
-  deadzone: 0.04,
-  // Translation sensitivity (metres per frame per unit axis)
-  tScale: 0.004,
-  // Rotation sensitivity (radians per frame per unit axis)
-  rScale: 0.018,
-  _prevBtn0: false,
-  _prevBtn1: false,
-};
-
-function _smAxis(axes, i) {
-  const v = axes[i] ?? 0;
-  return Math.abs(v) < _sm.deadzone ? 0 : v;
-}
-
-function pollSpaceMouse() {
-  if(!viewerCamera || !viewerControls || viewerRenderer?.xr?.isPresenting) return;
-
-  // Find SpaceMouse — id contains "3Dconnexion" or "SpaceMouse" or "connexion"
-  const gps = navigator.getGamepads ? navigator.getGamepads() : [];
-  let gp = null;
-  for(const g of gps) {
-    if(!g) continue;
-    const id = g.id.toLowerCase();
-    if(id.includes('connexion') || id.includes('spacemouse') || id.includes('3dconnexion')) {
-      gp = g; break;
-    }
-  }
-  if(!gp) return;
-
-  const ax = gp.axes;
-
-  // ── Translation ──────────────────────────────────────────────────────────
-  // In CAD apps, pushing the puck right moves the object right (pan camera left).
-  // We move both camera and target together so OrbitControls stays in sync.
-  const tx = _smAxis(ax, 0);  // left/right
-  const ty = _smAxis(ax, 2);  // up/down   (axis 2 = translate Y in 3Dconnexion layout)
-  const tz = _smAxis(ax, 1);  // fwd/back  (axis 1 = translate Z, positive = push away)
-
-  if(tx || ty || tz) {
-    // Build camera-relative pan vectors (no roll — project to XY of camera)
-    const camRight = new THREE.Vector3();
-    const camUp    = new THREE.Vector3();
-    const camFwd   = new THREE.Vector3();
-    viewerCamera.matrix.extractBasis(camRight, camUp, camFwd);
-
-    // Distance from camera to target — scale pan with zoom level for consistent feel
-    const dist = viewerCamera.position.distanceTo(viewerControls.target);
-    const s = dist * _sm.tScale;
-
-    const pan = new THREE.Vector3()
-      .addScaledVector(camRight,  tx * s)   // push right → model goes right
-      .addScaledVector(camUp,    -ty * s)   // push down  → model goes down
-      .addScaledVector(camFwd,    tz * s);  // push away  → model moves away (zoom-like)
-
-    // Move camera AND target together (pure pan — no orbit change)
-    viewerCamera.position.add(pan);
-    viewerControls.target.add(pan);
-  }
-
-  // ── Rotation ─────────────────────────────────────────────────────────────
-  // Tilt/pan the puck → orbit camera around the model centre (target).
-  // CAD convention: tilt forward → model tips toward you (camera goes over top).
-  const rx = _smAxis(ax, 3);  // tilt fwd/back  → polar angle
-  const ry = _smAxis(ax, 4);  // spin left/right → azimuth
-
-  if(rx || ry) {
-    // Spherical offset from target to camera
-    const offset = viewerCamera.position.clone().sub(viewerControls.target);
-
-    // Azimuth — rotate around world Y (spin left/right)
-    if(ry) {
-      const qAz = new THREE.Quaternion().setFromAxisAngle(
-        new THREE.Vector3(0, 1, 0), -ry * _sm.rScale
-      );
-      offset.applyQuaternion(qAz);
-    }
-
-    // Polar — rotate around camera's local X axis (tilt fwd/back)
-    if(rx) {
-      const camRight2 = new THREE.Vector3().setFromMatrixColumn(viewerCamera.matrix, 0).normalize();
-      const polar = offset.length();
-      const qPol = new THREE.Quaternion().setFromAxisAngle(camRight2, rx * _sm.rScale);
-      offset.applyQuaternion(qPol);
-      // Clamp: don't flip over the poles (keep Y component from flipping)
-      const newY = viewerControls.target.y + offset.y;
-      const minY = viewerControls.target.y - polar * 0.98;
-      const maxY = viewerControls.target.y + polar * 0.98;
-      if(newY < minY || newY > maxY) offset.setFromMatrixColumn(viewerCamera.matrix, 2).negate().multiplyScalar(polar);
-    }
-
-    viewerCamera.position.copy(viewerControls.target).add(offset);
-    viewerCamera.lookAt(viewerControls.target);
-  }
-
-  // ── Buttons ───────────────────────────────────────────────────────────────
-  const btn0 = gp.buttons[0]?.pressed || false;
-  const btn1 = gp.buttons[1]?.pressed || false;
-
-  if(btn0 && !_sm._prevBtn0) {
-    // Left button → reset view (reuse existing reset)
-    if(typeof resetView === 'function') resetView();
-  }
-  if(btn1 && !_sm._prevBtn1) {
-    // Right button → toggle part select mode
-    if(typeof togglePartMode === 'function') togglePartMode();
-  }
-  _sm._prevBtn0 = btn0;
-  _sm._prevBtn1 = btn1;
-
-  // Tell OrbitControls the camera moved so it stays in sync on next update()
-  viewerControls.update();
-}
-
 function pollGamepadButtons() {
   const cL=viewerScene?.userData.ctrlL, cR=viewerScene?.userData.ctrlR;
   if(!cL||!cR) return;
@@ -4629,6 +4479,35 @@ function _buildViewer(fileId, name, myToken) { function initViewer(fileId){
   fillLight.position.set(Math.cos(_el1)*Math.sin(_az1)*6,Math.sin(_el1)*6,Math.cos(_el1)*Math.cos(_az1)*6);
   fillLight.castShadow=false;
   viewerScene.add(fillLight);
+
+  // Environment map — prevents metals from going pitch black (no reflections = black for metalness=1)
+  // Build a simple neutral studio env: top hemisphere bright, bottom dark, soft gradients
+  (function buildEnvMap(renderer, scene) {
+    try {
+      const pmrem = new THREE.PMREMGenerator(renderer);
+      pmrem.compileEquirectangularShader();
+      // Build a 16x8 equirectangular DataTexture with a neutral studio gradient
+      const w=64, h=32;
+      const data = new Uint8Array(w*h*4);
+      for(let y=0;y<h;y++){
+        for(let x=0;x<w;x++){
+          const t = y/h; // 0=top, 1=bottom
+          // Top: soft white (studio ceiling), bottom: dark grey (floor bounce)
+          const r = Math.round(t < 0.5 ? THREE.MathUtils.lerp(220,120,t*2) : THREE.MathUtils.lerp(120,60,(t-0.5)*2));
+          const g = Math.round(t < 0.5 ? THREE.MathUtils.lerp(225,125,t*2) : THREE.MathUtils.lerp(125,62,(t-0.5)*2));
+          const b = Math.round(t < 0.5 ? THREE.MathUtils.lerp(235,135,t*2) : THREE.MathUtils.lerp(135,70,(t-0.5)*2));
+          const i=(y*w+x)*4;
+          data[i]=r; data[i+1]=g; data[i+2]=b; data[i+3]=255;
+        }
+      }
+      const tex = new THREE.DataTexture(data, w, h, THREE.RGBAFormat);
+      tex.mapping = THREE.EquirectangularReflectionMapping;
+      tex.needsUpdate = true;
+      const envRT = pmrem.fromEquirectangular(tex);
+      scene.environment = envRT.texture; // affects all PBR materials, not background
+      tex.dispose(); pmrem.dispose();
+    } catch(e) { console.warn('[CAD Inspector] env map skipped:', e); }
+  })(viewerRenderer, viewerScene);
   // Floor disc — soft radial glow on floor surface (wanted back)
   (function buildFloorDisc(scene){
     const geo=new THREE.CircleGeometry(1.4,64);
@@ -4840,8 +4719,6 @@ function _buildViewer(fileId, name, myToken) { function initViewer(fileId){
       // Disable shadows in XR for performance (big GPU saving on 20MB models)
       viewerRenderer.shadowMap.enabled=false;
       pollGamepadButtons(); // all VR controls handled there
-    } else {
-      pollSpaceMouse(); // 6-DOF desktop input
     }
     updateAnnotationLabels();
     updateMeasLabels();
@@ -4849,14 +4726,6 @@ function _buildViewer(fileId, name, myToken) { function initViewer(fileId){
     updateSliceGimbals();
     if(_bboxVisible&&_bboxHelper) _updateBboxLabels();
     viewerRenderer.render(viewerScene,viewerCamera);
-  });
-
-  // SpaceMouse / gamepad connection — browser requires this listener to activate Gamepad API
-  window.addEventListener('gamepadconnected', e => {
-    const id = e.gamepad.id.toLowerCase();
-    if(id.includes('connexion') || id.includes('spacemouse') || id.includes('3dconnexion')) {
-      console.log('[CAD Inspector] SpaceMouse connected:', e.gamepad.id);
-    }
   });
 
   window.addEventListener('resize',()=>{
