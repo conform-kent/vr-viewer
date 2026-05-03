@@ -407,7 +407,16 @@ input[type=range].lp-slider::-moz-range-thumb{width:12px;height:12px;}
             <button class="tex-btn" id="zebra-h" onclick="toggleZebra('h')">≡ Horizontal</button>
             <button class="tex-btn" id="zebra-v" onclick="toggleZebra('v')">⫶ Vertical</button>
           </div>
-          <div id="zebra-off" style="display:none;"></div><!-- Slicing -->
+          <div id="zebra-off" style="display:none;"></div>
+          <div id="zebra-slider-rows" style="display:none;">
+          <div class="lp-row" style="margin-top:6px;"><span class="lp-label" style="font-size:9px;color:var(--muted)">Stripe density</span><span class="lp-val" id="zebra-size-val">12</span></div>
+          <input type="range" class="lp-slider" id="zebra-size-sl" min="3" max="40" step="1" value="12" oninput="onZebraSize(this.value)">
+          <div class="lp-row" style="margin-top:4px;"><span class="lp-label" style="font-size:9px;color:var(--muted)">Rotation</span><span class="lp-val" id="zebra-rot-val">0°</span></div>
+          <input type="range" class="lp-slider" id="zebra-rot-sl" min="-90" max="90" step="1" value="0" oninput="onZebraRotation(this.value)">
+          </div>
+        </div>
+      </div>
+      <!-- Slicing -->
       <div class="lp-section">
         <div class="lp-sec-head">
           <span class="lp-title" style="margin:0;flex:1;cursor:pointer;" onclick="toggleLpSection('lps-0')">Slicing</span>
@@ -435,15 +444,6 @@ input[type=range].lp-slider::-moz-range-thumb{width:12px;height:12px;}
           </div>
           <!-- Ghost model view -->
           <div id="ghost-row" class="lp-row" style="margin-top:4px;display:none;"><span class="lp-label">Ghost model view</span><label class="tog"><input type="checkbox" id="slice-ghost-tog" onchange="toggleSliceGhost(this.checked)"><span class="tog-s"></span></label></div>
-        </div>
-      </div>
-      <!-- compat -->
-          <div id="zebra-slider-rows" style="display:none;">
-          <div class="lp-row" style="margin-top:6px;"><span class="lp-label" style="font-size:9px;color:var(--muted)">Stripe density</span><span class="lp-val" id="zebra-size-val">12</span></div>
-          <input type="range" class="lp-slider" id="zebra-size-sl" min="3" max="40" step="1" value="12" oninput="onZebraSize(this.value)">
-          <div class="lp-row" style="margin-top:4px;"><span class="lp-label" style="font-size:9px;color:var(--muted)">Rotation</span><span class="lp-val" id="zebra-rot-val">0°</span></div>
-          <input type="range" class="lp-slider" id="zebra-rot-sl" min="-90" max="90" step="1" value="0" oninput="onZebraRotation(this.value)">
-          </div>
         </div>
       </div>
       <!-- Symmetry -->
@@ -2921,6 +2921,18 @@ function updateMeasEndpoint(id, endpoint, newPt) {
     const w=m.ptA.distanceTo(m.ptB);
     m.label=(w>=1?w.toFixed(3)+' m':(w*100).toFixed(1)+' cm')+' ↔';
     _orientDimMarker(m.sA,m.ptA,m.ptB); _orientDimMarker(m.sB,m.ptB,m.ptA);
+  } else if(m.color===MEAS_COL_DEPTH) {
+    // Depth: spirit-level — same Y (midpoint of raw hits), same X (rawA.x), only Z differs
+    if(endpoint==='A') { m._rawA = newPt.clone(); }
+    else               { m._rawB = newPt.clone(); }
+    const rawA = m._rawA || m.ptA;
+    const rawB = m._rawB || m.ptB;
+    const midY = (rawA.y + rawB.y) / 2;
+    m.ptA.set(rawA.x, midY, rawA.z);
+    m.ptB.set(rawA.x, midY, rawB.z);
+    const depth = Math.abs(rawA.z - rawB.z);
+    m.label=(depth>=1?depth.toFixed(3)+' m':(depth*100).toFixed(1)+' cm')+' ⟷';
+    _orientDimMarker(m.sA,m.ptA,m.ptB); _orientDimMarker(m.sB,m.ptB,m.ptA);
   } else {
     if(endpoint==='A'){ m.ptA.copy(newPt); }
     else              { m.ptB.copy(newPt); }
@@ -3220,18 +3232,22 @@ function applyExplode(t) {}
 // ════════════════════════════════════════════════════════════
 //  DESKTOP INTERACTION
 // ════════════════════════════════════════════════════════════
+let _partModeActive = false;
 function togglePartMode(){
-  // Toggle part selection mode — visual indicator only, part select always works in orbit
   const btn=document.getElementById('dm-part');
-  if(btn) btn.classList.toggle('active');
-  if(desktopMode!=='orbit') setDesktopMode('orbit');
-  deselectPart();
-  // Show hint
-  const hint=document.createElement('div');
-  hint.style.cssText="position:fixed;bottom:80px;left:50%;transform:translateX(-50%);font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);background:rgba(10,10,14,0.88);padding:6px 14px;border-radius:20px;border:1px solid rgba(200,245,66,0.3);pointer-events:none;z-index:560;";
-  hint.textContent='Click any part to select and measure its volume';
-  document.body.appendChild(hint);
-  setTimeout(()=>hint.remove(),3000);
+  _partModeActive = !_partModeActive;
+  if(btn) btn.classList.toggle('active', _partModeActive);
+  if(_partModeActive){
+    if(desktopMode!=='orbit') setDesktopMode('orbit');
+    deselectPart();
+    const hint=document.createElement('div');
+    hint.style.cssText="position:fixed;bottom:80px;left:50%;transform:translateX(-50%);font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);background:rgba(10,10,14,0.88);padding:6px 14px;border-radius:20px;border:1px solid rgba(200,245,66,0.3);pointer-events:none;z-index:560;";
+    hint.textContent='Click any part to select and measure its volume';
+    document.body.appendChild(hint);
+    setTimeout(()=>hint.remove(),3000);
+  } else {
+    deselectPart();
+  }
 }
 function _syncMeasSubBtns(){
   ['height','width','depth','free'].forEach(s=>{
@@ -3310,6 +3326,11 @@ function togglePinMode(){
 }
 function setDesktopMode(mode, silent) {
   if(mode!=='measure'&&mode!=='pin') mode='orbit';
+  // Deactivate part mode when switching to measure or pin
+  if((mode==='measure'||mode==='pin') && _partModeActive) {
+    _partModeActive = false;
+    const pb=document.getElementById('dm-part'); if(pb) pb.classList.remove('active');
+  }
   desktopMode=mode;
   ['dm-orbit','dm-meas','dm-pin'].forEach(id=>{
     const b=document.getElementById(id); if(!b) return;
@@ -3454,6 +3475,25 @@ function onCanvasClick(e) {
     }
   }
 
+  // ── Part selection mode ──────────────────────────────────
+  if(_partModeActive && desktopMode==='orbit') {
+    const mouseNDC2 = new THREE.Vector2(
+      (e.clientX / window.innerWidth) * 2 - 1,
+      -(e.clientY / window.innerHeight) * 2 + 1
+    );
+    const ray2 = new THREE.Raycaster();
+    ray2.setFromCamera(mouseNDC2, viewerCamera);
+    const ms2 = [];
+    loadedModel && loadedModel.traverse(c => { if(c.isMesh) ms2.push(c); });
+    const hits2 = ray2.intersectObjects(ms2, false);
+    if(hits2.length) {
+      selectPart(hits2[0].object, e.shiftKey);
+    } else {
+      deselectPart();
+    }
+    return;
+  }
+
   // orbit is always on — only block measure/pin actions if not in those modes
   if(desktopMode!=='measure'&&desktopMode!=='pin') return;
 
@@ -3504,8 +3544,9 @@ function onCanvasClick(e) {
         const dA=new THREE.Vector3(pA.x, midY, pA.z); // start point
         const dB=new THREE.Vector3(pA.x, midY, pB.z); // end point — same X and Y, only Z differs
         const depth=Math.abs(pA.z-pB.z);
-        const lbl=(depth>=1?depth.toFixed(3)+' m':(depth*100).toFixed(1)+' cm')+' ↔';
-        _spawnMeasureLine(dA, dB, lbl, ++measureCount, MEAS_COL_DEPTH);
+        const lbl=(depth>=1?depth.toFixed(3)+' m':(depth*100).toFixed(1)+' cm')+' ⟷';
+        const depthRec=_spawnMeasureLine(dA, dB, lbl, ++measureCount, MEAS_COL_DEPTH);
+        depthRec._rawA=pA.clone(); depthRec._rawB=pB.clone();
         measureState.ptA=null;
         measureState.lineObj&&(measureState.lineObj.visible=false);
         measureState.sphereA&&(measureState.sphereA.visible=false);
@@ -4269,6 +4310,148 @@ function showScaleHUD(pct) {
   _scaleHudTimeout=setTimeout(()=>{if(el) el.style.display='none';},1200);
 }
 
+// Fit camera back to model — used by SpaceMouse left button and toolbar
+function resetView() {
+  if(!loadedModel || !viewerCamera || !viewerControls) return;
+  const box = new THREE.Box3().setFromObject(loadedModel);
+  const size = box.getSize(new THREE.Vector3());
+  const maxDim = Math.max(size.x, size.y, size.z);
+  const cent = new THREE.Vector3(0, size.y * 0.42, 0);
+  viewerCamera.position.set(maxDim * 1.15, maxDim * 0.65, maxDim * 0.95);
+  viewerCamera.lookAt(cent);
+  viewerControls.target.copy(cent);
+  viewerControls.update();
+}
+
+// ════════════════════════════════════════════════════════════
+//  Axis layout (3Dconnexion browser driver via Gamepad API):
+//    axes[0] = translate X (push left/right)
+//    axes[1] = translate Z (push forward/back)   ← note: NOT Y
+//    axes[2] = translate Y (push up/down)
+//    axes[3] = rotate X (tilt forward/back)
+//    axes[4] = rotate Y (spin left/right)
+//    axes[5] = rotate Z (roll — ignored for CAD feel)
+//  Button 0 = left button  → reset view
+//  Button 1 = right button → toggle part select
+//  CAD convention: object moves toward you, camera stays conceptually fixed.
+//  We achieve this by moving the orbit target + camera together for pan/zoom,
+//  and rotating the camera around the target for rotation — identical to how
+//  a physical SpaceMouse feels in SolidWorks / Fusion.
+// ════════════════════════════════════════════════════════════
+const _sm = {
+  deadzone: 0.04,
+  // Translation sensitivity (metres per frame per unit axis)
+  tScale: 0.004,
+  // Rotation sensitivity (radians per frame per unit axis)
+  rScale: 0.018,
+  _prevBtn0: false,
+  _prevBtn1: false,
+};
+
+function _smAxis(axes, i) {
+  const v = axes[i] ?? 0;
+  return Math.abs(v) < _sm.deadzone ? 0 : v;
+}
+
+function pollSpaceMouse() {
+  if(!viewerCamera || !viewerControls || viewerRenderer?.xr?.isPresenting) return;
+
+  // Find SpaceMouse — id contains "3Dconnexion" or "SpaceMouse" or "connexion"
+  const gps = navigator.getGamepads ? navigator.getGamepads() : [];
+  let gp = null;
+  for(const g of gps) {
+    if(!g) continue;
+    const id = g.id.toLowerCase();
+    if(id.includes('connexion') || id.includes('spacemouse') || id.includes('3dconnexion')) {
+      gp = g; break;
+    }
+  }
+  if(!gp) return;
+
+  const ax = gp.axes;
+
+  // ── Translation ──────────────────────────────────────────────────────────
+  // In CAD apps, pushing the puck right moves the object right (pan camera left).
+  // We move both camera and target together so OrbitControls stays in sync.
+  const tx = _smAxis(ax, 0);  // left/right
+  const ty = _smAxis(ax, 2);  // up/down   (axis 2 = translate Y in 3Dconnexion layout)
+  const tz = _smAxis(ax, 1);  // fwd/back  (axis 1 = translate Z, positive = push away)
+
+  if(tx || ty || tz) {
+    // Build camera-relative pan vectors (no roll — project to XY of camera)
+    const camRight = new THREE.Vector3();
+    const camUp    = new THREE.Vector3();
+    const camFwd   = new THREE.Vector3();
+    viewerCamera.matrix.extractBasis(camRight, camUp, camFwd);
+
+    // Distance from camera to target — scale pan with zoom level for consistent feel
+    const dist = viewerCamera.position.distanceTo(viewerControls.target);
+    const s = dist * _sm.tScale;
+
+    const pan = new THREE.Vector3()
+      .addScaledVector(camRight,  tx * s)   // push right → model goes right
+      .addScaledVector(camUp,    -ty * s)   // push down  → model goes down
+      .addScaledVector(camFwd,    tz * s);  // push away  → model moves away (zoom-like)
+
+    // Move camera AND target together (pure pan — no orbit change)
+    viewerCamera.position.add(pan);
+    viewerControls.target.add(pan);
+  }
+
+  // ── Rotation ─────────────────────────────────────────────────────────────
+  // Tilt/pan the puck → orbit camera around the model centre (target).
+  // CAD convention: tilt forward → model tips toward you (camera goes over top).
+  const rx = _smAxis(ax, 3);  // tilt fwd/back  → polar angle
+  const ry = _smAxis(ax, 4);  // spin left/right → azimuth
+
+  if(rx || ry) {
+    // Spherical offset from target to camera
+    const offset = viewerCamera.position.clone().sub(viewerControls.target);
+
+    // Azimuth — rotate around world Y (spin left/right)
+    if(ry) {
+      const qAz = new THREE.Quaternion().setFromAxisAngle(
+        new THREE.Vector3(0, 1, 0), -ry * _sm.rScale
+      );
+      offset.applyQuaternion(qAz);
+    }
+
+    // Polar — rotate around camera's local X axis (tilt fwd/back)
+    if(rx) {
+      const camRight2 = new THREE.Vector3().setFromMatrixColumn(viewerCamera.matrix, 0).normalize();
+      const polar = offset.length();
+      const qPol = new THREE.Quaternion().setFromAxisAngle(camRight2, rx * _sm.rScale);
+      offset.applyQuaternion(qPol);
+      // Clamp: don't flip over the poles (keep Y component from flipping)
+      const newY = viewerControls.target.y + offset.y;
+      const minY = viewerControls.target.y - polar * 0.98;
+      const maxY = viewerControls.target.y + polar * 0.98;
+      if(newY < minY || newY > maxY) offset.setFromMatrixColumn(viewerCamera.matrix, 2).negate().multiplyScalar(polar);
+    }
+
+    viewerCamera.position.copy(viewerControls.target).add(offset);
+    viewerCamera.lookAt(viewerControls.target);
+  }
+
+  // ── Buttons ───────────────────────────────────────────────────────────────
+  const btn0 = gp.buttons[0]?.pressed || false;
+  const btn1 = gp.buttons[1]?.pressed || false;
+
+  if(btn0 && !_sm._prevBtn0) {
+    // Left button → reset view (reuse existing reset)
+    if(typeof resetView === 'function') resetView();
+  }
+  if(btn1 && !_sm._prevBtn1) {
+    // Right button → toggle part select mode
+    if(typeof togglePartMode === 'function') togglePartMode();
+  }
+  _sm._prevBtn0 = btn0;
+  _sm._prevBtn1 = btn1;
+
+  // Tell OrbitControls the camera moved so it stays in sync on next update()
+  viewerControls.update();
+}
+
 function pollGamepadButtons() {
   const cL=viewerScene?.userData.ctrlL, cR=viewerScene?.userData.ctrlR;
   if(!cL||!cR) return;
@@ -4657,6 +4840,8 @@ function _buildViewer(fileId, name, myToken) { function initViewer(fileId){
       // Disable shadows in XR for performance (big GPU saving on 20MB models)
       viewerRenderer.shadowMap.enabled=false;
       pollGamepadButtons(); // all VR controls handled there
+    } else {
+      pollSpaceMouse(); // 6-DOF desktop input
     }
     updateAnnotationLabels();
     updateMeasLabels();
@@ -4664,6 +4849,14 @@ function _buildViewer(fileId, name, myToken) { function initViewer(fileId){
     updateSliceGimbals();
     if(_bboxVisible&&_bboxHelper) _updateBboxLabels();
     viewerRenderer.render(viewerScene,viewerCamera);
+  });
+
+  // SpaceMouse / gamepad connection — browser requires this listener to activate Gamepad API
+  window.addEventListener('gamepadconnected', e => {
+    const id = e.gamepad.id.toLowerCase();
+    if(id.includes('connexion') || id.includes('spacemouse') || id.includes('3dconnexion')) {
+      console.log('[CAD Inspector] SpaceMouse connected:', e.gamepad.id);
+    }
   });
 
   window.addEventListener('resize',()=>{
