@@ -407,7 +407,18 @@ input[type=range].lp-slider::-moz-range-thumb{width:12px;height:12px;}
             <button class="tex-btn" id="zebra-h" onclick="toggleZebra('h')">≡ Horizontal</button>
             <button class="tex-btn" id="zebra-v" onclick="toggleZebra('v')">⫶ Vertical</button>
           </div>
-          <div id="zebra-off" style="display:none;"></div><!-- Slicing -->
+          <div id="zebra-off" style="display:none;"></div>
+          <div id="zebra-slider-rows" style="display:none;">
+          <div class="lp-row" style="margin-top:6px;"><span class="lp-label" style="font-size:9px;color:var(--muted)">Stripe density</span><span class="lp-val" id="zebra-size-val">12</span></div>
+          <input type="range" class="lp-slider" id="zebra-size-sl" min="3" max="40" step="1" value="12" oninput="onZebraSize(this.value)">
+          <div class="lp-row" style="margin-top:4px;"><span class="lp-label" style="font-size:9px;color:var(--muted)">Rotation</span><span class="lp-val" id="zebra-rot-val">0°</span></div>
+          <input type="range" class="lp-slider" id="zebra-rot-sl" min="-90" max="90" step="1" value="0" oninput="onZebraRotation(this.value)">
+          <div class="lp-row" style="margin-top:4px;"><span class="lp-label" style="font-size:9px;color:var(--muted)">Opacity</span><span class="lp-val" id="zebra-opacity-val">82%</span></div>
+          <input type="range" class="lp-slider" id="zebra-opacity-sl" min="10" max="100" step="1" value="82" oninput="onZebraOpacity(this.value)">
+          </div>
+        </div>
+      </div>
+      <!-- Slicing -->
       <div class="lp-section">
         <div class="lp-sec-head">
           <span class="lp-title" style="margin:0;flex:1;cursor:pointer;" onclick="toggleLpSection('lps-0')">Slicing</span>
@@ -435,17 +446,6 @@ input[type=range].lp-slider::-moz-range-thumb{width:12px;height:12px;}
           </div>
           <!-- Ghost model view -->
           <div id="ghost-row" class="lp-row" style="margin-top:4px;display:none;"><span class="lp-label">Ghost model view</span><label class="tog"><input type="checkbox" id="slice-ghost-tog" onchange="toggleSliceGhost(this.checked)"><span class="tog-s"></span></label></div>
-        </div>
-      </div>
-      <!-- compat -->
-          <div id="zebra-slider-rows" style="display:none;">
-          <div class="lp-row" style="margin-top:6px;"><span class="lp-label" style="font-size:9px;color:var(--muted)">Stripe density</span><span class="lp-val" id="zebra-size-val">12</span></div>
-          <input type="range" class="lp-slider" id="zebra-size-sl" min="3" max="40" step="1" value="12" oninput="onZebraSize(this.value)">
-          <div class="lp-row" style="margin-top:4px;"><span class="lp-label" style="font-size:9px;color:var(--muted)">Rotation</span><span class="lp-val" id="zebra-rot-val">0°</span></div>
-          <input type="range" class="lp-slider" id="zebra-rot-sl" min="-90" max="90" step="1" value="0" oninput="onZebraRotation(this.value)">
-          <div class="lp-row" style="margin-top:4px;"><span class="lp-label" style="font-size:9px;color:var(--muted)">Opacity</span><span class="lp-val" id="zebra-opacity-val">82%</span></div>
-          <input type="range" class="lp-slider" id="zebra-opacity-sl" min="10" max="100" step="1" value="82" oninput="onZebraOpacity(this.value)">
-          </div>
         </div>
       </div>
       <!-- Symmetry -->
@@ -657,22 +657,10 @@ input[type=range].lp-slider::-moz-range-thumb{width:12px;height:12px;}
   <button class="pi-close" onclick="deselectPart()" title="Close (Esc)">×</button>
   <div class="pi-title">SELECTED PART</div>
   <div class="pi-name" id="pi-name">—</div>
-  <div style="height:8px;"></div>
   <div class="pi-row"><span class="pi-label">Dimensions</span><span class="pi-val" id="pi-dims">—</span></div>
   <div class="pi-row"><span class="pi-label">Volume</span><span class="pi-val" id="pi-vol-cm">—</span></div>
   <div class="pi-row"><span class="pi-label">Volume (litres)</span><span class="pi-val" id="pi-vol-l">—</span></div>
-  <div class="pi-row" id="pi-foam-row" style="display:none;">
-    <span class="pi-label">Est. foam cost</span>
-    <span class="pi-val" id="pi-foam-cost">—</span>
-  </div>
-  <div style="margin-top:8px;display:flex;align-items:center;gap:6px;">
-    <span class="pi-label" style="white-space:nowrap;">€/cl</span>
-    <input id="pi-foam-price" type="number" min="0" step="0.001" value=""
-      placeholder="price/cl"
-      style="width:70px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:5px;color:#e8e8e6;font-family:'DM Mono',monospace;font-size:10px;padding:3px 6px;outline:none;"
-      oninput="updateFoamCost()" />
-    <span class="pi-label" style="white-space:nowrap;">per cm³</span>
-  </div>
+  <div class="pi-row"><span class="pi-label">Triangles</span><span class="pi-val" id="pi-tris">—</span></div>
   <div class="pi-multi" id="pi-multi" style="display:none;"></div>
 </div>
 <!-- Right sidebar: pin comments -->
@@ -808,7 +796,7 @@ function drawFloorCone() {
 }
 
 // ── Config ───────────────────────────────────────────────────
-const THUMB_KEY = 'vr_thumb_cache_v2'; // v2: black background
+const THUMB_KEY = 'vr_thumb_cache';
 const SESSION_PREFIX = 'vr_session_';
 const config = {
   folderId: '1OtwMUU-oHisoufPNRCl4IUDT7qVR7dcG',
@@ -1221,8 +1209,8 @@ function renderGrid(models) {
       const name=model.name.replace(/\.glb$/i,'');
       const sizeMB=model.size?(model.size/1024/1024).toFixed(1)+' MB':'—';
       const card=document.createElement('div');
-      card.style.cssText='border-radius:8px;overflow:hidden;background:#000;border:1px solid rgba(255,255,255,0.1);cursor:pointer;transition:all 0.15s;aspect-ratio:1;display:flex;flex-direction:column;';
-      card.innerHTML=`<div id="tw-${model.id}" style="flex:1;min-height:0;display:flex;align-items:center;justify-content:center;background:#000;overflow:hidden;"><span style="font-size:30px;opacity:0.15">⬡</span></div><div style="padding:8px 10px 10px;font-family:DM Mono,monospace;font-size:11px;color:var(--text);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border-top:1px solid rgba(255,255,255,0.07);">${name}<span style="display:block;color:var(--muted);font-size:9px;margin-top:2px;">${sizeMB}</span></div>`;
+      card.style.cssText='border-radius:8px;overflow:hidden;background:#000;border:1px solid rgba(255,255,255,0.08);cursor:pointer;transition:all 0.15s;';
+      card.innerHTML=`<div id="tw-${model.id}" style="height:200px;display:flex;align-items:center;justify-content:center;background:#000;border-radius:8px 8px 0 0;overflow:hidden;"><span style="font-size:30px;opacity:0.15">⬡</span></div><div style="padding:8px 10px 10px;font-family:DM Mono,monospace;font-size:11px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${name}<span style="display:block;color:var(--muted);font-size:9px;margin-top:2px;">${sizeMB}</span></div>`;
       card.onmouseenter=()=>{ card.style.borderColor='rgba(200,245,66,0.4)'; card.style.transform='translateY(-2px)'; };
       card.onmouseleave=()=>{ card.style.borderColor='rgba(255,255,255,0.08)'; card.style.transform=''; };
       card.onclick=()=>{ document.getElementById('browser-screen').style.display='none'; openViewer(model.id,name); };
@@ -1248,7 +1236,7 @@ async function renderThumb(fileId,name) {
   wrap.innerHTML=''; wrap.appendChild(cv);
   const r=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:false});
   r.setSize(300,300); r.setPixelRatio(1); r.outputEncoding=THREE.sRGBEncoding;
-  const sc=new THREE.Scene(); sc.background=new THREE.Color(0x000000); const cam=new THREE.PerspectiveCamera(45,1,0.01,1000);
+  const sc=new THREE.Scene(); sc.background=new THREE.Color(0x111114); const cam=new THREE.PerspectiveCamera(45,1,0.01,1000);
   sc.add(new THREE.AmbientLight(0xffffff,0.7));
   const d=new THREE.DirectionalLight(0xffffff,1.2); d.position.set(2,4,3); sc.add(d);
   const glbUrl=`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media&key=${config.apiKey}`;
@@ -1390,40 +1378,34 @@ function _updatePartInfoPanel() {
     const size = box.getSize(new THREE.Vector3());
     const volM3 = _computeMeshVolume(mesh);
     const vf = _formatVolume(volM3);
+    const tris = mesh.geometry.index
+      ? mesh.geometry.index.count / 3
+      : mesh.geometry.attributes.position.count / 3;
     document.getElementById('pi-name').textContent = name;
     document.getElementById('pi-dims').textContent =
       `${(size.x*100).toFixed(1)} × ${(size.y*100).toFixed(1)} × ${(size.z*100).toFixed(1)} cm`;
     document.getElementById('pi-vol-cm').textContent = vf.cm3;
     document.getElementById('pi-vol-l').textContent = vf.litres;
+    document.getElementById('pi-tris').textContent = Math.round(tris).toLocaleString();
     const multiEl = document.getElementById('pi-multi');
     if(multiEl) { multiEl.style.display = 'none'; }
   } else {
+    // Multi-select: show combined volume
+    const names = _selectedParts.map(p => _getMeshName(p.mesh));
     document.getElementById('pi-name').textContent = `${_selectedParts.length} parts selected`;
     const totalVol = _selectedParts.reduce((sum, p) => sum + _computeMeshVolume(p.mesh), 0);
     const vf = _formatVolume(totalVol);
+    const totalTris = _selectedParts.reduce((sum, p) => {
+      const g = p.mesh.geometry;
+      return sum + (g.index ? g.index.count/3 : g.attributes.position.count/3);
+    }, 0);
     document.getElementById('pi-dims').textContent = '—';
     document.getElementById('pi-vol-cm').textContent = vf.cm3;
     document.getElementById('pi-vol-l').textContent = vf.litres;
+    document.getElementById('pi-tris').textContent = Math.round(totalTris).toLocaleString();
     const multiEl = document.getElementById('pi-multi');
     if(multiEl) { multiEl.style.display = 'block'; multiEl.textContent = 'Shift+click to add/remove parts'; }
   }
-  updateFoamCost();
-}
-
-function updateFoamCost() {
-  const inp = document.getElementById('pi-foam-price');
-  const costEl = document.getElementById('pi-foam-cost');
-  const row = document.getElementById('pi-foam-row');
-  if(!inp || !costEl || !row || _selectedParts.length === 0) return;
-  const pricePerCl = parseFloat(inp.value);
-  if(isNaN(pricePerCl) || pricePerCl <= 0) { row.style.display = 'none'; return; }
-  // Sum volume in m³ → convert to cl (1 m³ = 100000 cl)
-  const totalM3 = _selectedParts.reduce((sum, p) => sum + _computeMeshVolume(p.mesh), 0);
-  const totalCl = Math.abs(totalM3) * 100000;
-  const cost = totalCl * pricePerCl;
-  const fmt = cost >= 1000 ? cost.toFixed(0) : cost >= 10 ? cost.toFixed(2) : cost.toFixed(3);
-  costEl.textContent = `€${fmt}`;
-  row.style.display = 'flex';
 }
 
 // Raycast to find the mesh the user clicked
@@ -1888,7 +1870,7 @@ function onLightSlider() {
 // World-space zebra — uses ShaderMaterial overlay meshes so stripes are continuous across all parts
 let _zebraOverlayMeshes=[];
 let _zebraStripeScale=12; // stripes per metre
-let _zebraOpacity=0.82; // 0..1
+let _zebraOpacity=0.82;   // 0..1 — main overlay band alpha
 
 function setZebraMode(mode) {
   // Remove previous overlay meshes
@@ -1978,6 +1960,7 @@ function setZebraMode(mode) {
       mat.clipIntersection=false;
       mat.needsUpdate=true;
     }
+    m._zebraMain=true;
     viewerScene.add(m); _zebraOverlayMeshes.push(m);
     // If ghost is active: also add dim zebra overlay for the cut-away region
     const ghostOn=document.getElementById('slice-ghost-tog')?.checked;
@@ -2331,14 +2314,14 @@ function resetZebra(){
   var ov=document.getElementById("zebra-opacity-val");if(ov)ov.textContent="82%";
   if(zebraMode!=="off") setZebraMode(zebraMode);
 }
-function onZebraSize(val){_zebraStripeScale=parseFloat(val); const lbl=document.getElementById('zebra-size-val'); if(lbl)lbl.textContent=val; if(zebraMode!=='off')setZebraMode(zebraMode);} // kept for compat — zebra now uses ShaderMaterial
+function onZebraSize(val){_zebraStripeScale=parseFloat(val); const lbl=document.getElementById('zebra-size-val'); if(lbl)lbl.textContent=val; if(zebraMode!=='off')setZebraMode(zebraMode);}
 function onZebraOpacity(val){
   _zebraOpacity=parseFloat(val)/100;
   const lbl=document.getElementById('zebra-opacity-val'); if(lbl)lbl.textContent=val+'%';
-  // Update uniform live on all existing overlay meshes (no full rebuild needed)
+  // Update uniform live on main overlay meshes only (ghost overlays stay at fixed dim value)
   _zebraOverlayMeshes.forEach(m=>{
-    if(m.material?.uniforms?.bandAlpha && m.material.uniforms.bandAlpha.value > 0.3) {
-      m.material.uniforms.bandAlpha.value = _zebraOpacity;
+    if(m._zebraMain && m.material?.uniforms?.bandAlpha) {
+      m.material.uniforms.bandAlpha.value=_zebraOpacity;
     }
   });
 }
@@ -2826,17 +2809,17 @@ function rebuildMeasTable() {
   if(sec) sec.style.display=savedMeasurements.length?'block':'none';
   savedMeasurements.forEach((m,i)=>{
     const card=document.createElement('div'); card.className='meas-card';
+    card.style.cursor='pointer';
     const colHex='#'+(m.color||MEAS_COL_FREE).toString(16).padStart(6,'0');
     const typeIcon=m.color===MEAS_COL_HEIGHT?'↕':m.color===MEAS_COL_WIDTH?'↔':m.color===MEAS_COL_DEPTH?'⟷':'↗';
     const badge=document.createElement('span'); badge.style.cssText=`color:${colHex};font-size:10px;margin-right:3px;`; badge.textContent=typeIcon;
     const idSpan=document.createElement('span'); idSpan.className='meas-card-id'; idSpan.style.color=colHex; idSpan.textContent=`M${String(i+1).padStart(2,'0')}`;
     // Editable label — click to rename
     const lbl=document.createElement('span'); lbl.className='meas-card-lbl'; lbl.style.color=colHex; lbl.style.cursor='text'; lbl.title='Click to rename'; lbl.style.fontFamily="'DM Mono',monospace";
-    // Add pencil icon to hint that label is editable
     lbl.innerHTML=(m.customLabel?`<strong>${m.customLabel}</strong> <span style='opacity:0.5'>${m.label}</span>`:m.label)+' <span style="opacity:0.35;font-size:8px;">✎</span>';
     lbl.onclick=(ev)=>{ev.stopPropagation();
       const inp=document.createElement('input');
-      inp.value=m.customLabel||'';' // edit only the name, not the dimension' 
+      inp.value=m.customLabel||'';
       inp.style.cssText=`background:rgba(255,255,255,0.06);border:1px solid ${colHex}55;border-radius:3px;color:${colHex};font-family:'DM Mono',monospace;font-size:10px;width:100%;outline:none;padding:1px 4px;`;
       lbl.replaceWith(inp); inp.focus(); inp.select();
       inp.placeholder='Add name…';
@@ -2844,15 +2827,34 @@ function rebuildMeasTable() {
       inp.onblur=done; inp.onkeydown=e=>{if(e.key==='Enter')inp.blur();if(e.key==='Escape'){inp.blur();}};
     };
     const del=document.createElement('button'); del.className='ann-btn del'; del.textContent='✕';
-    del.onclick=()=>{showConfirm('Delete dimension '+`M${String(i+1).padStart(2,'0')}`+'?','Delete','#f54242',()=>{deleteMeasurement(m.id);});  };
+    del.onclick=(ev)=>{ev.stopPropagation();showConfirm('Delete dimension '+`M${String(i+1).padStart(2,'0')}`+'?','Delete','#f54242',()=>{deleteMeasurement(m.id);});};
+    // Click card body (not label/del) → highlight in viewport
+    card.onclick=(ev)=>{
+      if(ev.target===lbl||ev.target===del||ev.target.closest('input')) return;
+      flashMeasurement(m.id, card, colHex);
+    };
     card.appendChild(badge); card.appendChild(idSpan); card.appendChild(lbl); card.appendChild(del);
     body.appendChild(card);
   });
-  // Also update right panel visibility
   const rp=document.getElementById('right-panel');
   if(rp) rp.style.display=(annotations.length||savedMeasurements.length)?'block':'none';
 }
 
+function flashMeasurement(measId, cardEl, colHex) {
+  // Pulse the card in the sidebar
+  cardEl.style.transition='background 0.1s';
+  cardEl.style.background='rgba('+parseInt(colHex.slice(1,3),16)+','+parseInt(colHex.slice(3,5),16)+','+parseInt(colHex.slice(5,7),16)+',0.18)';
+  setTimeout(()=>{ cardEl.style.background=''; },600);
+  // Flash the 3D label: scale up then back
+  const div=measLabelDivs.get(measId); if(!div) return;
+  div.style.transition='transform 0.1s, box-shadow 0.1s';
+  div.style.transform='translate(-50%,-50%) scale(1.5)';
+  div.style.boxShadow='0 0 12px '+colHex;
+  setTimeout(()=>{
+    div.style.transform='translate(-50%,-50%) scale(1)';
+    div.style.boxShadow='none';
+  },500);
+}
 // Keep rebuildSidebar as alias so old call sites still work
 function rebuildSidebar(){ rebuildPinTable(); }
 
@@ -3253,18 +3255,22 @@ function applyExplode(t) {}
 // ════════════════════════════════════════════════════════════
 //  DESKTOP INTERACTION
 // ════════════════════════════════════════════════════════════
+let _partModeActive = false;
 function togglePartMode(){
-  // Toggle part selection mode — visual indicator only, part select always works in orbit
   const btn=document.getElementById('dm-part');
-  if(btn) btn.classList.toggle('active');
-  if(desktopMode!=='orbit') setDesktopMode('orbit');
-  deselectPart();
-  // Show hint
-  const hint=document.createElement('div');
-  hint.style.cssText="position:fixed;bottom:80px;left:50%;transform:translateX(-50%);font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);background:rgba(10,10,14,0.88);padding:6px 14px;border-radius:20px;border:1px solid rgba(200,245,66,0.3);pointer-events:none;z-index:560;";
-  hint.textContent='Click any part to select and measure its volume';
-  document.body.appendChild(hint);
-  setTimeout(()=>hint.remove(),3000);
+  _partModeActive = !_partModeActive;
+  if(btn) btn.classList.toggle('active', _partModeActive);
+  if(_partModeActive){
+    if(desktopMode!=='orbit') setDesktopMode('orbit');
+    deselectPart();
+    const hint=document.createElement('div');
+    hint.style.cssText="position:fixed;bottom:80px;left:50%;transform:translateX(-50%);font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);background:rgba(10,10,14,0.88);padding:6px 14px;border-radius:20px;border:1px solid rgba(200,245,66,0.3);pointer-events:none;z-index:560;";
+    hint.textContent='Click any part to select and measure its volume';
+    document.body.appendChild(hint);
+    setTimeout(()=>hint.remove(),3000);
+  } else {
+    deselectPart();
+  }
 }
 function _syncMeasSubBtns(){
   ['height','width','depth','free'].forEach(s=>{
@@ -3343,6 +3349,11 @@ function togglePinMode(){
 }
 function setDesktopMode(mode, silent) {
   if(mode!=='measure'&&mode!=='pin') mode='orbit';
+  // Deactivate part mode when switching to measure or pin
+  if((mode==='measure'||mode==='pin') && _partModeActive) {
+    _partModeActive=false;
+    const pb=document.getElementById('dm-part'); if(pb) pb.classList.remove('active');
+  }
   desktopMode=mode;
   ['dm-orbit','dm-meas','dm-pin'].forEach(id=>{
     const b=document.getElementById(id); if(!b) return;
@@ -3485,6 +3496,22 @@ function onCanvasClick(e) {
       openMeasPopup(sphere.userData.measId, sphere.userData.endpoint, e.clientX, e.clientY);
       return;
     }
+  }
+
+  // ── Part selection mode ──────────────────────────────────
+  if(_partModeActive && desktopMode==='orbit') {
+    const mouseNDC2 = new THREE.Vector2(
+      (e.clientX / window.innerWidth) * 2 - 1,
+      -(e.clientY / window.innerHeight) * 2 + 1
+    );
+    const ray2 = new THREE.Raycaster();
+    ray2.setFromCamera(mouseNDC2, viewerCamera);
+    const ms2 = [];
+    loadedModel && loadedModel.traverse(c => { if(c.isMesh) ms2.push(c); });
+    const hits2 = ray2.intersectObjects(ms2, false);
+    if(hits2.length) { selectPart(hits2[0].object, e.shiftKey); }
+    else { deselectPart(); }
+    return;
   }
 
   // orbit is always on — only block measure/pin actions if not in those modes
@@ -4479,34 +4506,25 @@ function _buildViewer(fileId, name, myToken) { function initViewer(fileId){
   fillLight.position.set(Math.cos(_el1)*Math.sin(_az1)*6,Math.sin(_el1)*6,Math.cos(_el1)*Math.cos(_az1)*6);
   fillLight.castShadow=false;
   viewerScene.add(fillLight);
-
-  // Environment map — prevents metals from going pitch black (no reflections = black for metalness=1)
-  // Build a simple neutral studio env: top hemisphere bright, bottom dark, soft gradients
-  (function buildEnvMap(renderer, scene) {
+  // Subtle environment map — prevents pure metals from going pitch black (they need something to reflect)
+  // Uses a very dim neutral gradient; doesn't affect ambient or directional light balance
+  (function buildMetalEnv(renderer, scene) {
     try {
       const pmrem = new THREE.PMREMGenerator(renderer);
       pmrem.compileEquirectangularShader();
-      // Build a 16x8 equirectangular DataTexture with a neutral studio gradient
-      const w=64, h=32;
-      const data = new Uint8Array(w*h*4);
-      for(let y=0;y<h;y++){
-        for(let x=0;x<w;x++){
-          const t = y/h; // 0=top, 1=bottom
-          // Top: soft white (studio ceiling), bottom: dark grey (floor bounce)
-          const r = Math.round(t < 0.5 ? THREE.MathUtils.lerp(220,120,t*2) : THREE.MathUtils.lerp(120,60,(t-0.5)*2));
-          const g = Math.round(t < 0.5 ? THREE.MathUtils.lerp(225,125,t*2) : THREE.MathUtils.lerp(125,62,(t-0.5)*2));
-          const b = Math.round(t < 0.5 ? THREE.MathUtils.lerp(235,135,t*2) : THREE.MathUtils.lerp(135,70,(t-0.5)*2));
-          const i=(y*w+x)*4;
-          data[i]=r; data[i+1]=g; data[i+2]=b; data[i+3]=255;
-        }
+      const w=32, h=16, data=new Uint8Array(w*h*4);
+      for(let y=0;y<h;y++) for(let x=0;x<w;x++){
+        const t=y/h;
+        // Very dim studio: top 80 grey, bottom 20 grey — metals get shape, not brightness
+        const v=Math.round(t<0.5?THREE.MathUtils.lerp(80,40,t*2):THREE.MathUtils.lerp(40,20,(t-0.5)*2));
+        const i=(y*w+x)*4; data[i]=v;data[i+1]=v;data[i+2]=v+4;data[i+3]=255;
       }
-      const tex = new THREE.DataTexture(data, w, h, THREE.RGBAFormat);
-      tex.mapping = THREE.EquirectangularReflectionMapping;
-      tex.needsUpdate = true;
-      const envRT = pmrem.fromEquirectangular(tex);
-      scene.environment = envRT.texture; // affects all PBR materials, not background
+      const tex=new THREE.DataTexture(data,w,h,THREE.RGBAFormat);
+      tex.mapping=THREE.EquirectangularReflectionMapping; tex.needsUpdate=true;
+      const rt=pmrem.fromEquirectangular(tex);
+      scene.environment=rt.texture; // only affects PBR materials, not scene background or lights
       tex.dispose(); pmrem.dispose();
-    } catch(e) { console.warn('[CAD Inspector] env map skipped:', e); }
+    } catch(e){console.warn('[CAD Inspector] env map skipped:',e);}
   })(viewerRenderer, viewerScene);
   // Floor disc — soft radial glow on floor surface (wanted back)
   (function buildFloorDisc(scene){
